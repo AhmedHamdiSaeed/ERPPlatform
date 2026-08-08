@@ -1,16 +1,5 @@
-/* Tailwind CSS v4 */
-@import "tailwindcss";
-
 /* Import Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-
-/* Import PrimeIcons & PrimeNG CSS */
-@import "primeicons/primeicons.css";
-
-/* Tailwind v4 Theme Configuration */
-@theme {
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-}
 
 /* Core Design System Variables */
 :root {

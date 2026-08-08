@@ -7,58 +7,7 @@ import { MOCK_TASKS } from '../../../core/mock/mock-data';
   selector: 'app-my-tasks',
   standalone: true,
   imports: [FormsModule],
-  template: `
-    <div class="space-y-6 animate-fade-in pb-8">
-      
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">My Approval Tasks Inbox</h1>
-          <p class="text-xs text-[var(--text-muted)] mt-0.5">Review, approve, reject, or request changes on pending workflow items assigned to you.</p>
-        </div>
-      </div>
-
-      <!-- Pending Tasks List -->
-      <div class="space-y-4">
-        @for (task of tasks(); track task.id) {
-          <div class="card-panel flex flex-col md:flex-row md:items-center justify-between gap-4 border-l-4 border-l-amber-500 hover:shadow-md transition-all">
-            
-            <div class="flex items-start gap-3.5">
-              <img [src]="task.requestedByAvatar" [alt]="task.requestedBy" class="w-10 h-10 rounded-full object-cover shrink-0 mt-0.5" />
-              <div>
-                <div class="flex items-center gap-2">
-                  <span class="font-mono text-[11px] font-bold text-blue-600">{{ task.taskNumber }}</span>
-                  <span class="status-badge pending">{{ task.status }}</span>
-                </div>
-                <h3 class="font-extrabold text-sm text-[var(--text-main)] mt-0.5">{{ task.details }}</h3>
-                <p class="text-xs text-[var(--text-muted)] mt-0.5">Workflow: <strong>{{ task.workflowName }}</strong> • Submitted by {{ task.requestedBy }} on {{ task.createdDate }}</p>
-              </div>
-            </div>
-
-            <!-- Actions -->
-            <div class="flex items-center gap-2 shrink-0">
-              <button (click)="approve(task.id)" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition-colors">
-                <i class="pi pi-check"></i> Approve
-              </button>
-              <button (click)="reject(task.id)" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl transition-colors">
-                <i class="pi pi-times"></i> Reject
-              </button>
-              <button (click)="requestChanges(task.id)" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs rounded-xl hover:bg-slate-200 transition-colors">
-                Changes
-              </button>
-            </div>
-
-          </div>
-        } @empty {
-          <div class="card-panel text-center py-12 text-xs text-[var(--text-muted)]">
-            <i class="pi pi-check-circle text-4xl text-emerald-500 block mb-2"></i>
-            <p class="font-bold text-slate-700 dark:text-slate-200">All caught up!</p>
-            <p>You have zero pending workflow approvals in your inbox.</p>
-          </div>
-        }
-      </div>
-
-    </div>
-  `
+  templateUrl: './my-tasks.component.html'
 })
 export class MyTasksComponent {
   tasks = signal<WorkflowTask[]>(MOCK_TASKS);

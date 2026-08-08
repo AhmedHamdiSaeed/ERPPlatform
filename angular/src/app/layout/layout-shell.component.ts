@@ -18,31 +18,7 @@ import { StateService } from '../core/services/state.service';
     AiWidgetComponent,
     PwaPromptComponent
   ],
-  template: `
-    <div class="flex h-screen overflow-hidden bg-[var(--bg-main)]">
-      
-      <!-- Sidebar -->
-      <app-sidebar />
-
-      <!-- Main Content Area -->
-      <div class="flex-1 flex flex-col min-w-0 overflow-hidden transition-all">
-        
-        <!-- Top Header Bar -->
-        <app-header />
-        
-        <!-- Scrollable Content Region -->
-        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
-          <router-outlet />
-        </main>
-      </div>
-
-    </div>
-
-    <!-- Global Overlays -->
-    <app-global-search-modal />
-    <app-ai-widget />
-    <app-pwa-prompt />
-  `
+  templateUrl: './layout-shell.component.html'
 })
 export class LayoutShellComponent {
   state = inject(StateService);

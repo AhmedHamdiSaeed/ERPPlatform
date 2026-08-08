@@ -9,78 +9,7 @@ import { MOCK_WAREHOUSES } from '../../../core/mock/mock-data';
   selector: 'app-warehouse-list',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
-  template: `
-    <div class="space-y-6 animate-fade-in pb-8">
-      
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">Warehouse & Storage Facilities</h1>
-          <p class="text-xs text-[var(--text-muted)] mt-0.5">Manage main logistics hubs, storage capacity, product allocations, and inter-facility stock transfers.</p>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <a routerLink="/inventory/transfers" class="btn-primary text-xs">
-            <i class="pi pi-sync"></i> New Stock Transfer
-          </a>
-        </div>
-      </div>
-
-      <!-- Warehouse Cards Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        @for (wh of warehouses(); track wh.id) {
-          <div class="card-panel flex flex-col justify-between hover:border-blue-500 transition-all space-y-4 group">
-            <div>
-              <div class="flex items-start justify-between">
-                <div>
-                  <span class="text-[10px] font-bold font-mono text-blue-600 uppercase">{{ wh.code }}</span>
-                  <h3 class="font-extrabold text-base text-[var(--text-main)] group-hover:text-blue-600 transition-colors">{{ wh.name }}</h3>
-                  <p class="text-xs text-[var(--text-muted)] mt-0.5"><i class="pi pi-map-marker text-[10px]"></i> {{ wh.location }}</p>
-                </div>
-                <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 flex items-center justify-center text-lg shadow-2xs">
-                  <i class="pi pi-building"></i>
-                </div>
-              </div>
-
-              <!-- Metrics -->
-              <div class="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-[var(--border-color)]">
-                <div class="p-2.5 bg-slate-50 dark:bg-slate-800 rounded-xl">
-                  <span class="text-[10px] text-slate-400 block">Total Items</span>
-                  <span class="font-black text-sm text-[var(--text-main)]">{{ wh.totalProductsCount | number }}</span>
-                </div>
-                <div class="p-2.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl">
-                  <span class="text-[10px] text-emerald-600 block">Stock Value</span>
-                  <span class="font-black text-sm text-emerald-700 dark:text-emerald-300">\${{ wh.totalStockValue | number }}</span>
-                </div>
-              </div>
-
-              <!-- Storage Capacity Bar -->
-              <div class="mt-4 space-y-1">
-                <div class="flex justify-between text-[11px]">
-                  <span class="text-slate-500 font-medium">Capacity Utilized</span>
-                  <span class="font-bold text-slate-800 dark:text-slate-200">{{ wh.capacityPercentage }}%</span>
-                </div>
-                <div class="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
-                  <div 
-                    class="h-full rounded-full transition-all" 
-                    [class.bg-blue-600]="wh.capacityPercentage < 80"
-                    [class.bg-amber-500]="wh.capacityPercentage >= 80 && wh.capacityPercentage < 90"
-                    [class.bg-rose-600]="wh.capacityPercentage >= 90"
-                    [style.width.%]="wh.capacityPercentage">
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="pt-3 border-t border-[var(--border-color)] flex items-center justify-between text-xs">
-              <span class="text-[11px] text-slate-400">Manager: <strong>{{ wh.manager }}</strong></span>
-              <a routerLink="/inventory/transfers" class="text-blue-600 font-semibold hover:underline">Transfer Stock →</a>
-            </div>
-          </div>
-        }
-      </div>
-
-    </div>
-  `
+  templateUrl: './warehouse-list.component.html'
 })
 export class WarehouseListComponent {
   warehouses = signal<Warehouse[]>(MOCK_WAREHOUSES);

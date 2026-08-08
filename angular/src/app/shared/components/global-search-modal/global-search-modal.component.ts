@@ -8,78 +8,7 @@ import { GlobalSearchService, SearchResultGroup } from '../../../core/services/g
   selector: 'app-global-search-modal',
   standalone: true,
   imports: [FormsModule],
-  template: `
-    @if (state.globalSearchOpen()) {
-      <div class="fixed inset-0 z-50 flex items-start justify-center pt-16 px-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
-        <div class="w-full max-w-2xl bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]">
-          
-          <!-- Search Input Bar -->
-          <div class="p-4 border-b border-[var(--border-color)] flex items-center gap-3 bg-slate-50/50 dark:bg-slate-900/40">
-            <i class="pi pi-search text-xl text-blue-600"></i>
-            <input 
-              type="text" 
-              [(ngModel)]="query" 
-              (ngModelChange)="onSearchChange($event)"
-              placeholder="Search employees, products, workflows, purchase orders, reports... (e.g. Ahmed)"
-              class="w-full bg-transparent border-none text-sm text-[var(--text-main)] placeholder-slate-400 focus:outline-hidden"
-              autoFocus
-            />
-            <button (click)="close()" class="px-2 py-1 text-xs font-semibold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">ESC</button>
-          </div>
-
-          <!-- Search Results List -->
-          <div class="p-4 overflow-y-auto space-y-4 flex-1">
-            @if (!query) {
-              <div class="py-8 text-center text-xs text-[var(--text-muted)] space-y-2">
-                <i class="pi pi-compass text-3xl text-slate-300 dark:text-slate-600 block mb-2"></i>
-                <p class="font-medium text-slate-600 dark:text-slate-300">Quick Global Search</p>
-                <p>Try searching for employee names, product SKUs, workflow titles, or departments.</p>
-              </div>
-            }
-
-            @if (query && results().length === 0) {
-              <div class="py-8 text-center text-xs text-[var(--text-muted)]">
-                No matching items found for "<span class="font-semibold text-[var(--text-main)]">{{ query }}</span>".
-              </div>
-            }
-
-            @for (group of results(); track group.category) {
-              <div class="space-y-2">
-                <h4 class="text-[11px] font-bold tracking-wider text-slate-400 uppercase px-2">{{ group.category }}</h4>
-                <div class="space-y-1">
-                  @for (item of group.items; track item.title) {
-                    <div 
-                      (click)="navigateTo(item.link)" 
-                      class="p-2.5 rounded-xl hover:bg-blue-50/80 dark:hover:bg-slate-800 flex items-center justify-between cursor-pointer transition-colors group">
-                      <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-blue-600 flex items-center justify-center text-sm group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                          <i [class]="'pi ' + item.icon"></i>
-                        </div>
-                        <div>
-                          <p class="text-xs font-semibold text-[var(--text-main)] group-hover:text-blue-600">{{ item.title }}</p>
-                          <p class="text-[11px] text-[var(--text-muted)]">{{ item.subtitle }}</p>
-                        </div>
-                      </div>
-                      @if (item.badge) {
-                        <span class="px-2 py-0.5 text-[10px] font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full">{{ item.badge }}</span>
-                      }
-                    </div>
-                  }
-                </div>
-              </div>
-            }
-          </div>
-
-          <!-- Footer -->
-          <div class="p-3 border-t border-[var(--border-color)] bg-slate-50 dark:bg-slate-900/60 flex items-center justify-between text-[11px] text-slate-400">
-            <span>Press <kbd class="px-1.5 py-0.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded text-slate-600 dark:text-slate-300 font-mono">ESC</kbd> to close</span>
-            <span>Tip: Use <kbd class="px-1.5 py-0.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded text-slate-600 dark:text-slate-300 font-mono">Ctrl + K</kbd> anywhere</span>
-          </div>
-
-        </div>
-      </div>
-    }
-  `
+  templateUrl: './global-search-modal.component.html'
 })
 export class GlobalSearchModalComponent {
   state = inject(StateService);
