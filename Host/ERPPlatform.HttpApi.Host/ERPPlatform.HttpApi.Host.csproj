@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <Import Project="..\..\common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <RootNamespace>ERPPlatform</RootNamespace>
+    <PreserveCompilationReferences>true</PreserveCompilationReferences>
+    <UserSecretsId>ERPPlatform-4681b4fd-151f-4221-84a4-929d86723e4c</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
+    <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
+    <PackageReference Include="Volo.Abp.AspNetCore.MultiTenancy" Version="9.3.0" />
+    <PackageReference Include="Volo.Abp.Autofac" Version="9.3.0" />
+    <PackageReference Include="Volo.Abp.AspNetCore.Serilog" Version="9.3.0" />
+    <PackageReference Include="Volo.Abp.Swashbuckle" Version="9.3.0" />
+    <PackageReference Include="Volo.Abp.Account.Web.OpenIddict" Version="9.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Shared\ERPPlatform.Application\ERPPlatform.Application.csproj" />
+    <ProjectReference Include="..\..\Shared\ERPPlatform.EntityFrameworkCore\ERPPlatform.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\..\Shared\ERPPlatform.HttpApi\ERPPlatform.HttpApi.csproj" />
+    <ProjectReference Include="..\..\Modules\HR\EntityFrameworkCore\ERPPlatform.Modules.HR.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\..\Modules\HR\HttpApi\ERPPlatform.Modules.HR.HttpApi.csproj" />
+    <ProjectReference Include="..\..\Modules\Inventory\EntityFrameworkCore\ERPPlatform.Modules.Inventory.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\..\Modules\Inventory\HttpApi\ERPPlatform.Modules.Inventory.HttpApi.csproj" />
+    <ProjectReference Include="..\..\Modules\Workflow\EntityFrameworkCore\ERPPlatform.Modules.Workflow.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\..\Modules\Workflow\HttpApi\ERPPlatform.Modules.Workflow.HttpApi.csproj" />
+    <ProjectReference Include="..\..\Modules\AI\EntityFrameworkCore\ERPPlatform.Modules.AI.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\..\Modules\AI\HttpApi\ERPPlatform.Modules.AI.HttpApi.csproj" />
+    <ProjectReference Include="..\..\Dapper\Queries\ERPPlatform.Dapper.Queries.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Logs\**" />
+    <Content Remove="Logs\**" />
+    <EmbeddedResource Remove="Logs\**" />
+    <None Remove="Logs\**" />
+  </ItemGroup>
+
+</Project>

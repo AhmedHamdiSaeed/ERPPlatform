@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <RootNamespace>ERPPlatform.Dapper.Queries</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.1.35" />
+    <ProjectReference Include="..\..\Shared\ERPPlatform.EntityFrameworkCore\ERPPlatform.EntityFrameworkCore.csproj" />
+  </ItemGroup>
+
+</Project>

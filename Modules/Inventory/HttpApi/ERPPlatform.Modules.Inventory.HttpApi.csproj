@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\..\common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <RootNamespace>ERPPlatform.Modules.Inventory</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Application\ERPPlatform.Modules.Inventory.Application.csproj" />
+    <ProjectReference Include="..\..\..\Shared\ERPPlatform.HttpApi\ERPPlatform.HttpApi.csproj" />
+  </ItemGroup>
+
+</Project>

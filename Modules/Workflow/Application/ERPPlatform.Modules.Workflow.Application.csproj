@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\..\common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <RootNamespace>ERPPlatform.Modules.Workflow</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Domain\ERPPlatform.Modules.Workflow.Domain.csproj" />
+    <ProjectReference Include="..\..\..\Shared\ERPPlatform.Application\ERPPlatform.Application.csproj" />
+  </ItemGroup>
+
+</Project>

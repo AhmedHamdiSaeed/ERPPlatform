@@ -1,0 +1,49 @@
+<Solution>
+  <Folder Name="/Shared/">
+    <Project Path="Shared/ERPPlatform.Application.Contracts/ERPPlatform.Application.Contracts.csproj" />
+    <Project Path="Shared/ERPPlatform.Application/ERPPlatform.Application.csproj" />
+    <Project Path="Shared/ERPPlatform.DbMigrator/ERPPlatform.DbMigrator.csproj" />
+    <Project Path="Shared/ERPPlatform.Domain.Shared/ERPPlatform.Domain.Shared.csproj" />
+    <Project Path="Shared/ERPPlatform.Domain/ERPPlatform.Domain.csproj" />
+    <Project Path="Shared/ERPPlatform.EntityFrameworkCore/ERPPlatform.EntityFrameworkCore.csproj" />
+    <Project Path="Shared/ERPPlatform.HttpApi.Client/ERPPlatform.HttpApi.Client.csproj" />
+    <Project Path="Shared/ERPPlatform.HttpApi/ERPPlatform.HttpApi.csproj" />
+  </Folder>
+  <Folder Name="/Host/">
+    <Project Path="Host/ERPPlatform.HttpApi.Host/ERPPlatform.HttpApi.Host.csproj" />
+  </Folder>
+  <Folder Name="/Modules/HR/">
+    <Project Path="Modules/HR/Domain/ERPPlatform.Modules.HR.Domain.csproj" />
+    <Project Path="Modules/HR/Application/ERPPlatform.Modules.HR.Application.csproj" />
+    <Project Path="Modules/HR/EntityFrameworkCore/ERPPlatform.Modules.HR.EntityFrameworkCore.csproj" />
+    <Project Path="Modules/HR/HttpApi/ERPPlatform.Modules.HR.HttpApi.csproj" />
+  </Folder>
+  <Folder Name="/Modules/Inventory/">
+    <Project Path="Modules/Inventory/Domain/ERPPlatform.Modules.Inventory.Domain.csproj" />
+    <Project Path="Modules/Inventory/Application/ERPPlatform.Modules.Inventory.Application.csproj" />
+    <Project Path="Modules/Inventory/EntityFrameworkCore/ERPPlatform.Modules.Inventory.EntityFrameworkCore.csproj" />
+    <Project Path="Modules/Inventory/HttpApi/ERPPlatform.Modules.Inventory.HttpApi.csproj" />
+  </Folder>
+  <Folder Name="/Modules/Workflow/">
+    <Project Path="Modules/Workflow/Domain/ERPPlatform.Modules.Workflow.Domain.csproj" />
+    <Project Path="Modules/Workflow/Application/ERPPlatform.Modules.Workflow.Application.csproj" />
+    <Project Path="Modules/Workflow/EntityFrameworkCore/ERPPlatform.Modules.Workflow.EntityFrameworkCore.csproj" />
+    <Project Path="Modules/Workflow/HttpApi/ERPPlatform.Modules.Workflow.HttpApi.csproj" />
+  </Folder>
+  <Folder Name="/Modules/AI/">
+    <Project Path="Modules/AI/Domain/ERPPlatform.Modules.AI.Domain.csproj" />
+    <Project Path="Modules/AI/Application/ERPPlatform.Modules.AI.Application.csproj" />
+    <Project Path="Modules/AI/EntityFrameworkCore/ERPPlatform.Modules.AI.EntityFrameworkCore.csproj" />
+    <Project Path="Modules/AI/HttpApi/ERPPlatform.Modules.AI.HttpApi.csproj" />
+  </Folder>
+  <Folder Name="/Dapper/">
+    <Project Path="Dapper/Queries/ERPPlatform.Dapper.Queries.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/ERPPlatform.Application.Tests/ERPPlatform.Application.Tests.csproj" />
+    <Project Path="test/ERPPlatform.Domain.Tests/ERPPlatform.Domain.Tests.csproj" />
+    <Project Path="test/ERPPlatform.EntityFrameworkCore.Tests/ERPPlatform.EntityFrameworkCore.Tests.csproj" />
+    <Project Path="test/ERPPlatform.HttpApi.Client.ConsoleTestApp/ERPPlatform.HttpApi.Client.ConsoleTestApp.csproj" />
+    <Project Path="test/ERPPlatform.TestBase/ERPPlatform.TestBase.csproj" />
+  </Folder>
+</Solution>

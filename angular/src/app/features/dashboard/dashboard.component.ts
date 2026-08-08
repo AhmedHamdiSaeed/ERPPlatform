@@ -1,0 +1,297 @@
+import { Component, inject, signal } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { StateService } from '../../core/services/state.service';
+import { AiService } from '../../core/services/ai.service';
+import { ChartModule } from 'primeng/chart';
+
+@Component({
+  selector: 'app-dashboard',
+  standalone: true,
+  imports: [RouterModule, ChartModule],
+  template: `
+    <div class="space-y-6 animate-fade-in pb-8">
+      
+      <!-- Page Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">Executive ERP Dashboard</h1>
+          <p class="text-xs text-[var(--text-muted)] mt-0.5">Real-time overview of workforce, inventory, workflows, and enterprise metrics.</p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button (click)="openAiAnalysis()" class="px-3 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold text-xs rounded-xl shadow-md hover:opacity-95 transition-opacity flex items-center gap-2 cursor-pointer">
+            <i class="pi pi-sparkles"></i>
+            <span>Explain with AI</span>
+          </button>
+          <a routerLink="/reports" class="btn-outline text-xs">
+            <i class="pi pi-download"></i> Export Summary
+          </a>
+        </div>
+      </div>
+
+      <!-- Top 4 KPI Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- KPI 1: Employees -->
+        <div class="card-panel flex items-start justify-between">
+          <div>
+            <span class="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider block">Total Employees</span>
+            <span class="text-2xl font-extrabold text-slate-900 dark:text-white mt-1 block">245</span>
+            <div class="flex items-center gap-1 text-xs text-emerald-600 font-semibold mt-2">
+              <i class="pi pi-arrow-up-right"></i>
+              <span>+8 this month</span>
+            </div>
+          </div>
+          <div class="w-11 h-11 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 flex items-center justify-center text-lg shadow-2xs">
+            <i class="pi pi-users"></i>
+          </div>
+        </div>
+
+        <!-- KPI 2: Inventory Value -->
+        <div class="card-panel flex items-start justify-between">
+          <div>
+            <span class="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider block">Inventory Value</span>
+            <span class="text-2xl font-extrabold text-slate-900 dark:text-white mt-1 block">$125,450</span>
+            <div class="flex items-center gap-1 text-xs text-emerald-600 font-semibold mt-2">
+              <i class="pi pi-arrow-up-right"></i>
+              <span>+4.5% vs last month</span>
+            </div>
+          </div>
+          <div class="w-11 h-11 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 flex items-center justify-center text-lg shadow-2xs">
+            <i class="pi pi-dollar"></i>
+          </div>
+        </div>
+
+        <!-- KPI 3: Pending Approvals -->
+        <div class="card-panel flex items-start justify-between">
+          <div>
+            <span class="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider block">Pending Approvals</span>
+            <span class="text-2xl font-extrabold text-slate-900 dark:text-white mt-1 block">18</span>
+            <div class="flex items-center gap-1 text-xs text-amber-600 font-semibold mt-2">
+              <i class="pi pi-clock"></i>
+              <span>-3 resolved today</span>
+            </div>
+          </div>
+          <div class="w-11 h-11 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 flex items-center justify-center text-lg shadow-2xs">
+            <i class="pi pi-check-square"></i>
+          </div>
+        </div>
+
+        <!-- KPI 4: Low Stock Items -->
+        <div class="card-panel flex items-start justify-between">
+          <div>
+            <span class="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider block">Low Stock Items</span>
+            <span class="text-2xl font-extrabold text-slate-900 dark:text-white mt-1 block">12</span>
+            <div class="flex items-center gap-1 text-xs text-rose-600 font-semibold mt-2">
+              <i class="pi pi-exclamation-circle"></i>
+              <span>+4 critical items</span>
+            </div>
+          </div>
+          <div class="w-11 h-11 rounded-xl bg-rose-50 dark:bg-rose-900/30 text-rose-600 flex items-center justify-center text-lg shadow-2xs">
+            <i class="pi pi-box"></i>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Charts Section -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Employee Department Distribution Chart -->
+        <div class="card-panel lg:col-span-2">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-sm font-bold text-[var(--text-main)]">Employee Distribution & Growth</h3>
+              <p class="text-xs text-[var(--text-muted)]">Headcount by department across enterprise hubs.</p>
+            </div>
+            <span class="text-xs text-blue-600 font-semibold">245 Staff</span>
+          </div>
+          <div class="h-64 flex items-center justify-center">
+            <p-chart type="bar" [data]="deptChartData" [options]="chartOptions" class="w-full h-full"></p-chart>
+          </div>
+        </div>
+
+        <!-- Workflow Status Breakdown Chart -->
+        <div class="card-panel">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-sm font-bold text-[var(--text-main)]">Workflow Execution Status</h3>
+              <p class="text-xs text-[var(--text-muted)]">Monthly SLA throughput breakdown.</p>
+            </div>
+          </div>
+          <div class="h-64 flex items-center justify-center">
+            <p-chart type="doughnut" [data]="workflowChartData" [options]="doughnutOptions" class="w-full h-full"></p-chart>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Activity Stream & Quick Modules Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Activity Stream -->
+        <div class="card-panel lg:col-span-2 space-y-3">
+          <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
+            <h3 class="text-sm font-bold text-[var(--text-main)]">Real-Time Enterprise Activity</h3>
+            <span class="text-xs text-emerald-600 font-semibold flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Live Stream
+            </span>
+          </div>
+
+          <div class="space-y-3">
+            @for (act of activities; track act.detail) {
+              <div class="flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                <div [class]="act.bg" class="w-8 h-8 rounded-full flex items-center justify-center text-xs shrink-0 mt-0.5">
+                  <i [class]="'pi ' + act.icon"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-semibold text-[var(--text-main)]">{{ act.user }} <span class="font-normal text-[var(--text-muted)]">{{ act.action }}</span></p>
+                  <p class="text-[11px] text-blue-600 font-medium truncate">{{ act.detail }}</p>
+                </div>
+                <span class="text-[10px] text-slate-400 shrink-0">{{ act.time }}</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Quick Access Modules -->
+        <div class="card-panel space-y-4">
+          <h3 class="text-sm font-bold text-[var(--text-main)] border-b border-[var(--border-color)] pb-3">Quick Actions</h3>
+          
+          <div class="space-y-2">
+            <a routerLink="/hr/employees" class="p-3 rounded-xl border border-[var(--border-color)] hover:border-blue-500 flex items-center justify-between transition-colors group">
+              <div class="flex items-center gap-3">
+                <i class="pi pi-user-plus text-blue-600 text-lg"></i>
+                <div>
+                  <span class="text-xs font-bold text-[var(--text-main)] block">Manage HR Employees</span>
+                  <span class="text-[10px] text-[var(--text-muted)]">View profiles, leave & payroll</span>
+                </div>
+              </div>
+              <i class="pi pi-arrow-right text-xs text-slate-400 group-hover:text-blue-600"></i>
+            </a>
+
+            <a routerLink="/inventory/products" class="p-3 rounded-xl border border-[var(--border-color)] hover:border-blue-500 flex items-center justify-between transition-colors group">
+              <div class="flex items-center gap-3">
+                <i class="pi pi-box text-emerald-600 text-lg"></i>
+                <div>
+                  <span class="text-xs font-bold text-[var(--text-main)] block">Inventory Catalog</span>
+                  <span class="text-[10px] text-[var(--text-muted)]">Stock levels & warehouse transfers</span>
+                </div>
+              </div>
+              <i class="pi pi-arrow-right text-xs text-slate-400 group-hover:text-blue-600"></i>
+            </a>
+
+            <a routerLink="/workflow/designer" class="p-3 rounded-xl border border-[var(--border-color)] hover:border-blue-500 flex items-center justify-between transition-colors group">
+              <div class="flex items-center gap-3">
+                <i class="pi pi-sitemap text-indigo-600 text-lg"></i>
+                <div>
+                  <span class="text-xs font-bold text-[var(--text-main)] block">Visual Workflow Designer</span>
+                  <span class="text-[10px] text-[var(--text-muted)]">Build drag & drop business nodes</span>
+                </div>
+              </div>
+              <i class="pi pi-arrow-right text-xs text-slate-400 group-hover:text-blue-600"></i>
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- AI Analysis Modal -->
+      @if (showAiModal()) {
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
+          <div class="w-full max-w-lg bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl overflow-hidden p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
+              <div class="flex items-center gap-2">
+                <i class="pi pi-sparkles text-indigo-600 text-lg"></i>
+                <h3 class="font-bold text-sm text-[var(--text-main)]">AI Dashboard Analysis</h3>
+              </div>
+              <button (click)="showAiModal.set(false)" class="text-slate-400 hover:text-slate-600">
+                <i class="pi pi-times"></i>
+              </button>
+            </div>
+
+            @if (aiLoading()) {
+              <div class="py-8 text-center text-xs text-[var(--text-muted)] space-y-2">
+                <i class="pi pi-spin pi-spinner text-2xl text-blue-600 block"></i>
+                <p>AI is analyzing real-time enterprise metrics...</p>
+              </div>
+            } @else {
+              <div class="text-xs text-[var(--text-main)] space-y-3 whitespace-pre-line leading-relaxed">
+                {{ aiSummary() }}
+              </div>
+            }
+
+            <div class="pt-3 border-t border-[var(--border-color)] text-right">
+              <button (click)="showAiModal.set(false)" class="btn-primary text-xs">Close Analysis</button>
+            </div>
+          </div>
+        </div>
+      }
+
+    </div>
+  `
+})
+export class DashboardComponent {
+  state = inject(StateService);
+  aiService = inject(AiService);
+
+  showAiModal = signal(false);
+  aiLoading = signal(false);
+  aiSummary = signal('');
+
+  // Department Bar Chart Data
+  deptChartData = {
+    labels: ['IT', 'HR', 'Finance', 'Sales', 'Logistics', 'QA', 'Support'],
+    datasets: [
+      {
+        label: 'Employee Count',
+        data: [42, 18, 24, 56, 65, 15, 25],
+        backgroundColor: '#2563eb',
+        borderRadius: 6
+      }
+    ]
+  };
+
+  // Workflow Doughnut Chart Data
+  workflowChartData = {
+    labels: ['Completed', 'Running / Pending', 'Failed'],
+    datasets: [
+      {
+        data: [82, 15, 3],
+        backgroundColor: ['#10b981', '#f59e0b', '#ef4444']
+      }
+    ]
+  };
+
+  chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false }
+    }
+  };
+
+  doughnutOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom' }
+    }
+  };
+
+  activities = [
+    { user: 'Ahmed Hamdi', action: 'created purchase order', detail: 'PO-2026-8801 for TechSupply Co. ($18,880)', time: '10 mins ago', icon: 'pi-file', bg: 'bg-blue-100 text-blue-600' },
+    { user: 'Sara Mahmoud', action: 'approved leave request for', detail: 'Mona Zaki (2 days Sick Leave)', time: '25 mins ago', icon: 'pi-check', bg: 'bg-emerald-100 text-emerald-600' },
+    { user: 'System Sentinel', action: 'detected low stock alert on', detail: 'Logitech MX Master 3S Mouse (8 left)', time: '1 hour ago', icon: 'pi-exclamation-triangle', bg: 'bg-amber-100 text-amber-600' },
+    { user: 'Omar Farouk', action: 'initiated stock transfer', detail: 'TRF-2026-002 from Central Hub to Main WH', time: '3 hours ago', icon: 'pi-sync', bg: 'bg-indigo-100 text-indigo-600' }
+  ];
+
+  openAiAnalysis() {
+    this.showAiModal.set(true);
+    this.aiLoading.set(true);
+    this.aiService.getDashboardAiAnalysis().subscribe(summary => {
+      this.aiSummary.set(summary);
+      this.aiLoading.set(false);
+    });
+  }
+}

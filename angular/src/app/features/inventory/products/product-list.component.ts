@@ -1,0 +1,153 @@
+import { Component, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Product } from '../../../core/models/erp-models';
+import { MOCK_PRODUCTS } from '../../../core/mock/mock-data';
+
+@Component({
+  selector: 'app-product-list',
+  standalone: true,
+  imports: [FormsModule],
+  template: `
+    <div class="space-y-6 animate-fade-in pb-8">
+      
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">Product Catalog & Inventory</h1>
+          <p class="text-xs text-[var(--text-muted)] mt-0.5">Manage SKUs, category classifications, pricing, stock levels, and reorder alerts.</p>
+        </div>
+
+        <button (click)="openAddModal()" class="btn-primary text-xs cursor-pointer">
+          <i class="pi pi-box"></i> Add Product
+        </button>
+      </div>
+
+      <!-- Filters -->
+      <div class="card-panel flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="relative w-full sm:w-80">
+          <i class="pi pi-search absolute left-3 top-3 text-slate-400 text-xs"></i>
+          <input 
+            type="text" 
+            [(ngModel)]="searchQuery" 
+            placeholder="Search SKU, product name or supplier..."
+            class="w-full pl-9 pr-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden"
+          />
+        </div>
+
+        <div class="flex items-center gap-2">
+          <select [(ngModel)]="statusFilter" class="px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-xl text-xs">
+            <option value="ALL">All Stock Statuses</option>
+            <option value="In Stock">In Stock</option>
+            <option value="Low Stock">Low Stock</option>
+            <option value="Out of Stock">Out of Stock</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Products Table -->
+      <div class="card-panel !p-0 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-100/70 dark:bg-slate-800/70 text-slate-500 text-[11px] font-bold uppercase">
+                <th class="p-3.5">SKU Code</th>
+                <th class="p-3.5">Product Name</th>
+                <th class="p-3.5">Category</th>
+                <th class="p-3.5">Unit Price</th>
+                <th class="p-3.5">Stock Level</th>
+                <th class="p-3.5">Warehouse</th>
+                <th class="p-3.5">Status</th>
+                <th class="p-3.5 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[var(--border-color)] text-[var(--text-main)]">
+              @for (prod of filteredProducts(); track prod.id) {
+                <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/50">
+                  <td class="p-3.5 font-mono text-[11px] font-bold text-blue-600">{{ prod.sku }}</td>
+                  <td class="p-3.5 font-bold">{{ prod.name }}</td>
+                  <td class="p-3.5 text-slate-500">{{ prod.category }}</td>
+                  <td class="p-3.5 font-black text-emerald-600">\${{ prod.price }}</td>
+                  <td class="p-3.5 font-bold">{{ prod.stock }} {{ prod.unit }}</td>
+                  <td class="p-3.5 text-slate-500">{{ prod.warehouseName }}</td>
+                  <td class="p-3.5">
+                    <span class="status-badge" [class.active]="prod.status === 'In Stock'" [class.pending]="prod.status === 'Low Stock'" [class.inactive]="prod.status === 'Out of Stock'">
+                      {{ prod.status }}
+                    </span>
+                  </td>
+                  <td class="p-3.5 text-right space-x-1">
+                    <button (click)="openAdjustStock(prod)" class="px-2 py-1 bg-blue-50 text-blue-600 dark:bg-slate-800 font-semibold rounded hover:bg-blue-100">Adjust Stock</button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Adjust Stock Modal -->
+      @if (adjustProduct()) {
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
+          <div class="w-full max-w-sm bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-6 space-y-4 shadow-2xl">
+            <h3 class="font-bold text-sm text-[var(--text-main)]">Adjust Stock: {{ adjustProduct()?.name }}</h3>
+            <div class="space-y-3 text-xs">
+              <div>
+                <label class="font-bold block mb-1">New Stock Quantity ({{ adjustProduct()?.unit }})</label>
+                <input type="number" [(ngModel)]="newStockVal" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
+              </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+              <button (click)="adjustProduct.set(null)" class="btn-outline text-xs">Cancel</button>
+              <button (click)="saveStockAdjustment()" class="btn-primary text-xs">Save Stock</button>
+            </div>
+          </div>
+        </div>
+      }
+
+    </div>
+  `
+})
+export class ProductListComponent {
+  products = signal<Product[]>(MOCK_PRODUCTS);
+  searchQuery = '';
+  statusFilter = 'ALL';
+
+  adjustProduct = signal<Product | null>(null);
+  newStockVal = 0;
+
+  filteredProducts() {
+    return this.products().filter(p => {
+      const matchQ = !this.searchQuery || p.name.toLowerCase().includes(this.searchQuery.toLowerCase()) || p.sku.toLowerCase().includes(this.searchQuery.toLowerCase());
+      const matchS = this.statusFilter === 'ALL' || p.status === this.statusFilter;
+      return matchQ && matchS;
+    });
+  }
+
+  openAddModal() {
+    const newP: Product = {
+      id: `prod-${Date.now()}`,
+      sku: `PRD-NEW-00${Math.floor(Math.random()*90)}`,
+      name: 'Wireless Ergonomic Mechanical Keyboard',
+      category: 'Electronics',
+      price: 180,
+      stock: 25,
+      reorderLevel: 5,
+      unit: 'pcs',
+      warehouseName: 'Main Warehouse',
+      status: 'In Stock',
+      supplierName: 'TechSupply Co.'
+    };
+    this.products.update(list => [newP, ...list]);
+  }
+
+  openAdjustStock(p: Product) {
+    this.adjustProduct.set(p);
+    this.newStockVal = p.stock;
+  }
+
+  saveStockAdjustment() {
+    const target = this.adjustProduct();
+    if (!target) return;
+    const nextStatus = this.newStockVal === 0 ? 'Out of Stock' : (this.newStockVal <= target.reorderLevel ? 'Low Stock' : 'In Stock');
+    this.products.update(list => list.map(p => p.id === target.id ? { ...p, stock: this.newStockVal, status: nextStatus } : p));
+    this.adjustProduct.set(null);
+  }
+}
