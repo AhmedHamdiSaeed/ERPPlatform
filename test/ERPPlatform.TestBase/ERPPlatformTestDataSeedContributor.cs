@@ -1,15 +1,15 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
 
-namespace ERPPlatform;
-
-public class ERPPlatformTestDataSeedContributor : IDataSeedContributor, ITransientDependency
+namespace ERPPlatform
 {
-    public Task SeedAsync(DataSeedContext context)
+    public class ERPPlatformTestDataSeedContributor : IDataSeedContributor, ITransientDependency
     {
-        /* Seed additional test data... */
-
-        return Task.CompletedTask;
+        public Task SeedAsync(DataSeedContext context)
+        {
+            /* Seed test data when needed */
+            return Task.CompletedTask;
+        }
     }
 }

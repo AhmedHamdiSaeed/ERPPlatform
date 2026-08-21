@@ -10,13 +10,21 @@ using Volo.Abp.Modularity;
 using Volo.Abp.PermissionManagement;
 using Volo.Abp.SettingManagement;
 using Volo.Abp.Uow;
+using ERPPlatform.Modules.HR.Application;
+using ERPPlatform.Modules.Inventory.Application;
+using ERPPlatform.Modules.Workflow.Application;
+using ERPPlatform.Modules.AI.Application;
 
 namespace ERPPlatform.EntityFrameworkCore;
 
 [DependsOn(
     typeof(ERPPlatformApplicationTestModule),
     typeof(ERPPlatformEntityFrameworkCoreModule),
-    typeof(AbpEntityFrameworkCoreSqliteModule)
+    typeof(AbpEntityFrameworkCoreSqliteModule),
+    typeof(HRApplicationModule),
+    typeof(InventoryApplicationModule),
+    typeof(WorkflowApplicationModule),
+    typeof(AIApplicationModule)
     )]
 public class ERPPlatformEntityFrameworkCoreTestModule : AbpModule
 {

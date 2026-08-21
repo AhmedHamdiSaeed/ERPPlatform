@@ -1,0 +1,41 @@
+<div aria-live="polite" aria-atomic="true" class="fixed top-5 right-5 z-50 flex flex-col gap-3 max-w-sm w-full pointer-events-none px-4 sm:px-0">
+  @for (toast of toastService.toasts(); track toast.id) {
+    <div 
+      role="alert"
+      class="pointer-events-auto flex items-start gap-3 p-4 rounded-2xl shadow-xl border border-[var(--border-color)] bg-[var(--bg-card)] text-[var(--text-main)] animate-fade-in transition-all group overflow-hidden"
+      [class.border-l-4]="true"
+      [class.border-l-emerald-500]="toast.type === 'success'"
+      [class.border-l-rose-500]="toast.type === 'error'"
+      [class.border-l-amber-500]="toast.type === 'warning'"
+      [class.border-l-blue-500]="toast.type === 'info'">
+      
+      <!-- Icon Badge -->
+      <div 
+        class="w-8 h-8 rounded-xl flex items-center justify-center text-sm shrink-0 mt-0.5"
+        [class.bg-emerald-100]="toast.type === 'success'" [class.text-emerald-600]="toast.type === 'success'"
+        [class.bg-rose-100]="toast.type === 'error'" [class.text-rose-600]="toast.type === 'error'"
+        [class.bg-amber-100]="toast.type === 'warning'" [class.text-amber-600]="toast.type === 'warning'"
+        [class.bg-blue-100]="toast.type === 'info'" [class.text-blue-600]="toast.type === 'info'">
+        <i [class]="'pi ' + getIcon(toast.type)"></i>
+      </div>
+
+      <!-- Content -->
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center justify-between gap-2">
+          <h4 class="font-extrabold text-xs text-[var(--text-main)] truncate">{{ toast.title }}</h4>
+          <span class="text-[10px] text-slate-400 font-mono shrink-0">{{ toast.timestamp }}</span>
+        </div>
+        <p class="text-xs text-[var(--text-muted)] mt-0.5 leading-relaxed break-words">{{ toast.message }}</p>
+      </div>
+
+      <!-- Close Button -->
+      <button 
+        (click)="toastService.dismiss(toast.id)" 
+        aria-label="Close notification"
+        class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-md transition-colors">
+        <i class="pi pi-times text-xs"></i>
+      </button>
+
+    </div>
+  }
+</div>

@@ -63,6 +63,12 @@ export const appRoutes: Routes = [
         loadComponent: () => import('./features/inventory/purchase-orders/purchase-order-list.component').then(m => m.PurchaseOrderListComponent)
       },
 
+      // ─── Sales & Financials ───
+      {
+        path: 'sales/invoices',
+        loadComponent: () => import('./features/sales/sales-invoices.component').then(m => m.SalesInvoicesComponent)
+      },
+
       // ─── Workflow Engine ───
       {
         path: 'workflow/designer',

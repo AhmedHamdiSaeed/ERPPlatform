@@ -1,4 +1,5 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-pwa-prompt',
@@ -7,6 +8,7 @@ import { Component, signal } from '@angular/core';
   templateUrl: './pwa-prompt.component.html'
 })
 export class PwaPromptComponent {
+  private toast = inject(ToastService);
   showPrompt = signal(true);
 
   dismiss() {
@@ -14,7 +16,7 @@ export class PwaPromptComponent {
   }
 
   installPwa() {
-    alert('ERP Platform Progressive Web Application installed successfully!');
+    this.toast.success('ERP Platform Progressive Web Application installed successfully!', 'PWA Installed');
     this.dismiss();
   }
 }

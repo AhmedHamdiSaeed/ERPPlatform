@@ -1,7 +1,8 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AttendanceRecord } from '../../../core/models/erp-models';
 import { MOCK_ATTENDANCE } from '../../../core/mock/mock-data';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-attendance-list',
@@ -10,6 +11,8 @@ import { MOCK_ATTENDANCE } from '../../../core/mock/mock-data';
   templateUrl: './attendance-list.component.html'
 })
 export class AttendanceListComponent {
+  private toast = inject(ToastService);
+
   records = signal<AttendanceRecord[]>(MOCK_ATTENDANCE);
   statusFilter = 'ALL';
 
@@ -18,6 +21,7 @@ export class AttendanceListComponent {
   }
 
   logCheckIn() {
-    alert('Check-in logged for Ahmed Hamdi at ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    this.toast.success(`Check-in logged for Ahmed Hamdi at ${time}`, 'Attendance Logged');
   }
 }

@@ -15,6 +15,10 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Shared\ERPPlatform.Domain\ERPPlatform.Domain.csproj" />
     <ProjectReference Include="..\ERPPlatform.TestBase\ERPPlatform.TestBase.csproj" />
+    <!-- Module domain projects for domain entity unit tests -->
+    <ProjectReference Include="..\..\Modules\HR\Domain\ERPPlatform.Modules.HR.Domain.csproj" />
+    <ProjectReference Include="..\..\Modules\Inventory\Domain\ERPPlatform.Modules.Inventory.Domain.csproj" />
+    <ProjectReference Include="..\..\Modules\Workflow\Domain\ERPPlatform.Modules.Workflow.Domain.csproj" />
   </ItemGroup>
 
 </Project>

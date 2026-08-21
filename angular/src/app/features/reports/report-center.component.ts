@@ -1,8 +1,9 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common'; // Needed for pipes (number)
 import { FormsModule } from '@angular/forms';
 import { ReportDefinition } from '../../core/models/erp-models';
 import { MOCK_REPORTS } from '../../core/mock/mock-data';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-report-center',
@@ -11,6 +12,8 @@ import { MOCK_REPORTS } from '../../core/mock/mock-data';
   templateUrl: './report-center.component.html'
 })
 export class ReportCenterComponent {
+  private toast = inject(ToastService);
+
   reports = signal<ReportDefinition[]>(MOCK_REPORTS);
   categoryFilter = 'ALL';
   previewReport = signal<ReportDefinition | null>(null);
@@ -34,6 +37,6 @@ export class ReportCenterComponent {
   }
 
   exportReport(rep: ReportDefinition) {
-    alert(`Exporting "${rep.title}" as CSV... (${rep.recordCount} records)`);
+    this.toast.info(`Exporting "${rep.title}" CSV file (${rep.recordCount} records)...`, 'Report Export');
   }
 }

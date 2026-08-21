@@ -1,7 +1,8 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { WorkflowDefinition, WorkflowNode, WorkflowConnection, WorkflowNodeType } from '../../../core/models/erp-models';
 import { MOCK_WORKFLOWS } from '../../../core/mock/mock-data';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-workflow-designer',
@@ -10,6 +11,8 @@ import { MOCK_WORKFLOWS } from '../../../core/mock/mock-data';
   templateUrl: './workflow-designer.component.html'
 })
 export class WorkflowDesignerComponent {
+  private toast = inject(ToastService);
+
   currentWorkflow = signal<WorkflowDefinition>(MOCK_WORKFLOWS[0]);
   selectedNode = signal<WorkflowNode | null>(null);
   zoomLevel = signal(100);
@@ -38,6 +41,7 @@ export class WorkflowDesignerComponent {
       ...wf,
       nodes: [...wf.nodes, newNode]
     }));
+    this.toast.info(`Added ${type} node to designer canvas.`, 'Node Added');
   }
 
   removeNode(id: string) {
@@ -63,10 +67,10 @@ export class WorkflowDesignerComponent {
   }
 
   testWorkflow() {
-    alert('Workflow test execution simulation completed successfully with 0 errors!');
+    this.toast.success('Workflow test execution simulation completed successfully with 0 errors.', 'Simulation Passed');
   }
 
   saveWorkflow() {
-    alert('Workflow definition published to ERP Engine successfully!');
+    this.toast.success('Workflow definition published to ERP Engine successfully.', 'Workflow Published');
   }
 }

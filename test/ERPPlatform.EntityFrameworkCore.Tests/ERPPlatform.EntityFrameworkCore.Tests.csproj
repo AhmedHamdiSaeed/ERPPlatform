@@ -11,6 +11,11 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Shared\ERPPlatform.EntityFrameworkCore\ERPPlatform.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\ERPPlatform.Application.Tests\ERPPlatform.Application.Tests.csproj" />
+    <!-- Module Application Projects for integration tests -->
+    <ProjectReference Include="..\..\Modules\HR\Application\ERPPlatform.Modules.HR.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\Inventory\Application\ERPPlatform.Modules.Inventory.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\Workflow\Application\ERPPlatform.Modules.Workflow.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\AI\Application\ERPPlatform.Modules.AI.Application.csproj" />
     <PackageReference Include="Volo.Abp.EntityFrameworkCore.Sqlite" Version="9.3.0" />
   </ItemGroup>
 

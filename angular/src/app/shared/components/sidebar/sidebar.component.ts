@@ -45,6 +45,14 @@ export class SidebarComponent {
       ]
     },
     {
+      label: 'Sales & Financials',
+      icon: 'pi-dollar',
+      expanded: true,
+      items: [
+        { label: 'Billing & Invoices', link: '/sales/invoices', icon: 'pi-file-pdf', badge: 'New' }
+      ]
+    },
+    {
       label: 'Workflow Engine',
       icon: 'pi-sitemap',
       expanded: true,
