@@ -226,3 +226,73 @@ export interface ReportDefinition {
   lastGenerated: string;
   recordCount: number;
 }
+
+// Finance & Accounting Models
+export interface Account {
+  id: string;
+  code: string;
+  name: string;
+  type: 'Asset' | 'Liability' | 'Equity' | 'Revenue' | 'Expense';
+  balance: number;
+  currency: string;
+  parentCode?: string;
+  isActive: boolean;
+}
+
+export interface JournalEntry {
+  id: string;
+  entryNumber: string;
+  entryDate: string;
+  description: string;
+  totalDebit: number;
+  totalCredit: number;
+  status: 'Draft' | 'Posted';
+  createdBy: string;
+}
+
+// Payroll Models
+export interface PayrollRun {
+  id: string;
+  period: string;
+  totalEmployees: number;
+  totalGrossSalary: number;
+  totalDeductions: number;
+  totalNetSalary: number;
+  status: 'Draft' | 'Processed' | 'Approved';
+  processedDate: string;
+}
+
+export interface Payslip {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  period: string;
+  baseSalary: number;
+  allowances: number;
+  deductions: number;
+  netSalary: number;
+  status: 'Paid' | 'Pending';
+}
+
+// CRM Models
+export interface Deal {
+  id: string;
+  title: string;
+  customerName: string;
+  value: number;
+  stage: 'Prospecting' | 'Qualification' | 'Proposal' | 'Negotiation' | 'Closed Won' | 'Closed Lost';
+  probability: number;
+  expectedCloseDate: string;
+  ownerName: string;
+}
+
+// Audit Trail Model
+export interface AuditLogEntry {
+  id: string;
+  entityName: string;
+  entityId: string;
+  action: 'Created' | 'Updated' | 'Deleted';
+  userName: string;
+  timestamp: string;
+  changesJson: string;
+}

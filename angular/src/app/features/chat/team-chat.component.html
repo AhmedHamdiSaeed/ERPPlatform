@@ -1,0 +1,112 @@
+<div class="h-[calc(100vh-6rem)] p-4 flex gap-4">
+  <!-- Left Sidebar: Channels & Online Users -->
+  <div class="w-80 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col overflow-hidden">
+    <!-- Header -->
+    <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+      <h2 class="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
+        <i class="pi pi-comments text-indigo-600 dark:text-indigo-400"></i> SignalR Team Chat
+      </h2>
+      <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 flex items-center gap-1">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span> Live Hub
+      </span>
+    </div>
+
+    <!-- Channels List -->
+    <div class="p-3 space-y-1 border-b border-slate-200 dark:border-slate-700">
+      <p class="text-xs font-semibold uppercase tracking-wider text-slate-400 px-2 mb-2">Team Channels</p>
+      @for (ch of signalr.channels(); track ch.name) {
+        <button 
+          (click)="selectChannel(ch.name)"
+          [class.bg-indigo-50]="activeChannel() === ch.name"
+          [class.dark:bg-indigo-950/60]="activeChannel() === ch.name"
+          [class.text-indigo-600]="activeChannel() === ch.name"
+          [class.dark:text-indigo-300]="activeChannel() === ch.name"
+          class="w-full px-3 py-2 rounded-lg text-left text-sm font-medium flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all text-slate-700 dark:text-slate-200">
+          <span class="flex items-center gap-2">
+            <i class="pi {{ ch.icon }}"></i> #{{ ch.name }}
+          </span>
+          @if (ch.unreadCount > 0) {
+            <span class="px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-rose-500 text-white">{{ ch.unreadCount }}</span>
+          }
+        </button>
+      }
+    </div>
+
+    <!-- Direct Messages / Online Presence -->
+    <div class="p-3 flex-1 overflow-y-auto space-y-1">
+      <p class="text-xs font-semibold uppercase tracking-wider text-slate-400 px-2 mb-2">Direct Messages</p>
+      @for (usr of signalr.onlineUsers(); track usr.id) {
+        <div class="px-3 py-2 rounded-lg flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700/40 cursor-pointer">
+          <div class="flex items-center gap-2">
+            <div class="relative">
+              <img [src]="usr.avatar" [alt]="usr.name" class="w-8 h-8 rounded-full object-cover">
+              <span [class.bg-emerald-500]="usr.status === 'online'" [class.bg-slate-400]="usr.status === 'offline'" class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-slate-800"></span>
+            </div>
+            <span class="text-sm font-medium text-slate-900 dark:text-white">{{ usr.name }}</span>
+          </div>
+          <span class="text-[10px] text-slate-400 uppercase font-semibold">{{ usr.status }}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Right Panel: Active Chat Room -->
+  <div class="flex-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col overflow-hidden">
+    <!-- Active Channel Banner -->
+    <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/80">
+      <div>
+        <h3 class="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
+          <i class="pi pi-hashtag text-indigo-600"></i> #{{ activeChannel() }}
+        </h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400">Real-Time SignalR Broadcast Room</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-xs text-slate-500 font-mono"><i class="pi pi-users"></i> 3 members online</span>
+      </div>
+    </div>
+
+    <!-- Messages Log View -->
+    <div class="flex-1 p-4 overflow-y-auto space-y-4">
+      @for (msg of currentMessages(); track msg.id) {
+        <div class="flex gap-3 items-start" [class.flex-row-reverse]="msg.senderId === 'usr-001'">
+          <img [src]="msg.senderAvatar" [alt]="msg.senderName" class="w-9 h-9 rounded-full object-cover mt-0.5">
+          
+          <div class="max-w-[70%]" [class.text-right]="msg.senderId === 'usr-001'">
+            <div class="flex items-center gap-2 mb-1" [class.justify-end]="msg.senderId === 'usr-001'">
+              <span class="font-bold text-xs text-slate-900 dark:text-white">{{ msg.senderName }}</span>
+              <span class="text-[10px] text-slate-400">{{ msg.timestamp }}</span>
+            </div>
+
+            <div 
+              [class.bg-indigo-600]="msg.senderId === 'usr-001'"
+              [class.text-white]="msg.senderId === 'usr-001'"
+              [class.bg-slate-100]="msg.senderId !== 'usr-001'"
+              [class.dark:bg-slate-700]="msg.senderId !== 'usr-001'"
+              [class.text-slate-800]="msg.senderId !== 'usr-001'"
+              [class.dark:text-slate-200]="msg.senderId !== 'usr-001'"
+              class="p-3 rounded-2xl text-sm shadow-sm inline-block leading-relaxed">
+              {{ msg.text }}
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Message Input Bar -->
+    <div class="p-3 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80">
+      <form (ngSubmit)="sendMessage()" class="flex items-center gap-2">
+        <input 
+          type="text" 
+          [(ngModel)]="messageInput"
+          name="chatMsg"
+          placeholder="Message #{{ activeChannel() }} (press Enter to send live via SignalR)..."
+          class="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        <button 
+          type="submit"
+          class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium text-sm transition-all shadow hover:shadow-indigo-500/25 flex items-center gap-2">
+          <i class="pi pi-send"></i> Send
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

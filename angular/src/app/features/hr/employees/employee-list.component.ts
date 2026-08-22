@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Employee } from '../../../core/models/erp-models';
-import { MOCK_EMPLOYEES } from '../../../core/mock/mock-data';
+import { HrApiService } from '../../../core/services/api/hr-api.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { DialogService } from '../../../core/services/dialog.service';
 
@@ -15,8 +15,9 @@ import { DialogService } from '../../../core/services/dialog.service';
 export class EmployeeListComponent {
   private toast = inject(ToastService);
   private dialog = inject(DialogService);
+  private hrApi = inject(HrApiService);
 
-  employees = signal<Employee[]>(MOCK_EMPLOYEES);
+  employees = signal<Employee[]>([]);
   searchQuery = '';
   statusFilter = 'ALL';
   departmentFilter = 'ALL';
@@ -25,13 +26,26 @@ export class EmployeeListComponent {
   isEditMode = false;
   currentEmp: Partial<Employee> = {};
 
+  constructor() {
+    this.loadEmployees();
+  }
+
+  async loadEmployees() {
+    try {
+      this.employees.set(await this.hrApi.getEmployees());
+    } catch (e) {
+      console.error('Failed to load employees', e);
+      this.toast.error('Could not load employees from the server.');
+    }
+  }
+
   filteredEmployees() {
     return this.employees().filter(emp => {
-      const matchQuery = !this.searchQuery || 
-        emp.name.toLowerCase().includes(this.searchQuery.toLowerCase()) || 
+      const matchQuery = !this.searchQuery ||
+        emp.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
         emp.email.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
         emp.employeeCode.toLowerCase().includes(this.searchQuery.toLowerCase());
-      
+
       const matchStatus = this.statusFilter === 'ALL' || emp.status === this.statusFilter;
       const matchDept = this.departmentFilter === 'ALL' || emp.departmentName === this.departmentFilter;
 
@@ -42,7 +56,6 @@ export class EmployeeListComponent {
   openAddModal() {
     this.isEditMode = false;
     this.currentEmp = {
-      id: `emp-${Date.now()}`,
       employeeCode: `EMP-2026-00${Math.floor(Math.random() * 90)}`,
       status: 'Active',
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
@@ -57,13 +70,19 @@ export class EmployeeListComponent {
     this.showModal.set(true);
   }
 
-  saveEmployee() {
-    if (this.isEditMode) {
-      this.employees.update(list => list.map(e => e.id === this.currentEmp.id ? { ...e, ...this.currentEmp } as Employee : e));
-      this.toast.success('Employee profile updated successfully.');
-    } else {
-      this.employees.update(list => [this.currentEmp as Employee, ...list]);
-      this.toast.success('New employee registered successfully.');
+  async saveEmployee() {
+    try {
+      if (this.isEditMode) {
+        await this.hrApi.updateEmployee(this.currentEmp.id!, this.currentEmp);
+        this.toast.success('Employee profile updated successfully.');
+      } else {
+        await this.hrApi.createEmployee(this.currentEmp);
+        this.toast.success('New employee registered successfully.');
+      }
+      await this.loadEmployees();
+    } catch (e) {
+      console.error('Failed to save employee', e);
+      this.toast.error('Failed to save the employee record.');
     }
     this.showModal.set(false);
   }
@@ -79,8 +98,14 @@ export class EmployeeListComponent {
     });
 
     if (confirmed) {
-      this.employees.update(list => list.filter(e => e.id !== id));
-      this.toast.success('Employee record deleted.');
+      try {
+        await this.hrApi.deleteEmployee(id);
+        await this.loadEmployees();
+        this.toast.success('Employee record deleted.');
+      } catch (e) {
+        console.error('Failed to delete employee', e);
+        this.toast.error('Failed to delete the employee record.');
+      }
     }
   }
 

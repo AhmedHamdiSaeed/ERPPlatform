@@ -11,7 +11,7 @@ namespace ERPPlatform.EntityFrameworkCore.Applications;
 /// Integration tests for EmployeeAppService against an in-memory SQLite database.
 /// Covers CRUD operations, filtering, and domain-level invariants.
 /// </summary>
-public class EmployeeAppServiceTests : ERPPlatformEntityFrameworkCoreTestBase<ERPPlatformEntityFrameworkCoreTestModule>
+public class EmployeeAppServiceTests : ERPPlatformEntityFrameworkCoreTestBase
 {
     private readonly IEmployeeAppService _employeeService;
 

@@ -118,4 +118,98 @@ namespace ERPPlatform.Domain.Entities
         public string Status { get; set; } = "Pending";
         public string Comments { get; set; } = string.Empty;
     }
+
+    // Finance & Accounting Entities
+    public class Account : FullAuditedAggregateRoot<Guid>
+    {
+        public string Code { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Type { get; set; } = "Asset"; // Asset, Liability, Equity, Revenue, Expense
+        public decimal Balance { get; set; }
+        public string Currency { get; set; } = "USD";
+        public string ParentCode { get; set; } = string.Empty;
+        public bool IsActive { get; set; } = true;
+    }
+
+    public class JournalEntry : FullAuditedAggregateRoot<Guid>
+    {
+        public string EntryNumber { get; set; } = string.Empty;
+        public DateTime EntryDate { get; set; } = DateTime.UtcNow;
+        public string Description { get; set; } = string.Empty;
+        public decimal TotalDebit { get; set; }
+        public decimal TotalCredit { get; set; }
+        public string Status { get; set; } = "Posted"; // Draft, Posted
+        public string CreatedBy { get; set; } = string.Empty;
+    }
+
+    // Payroll Entities
+    public class PayrollRun : FullAuditedAggregateRoot<Guid>
+    {
+        public string Period { get; set; } = string.Empty; // e.g. "August 2026"
+        public int TotalEmployees { get; set; }
+        public decimal TotalGrossSalary { get; set; }
+        public decimal TotalDeductions { get; set; }
+        public decimal TotalNetSalary { get; set; }
+        public string Status { get; set; } = "Approved"; // Draft, Processed, Approved
+        public DateTime ProcessedDate { get; set; } = DateTime.UtcNow;
+    }
+
+    public class Payslip : FullAuditedAggregateRoot<Guid>
+    {
+        public Guid EmployeeId { get; set; }
+        public string EmployeeName { get; set; } = string.Empty;
+        public string Period { get; set; } = string.Empty;
+        public decimal BaseSalary { get; set; }
+        public decimal Allowances { get; set; }
+        public decimal Deductions { get; set; }
+        public decimal NetSalary { get; set; }
+        public string Status { get; set; } = "Paid";
+    }
+
+    // CRM Entities
+    public class Deal : FullAuditedAggregateRoot<Guid>
+    {
+        public string Title { get; set; } = string.Empty;
+        public string CustomerName { get; set; } = string.Empty;
+        public decimal Value { get; set; }
+        public string Stage { get; set; } = "Prospecting"; // Prospecting, Proposal, Negotiation, Closed Won, Closed Lost
+        public int Probability { get; set; } = 20;
+        public DateTime ExpectedCloseDate { get; set; } = DateTime.UtcNow.AddDays(30);
+        public string OwnerName { get; set; } = string.Empty;
+    }
+
+    // Audit Log Entity
+    public class AuditLogEntry : FullAuditedAggregateRoot<Guid>
+    {
+        public string EntityName { get; set; } = string.Empty;
+        public string EntityId { get; set; } = string.Empty;
+        public string Action { get; set; } = "Updated"; // Created, Updated, Deleted
+        public string UserName { get; set; } = string.Empty;
+        public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+        public string ChangesJson { get; set; } = "{}";
+    }
+
+    // Real-Time Chat & Notification Entities
+    public class ChatMessage : FullAuditedAggregateRoot<Guid>
+    {
+        public string SenderId { get; set; } = string.Empty;
+        public string SenderName { get; set; } = string.Empty;
+        public string SenderAvatar { get; set; } = string.Empty;
+        public string ReceiverId { get; set; } = string.Empty;
+        public string ChannelName { get; set; } = string.Empty;
+        public string Text { get; set; } = string.Empty;
+        public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+        public bool IsRead { get; set; } = false;
+    }
+
+    public class SystemNotification : FullAuditedAggregateRoot<Guid>
+    {
+        public string UserId { get; set; } = string.Empty;
+        public string Type { get; set; } = "System"; // Workflow Approval, System, HR, Inventory, AI, Security
+        public string Title { get; set; } = string.Empty;
+        public string Message { get; set; } = string.Empty;
+        public string Link { get; set; } = string.Empty;
+        public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+        public bool IsRead { get; set; } = false;
+    }
 }

@@ -1,7 +1,8 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LeaveRequest } from '../../../core/models/erp-models';
-import { MOCK_LEAVE_REQUESTS } from '../../../core/mock/mock-data';
+import { HrApiService } from '../../../core/services/api/hr-api.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-leave-management',
@@ -10,7 +11,10 @@ import { MOCK_LEAVE_REQUESTS } from '../../../core/mock/mock-data';
   templateUrl: './leave-management.component.html'
 })
 export class LeaveManagementComponent {
-  requests = signal<LeaveRequest[]>(MOCK_LEAVE_REQUESTS);
+  private hrApi = inject(HrApiService);
+  private toast = inject(ToastService);
+
+  requests = signal<LeaveRequest[]>([]);
   showModal = signal(false);
 
   newReq: Partial<LeaveRequest> = {
@@ -20,33 +24,67 @@ export class LeaveManagementComponent {
     reason: ''
   };
 
+  constructor() {
+    this.loadRequests();
+  }
+
+  async loadRequests() {
+    try {
+      this.requests.set(await this.hrApi.getLeaveRequests());
+    } catch (e) {
+      console.error('Failed to load leave requests', e);
+      this.toast.error('Could not load leave requests from the server.');
+    }
+  }
+
   openRequestModal() {
     this.showModal.set(true);
   }
 
-  submitRequest() {
-    const item: LeaveRequest = {
-      id: `lv-${Date.now()}`,
-      employeeId: 'emp-101',
-      employeeName: 'Ahmed Hamdi',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-      leaveType: this.newReq.leaveType as any,
-      startDate: this.newReq.startDate!,
-      endDate: this.newReq.endDate!,
-      daysCount: 5,
-      reason: this.newReq.reason || 'Personal request',
-      status: 'Pending',
-      appliedDate: new Date().toISOString().split('T')[0]
-    };
-    this.requests.update(list => [item, ...list]);
+  async submitRequest() {
+    const startDate = new Date(this.newReq.startDate!);
+    const endDate = new Date(this.newReq.endDate!);
+    const daysCount = Math.max(1, Math.round((endDate.getTime() - startDate.getTime()) / 86400000) + 1);
+
+    try {
+      await this.hrApi.createLeaveRequest({
+        employeeId: '',
+        employeeName: 'Current User',
+        leaveType: this.newReq.leaveType,
+        startDate: this.newReq.startDate,
+        endDate: this.newReq.endDate,
+        daysCount,
+        reason: this.newReq.reason || 'Personal request',
+        status: 'Pending'
+      });
+      await this.loadRequests();
+      this.toast.success('Leave request submitted for approval.');
+    } catch (e) {
+      console.error('Failed to submit leave request', e);
+      this.toast.error('Failed to submit the leave request.');
+    }
     this.showModal.set(false);
   }
 
-  approve(id: string) {
-    this.requests.update(list => list.map(r => r.id === id ? { ...r, status: 'Approved' } as LeaveRequest : r));
+  async approve(id: string) {
+    try {
+      await this.hrApi.approveLeaveRequest(id);
+      await this.loadRequests();
+      this.toast.success('Leave request approved.');
+    } catch (e) {
+      console.error('Failed to approve leave request', e);
+      this.toast.error('Failed to approve the leave request.');
+    }
   }
 
-  reject(id: string) {
-    this.requests.update(list => list.map(r => r.id === id ? { ...r, status: 'Rejected' } as LeaveRequest : r));
+  async reject(id: string) {
+    try {
+      await this.hrApi.rejectLeaveRequest(id);
+      await this.loadRequests();
+      this.toast.success('Leave request rejected.');
+    } catch (e) {
+      console.error('Failed to reject leave request', e);
+      this.toast.error('Failed to reject the leave request.');
+    }
   }
 }

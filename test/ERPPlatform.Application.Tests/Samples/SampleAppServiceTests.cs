@@ -1,18 +1,21 @@
 using Shouldly;
 using System.Threading.Tasks;
 using Volo.Abp.Identity;
+using Volo.Abp.Modularity;
 using Xunit;
 
 namespace ERPPlatform.Samples;
 
 /// <summary>
-/// Verifies the base test infrastructure is functional.
+/// Base class verifying the test infrastructure is functional.
+/// Runs via EfCoreSampleAppServiceTests which supplies the EF Core module.
 /// </summary>
-public class SampleAppServiceTests : ERPPlatformApplicationTestBase<ERPPlatformApplicationTestModule>
+public abstract class SampleAppServiceTests<TStartupModule> : ERPPlatformApplicationTestBase<TStartupModule>
+    where TStartupModule : IAbpModule
 {
     private readonly IIdentityUserAppService _userAppService;
 
-    public SampleAppServiceTests()
+    protected SampleAppServiceTests()
     {
         _userAppService = GetRequiredService<IIdentityUserAppService>();
     }

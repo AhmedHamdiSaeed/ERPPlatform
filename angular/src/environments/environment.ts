@@ -1,6 +1,7 @@
 import { Environment } from '@abp/ng.core';
 
 const baseUrl = 'http://localhost:4200';
+const apiUrl = 'https://localhost:44327';
 
 export const environment = {
   production: false,
@@ -10,16 +11,16 @@ export const environment = {
     logoUrl: '',
   },
   oAuthConfig: {
-    issuer: 'https://localhost:44364/',
+    issuer: `${apiUrl}/`,
     redirectUri: baseUrl,
     clientId: 'ERPPlatform_App',
     responseType: 'code',
     scope: 'offline_access ERPPlatform',
-    requireHttps: true,
+    requireHttps: false,
   },
   apis: {
     default: {
-      url: 'https://localhost:44364',
+      url: apiUrl,
       rootNamespace: 'ERPPlatform',
     },
   },

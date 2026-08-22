@@ -11,7 +11,7 @@ namespace ERPPlatform.EntityFrameworkCore.Applications;
 /// Integration tests for ProductAppService covering CRUD operations,
 /// stock adjustment transitions, and status invariants.
 /// </summary>
-public class ProductAppServiceTests : ERPPlatformEntityFrameworkCoreTestBase<ERPPlatformEntityFrameworkCoreTestModule>
+public class ProductAppServiceTests : ERPPlatformEntityFrameworkCoreTestBase
 {
     private readonly IProductAppService _productService;
 

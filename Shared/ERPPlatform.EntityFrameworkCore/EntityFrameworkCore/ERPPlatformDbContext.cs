@@ -13,6 +13,7 @@ using Volo.Abp.SettingManagement.EntityFrameworkCore;
 using Volo.Abp.TenantManagement;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
 using ERPPlatform.Domain.Entities;
+using ERPPlatform.Documents;
 
 namespace ERPPlatform.EntityFrameworkCore;
 
@@ -52,6 +53,28 @@ public class ERPPlatformDbContext :
     // Workflow Module DbSets
     public DbSet<WorkflowDefinition> WorkflowDefinitions { get; set; }
     public DbSet<WorkflowTask> WorkflowTasks { get; set; }
+
+    // Finance Module DbSets
+    public DbSet<Account> Accounts { get; set; }
+    public DbSet<JournalEntry> JournalEntries { get; set; }
+
+    // Payroll DbSets
+    public DbSet<PayrollRun> PayrollRuns { get; set; }
+    public DbSet<Payslip> Payslips { get; set; }
+
+    // CRM DbSets
+    public DbSet<Deal> Deals { get; set; }
+
+    // Audit Log DbSets
+    public DbSet<AuditLogEntry> AuditLogEntries { get; set; }
+
+    // Real-Time Chat & Notification DbSets
+    public DbSet<ChatMessage> ChatMessages { get; set; }
+    public DbSet<SystemNotification> SystemNotifications { get; set; }
+
+    // Document Management System (DMS)
+    public DbSet<Document> Documents { get; set; }
+    public DbSet<Folder> Folders { get; set; }
 
     public ERPPlatformDbContext(DbContextOptions<ERPPlatformDbContext> options)
         : base(options)

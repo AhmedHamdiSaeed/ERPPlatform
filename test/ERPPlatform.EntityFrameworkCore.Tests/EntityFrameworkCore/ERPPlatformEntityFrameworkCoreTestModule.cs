@@ -10,10 +10,10 @@ using Volo.Abp.Modularity;
 using Volo.Abp.PermissionManagement;
 using Volo.Abp.SettingManagement;
 using Volo.Abp.Uow;
-using ERPPlatform.Modules.HR.Application;
-using ERPPlatform.Modules.Inventory.Application;
-using ERPPlatform.Modules.Workflow.Application;
-using ERPPlatform.Modules.AI.Application;
+using ERPPlatform.Modules.HR;
+using ERPPlatform.Modules.Inventory;
+using ERPPlatform.Modules.Workflow;
+using ERPPlatform.Modules.AI;
 
 namespace ERPPlatform.EntityFrameworkCore;
 

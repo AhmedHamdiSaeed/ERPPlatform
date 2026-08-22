@@ -11,7 +11,7 @@ namespace ERPPlatform.EntityFrameworkCore.Applications;
 /// Integration tests for WorkflowTaskAppService covering task lifecycle:
 /// Pending → Approved and Pending → Rejected state transitions.
 /// </summary>
-public class WorkflowTaskAppServiceTests : ERPPlatformEntityFrameworkCoreTestBase<ERPPlatformEntityFrameworkCoreTestModule>
+public class WorkflowTaskAppServiceTests : ERPPlatformEntityFrameworkCoreTestBase
 {
     private readonly IWorkflowTaskAppService _workflowTaskService;
 

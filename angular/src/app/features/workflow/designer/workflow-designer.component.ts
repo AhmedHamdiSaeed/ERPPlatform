@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { WorkflowDefinition, WorkflowNode, WorkflowConnection, WorkflowNodeType } from '../../../core/models/erp-models';
-import { MOCK_WORKFLOWS } from '../../../core/mock/mock-data';
+import { WorkflowApiService } from '../../../core/services/api/workflow-api.service';
 import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
@@ -12,8 +12,9 @@ import { ToastService } from '../../../core/services/toast.service';
 })
 export class WorkflowDesignerComponent {
   private toast = inject(ToastService);
+  private workflowApi = inject(WorkflowApiService);
 
-  currentWorkflow = signal<WorkflowDefinition>(MOCK_WORKFLOWS[0]);
+  currentWorkflow = signal<WorkflowDefinition | null>(null);
   selectedNode = signal<WorkflowNode | null>(null);
   zoomLevel = signal(100);
 
@@ -25,9 +26,27 @@ export class WorkflowDesignerComponent {
     { type: 'end' as WorkflowNodeType, title: 'End Node', desc: 'Complete workflow execution', icon: 'pi-flag-fill', bg: 'bg-slate-200 text-slate-700' }
   ];
 
+  constructor() {
+    this.loadCurrentWorkflow();
+  }
+
+  async loadCurrentWorkflow() {
+    try {
+      const defs = await this.workflowApi.getDefinitions();
+      if (defs.length > 0) {
+        this.currentWorkflow.set(defs[0]);
+      }
+    } catch (e) {
+      console.error('Failed to load workflow definitions', e);
+      this.toast.error('Could not load workflow definitions from the server.');
+    }
+  }
+
   addNode(type: WorkflowNodeType) {
+    const wf = this.currentWorkflow();
+    if (!wf) return;
     const newId = `node-${Date.now()}`;
-    const count = this.currentWorkflow().nodes.length;
+    const count = wf.nodes.length;
     const newNode: WorkflowNode = {
       id: newId,
       type: type,
@@ -37,18 +56,18 @@ export class WorkflowDesignerComponent {
       y: 100 + Math.floor(count / 3) * 150
     };
 
-    this.currentWorkflow.update(wf => ({
-      ...wf,
-      nodes: [...wf.nodes, newNode]
-    }));
+    this.currentWorkflow.update(w => w ? ({
+      ...w,
+      nodes: [...w.nodes, newNode]
+    }) : w);
     this.toast.info(`Added ${type} node to designer canvas.`, 'Node Added');
   }
 
   removeNode(id: string) {
-    this.currentWorkflow.update(wf => ({
+    this.currentWorkflow.update(wf => wf ? ({
       ...wf,
       nodes: wf.nodes.filter(n => n.id !== id)
-    }));
+    }) : wf);
     if (this.selectedNode()?.id === id) {
       this.selectedNode.set(null);
     }
@@ -70,7 +89,19 @@ export class WorkflowDesignerComponent {
     this.toast.success('Workflow test execution simulation completed successfully with 0 errors.', 'Simulation Passed');
   }
 
-  saveWorkflow() {
-    this.toast.success('Workflow definition published to ERP Engine successfully.', 'Workflow Published');
+  async saveWorkflow() {
+    const wf = this.currentWorkflow();
+    if (!wf) return;
+    try {
+      if (wf.id) {
+        await this.workflowApi.updateDefinition(wf.id, wf);
+      } else {
+        await this.workflowApi.createDefinition(wf);
+      }
+      this.toast.success('Workflow definition published to ERP Engine successfully.', 'Workflow Published');
+    } catch (e) {
+      console.error('Failed to save workflow', e);
+      this.toast.error('Failed to publish the workflow definition.', 'Publish Failed');
+    }
   }
 }

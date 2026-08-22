@@ -22,7 +22,15 @@ export class SidebarComponent {
   menu: NavGroup[] = [
     { label: 'Dashboard', icon: 'pi-home', link: '/dashboard' },
     {
-      label: 'HR Module',
+      label: 'Finance & Ledger',
+      icon: 'pi-wallet',
+      expanded: true,
+      items: [
+        { label: 'General Ledger & COA', link: '/finance/dashboard', icon: 'pi-chart-line', badge: 'New' }
+      ]
+    },
+    {
+      label: 'HR & Payroll',
       icon: 'pi-users',
       expanded: true,
       items: [
@@ -30,26 +38,29 @@ export class SidebarComponent {
         { label: 'Departments', link: '/hr/departments', icon: 'pi-building' },
         { label: 'Attendance', link: '/hr/attendance', icon: 'pi-calendar' },
         { label: 'Leave Management', link: '/hr/leave', icon: 'pi-briefcase' },
-        { label: 'Recruitment', link: '/hr/recruitment', icon: 'pi-user-plus', badge: 'New' }
+        { label: 'Payroll & Payslips', link: '/hr/payroll', icon: 'pi-dollar', badge: 'New' },
+        { label: 'Recruitment Kanban', link: '/hr/recruitment', icon: 'pi-user-plus' }
       ]
     },
     {
-      label: 'Inventory',
+      label: 'Inventory & Logistics',
       icon: 'pi-box',
       expanded: true,
       items: [
         { label: 'Products', link: '/inventory/products', icon: 'pi-list' },
         { label: 'Warehouses', link: '/inventory/warehouses', icon: 'pi-building' },
         { label: 'Stock Transfers', link: '/inventory/transfers', icon: 'pi-sync' },
-        { label: 'Purchase Orders', link: '/inventory/purchase-orders', icon: 'pi-shopping-bag' }
+        { label: 'Purchase Orders', link: '/inventory/purchase-orders', icon: 'pi-shopping-bag' },
+        { label: 'Barcode Scanner', link: '/inventory/barcode-scanner', icon: 'pi-qrcode', badge: 'PWA' }
       ]
     },
     {
-      label: 'Sales & Financials',
-      icon: 'pi-dollar',
+      label: 'Sales & CRM',
+      icon: 'pi-briefcase',
       expanded: true,
       items: [
-        { label: 'Billing & Invoices', link: '/sales/invoices', icon: 'pi-file-pdf', badge: 'New' }
+        { label: 'Billing & Invoices', link: '/sales/invoices', icon: 'pi-file-pdf' },
+        { label: 'Sales Deal Pipeline', link: '/sales/pipeline', icon: 'pi-chart-bar', badge: 'New' }
       ]
     },
     {
@@ -65,6 +76,16 @@ export class SidebarComponent {
     { label: 'AI Assistant', icon: 'pi-sparkles', link: '/ai-assistant' },
     { label: 'Reports Center', icon: 'pi-chart-bar', link: '/reports' },
     { label: 'Notifications', icon: 'pi-bell', link: '/notifications' },
-    { label: 'Settings', icon: 'pi-cog', link: '/settings' }
+    { label: 'Chat', icon: 'pi-comments', link: '/chat' },
+    { label: 'Documents', icon: 'pi-folder-open', link: '/documents' },
+    {
+      label: 'Settings & Security',
+      icon: 'pi-cog',
+      expanded: true,
+      items: [
+        { label: 'System Settings', link: '/settings', icon: 'pi-sliders-h' },
+        { label: 'Audit Trail Logs', link: '/settings/audit-trail', icon: 'pi-history', badge: 'Audit' }
+      ]
+    }
   ];
 }

@@ -8,10 +8,10 @@
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <h1 class="text-sm font-extrabold text-[var(--text-main)]">{{ currentWorkflow().name }}</h1>
-              <span class="px-2 py-0.5 text-[9px] font-bold bg-indigo-100 text-indigo-700 rounded-full">{{ currentWorkflow().version }}</span>
+              <h1 class="text-sm font-extrabold text-[var(--text-main)]">{{ currentWorkflow()?.name }}</h1>
+              <span class="px-2 py-0.5 text-[9px] font-bold bg-indigo-100 text-indigo-700 rounded-full">{{ currentWorkflow()?.version }}</span>
             </div>
-            <p class="text-[11px] text-[var(--text-muted)]">{{ currentWorkflow().description }}</p>
+            <p class="text-[11px] text-[var(--text-muted)]">{{ currentWorkflow()?.description }}</p>
           </div>
         </div>
 
@@ -66,7 +66,8 @@
           <div class="relative w-full h-[450px] transition-transform origin-top-left" [style.transform]="'scale(' + zoomLevel() / 100 + ')'">
             
             <!-- Nodes -->
-            @for (node of currentWorkflow().nodes; track node.id) {
+            @if (currentWorkflow(); as wf) {
+              @for (node of wf.nodes; track node.id) {
               <div 
                 (click)="selectedNode.set(node)"
                 [style.left.px]="node.x"
@@ -91,6 +92,12 @@
                   <span>ID: {{ node.id }}</span>
                   <span class="text-indigo-600 font-semibold">Connect →</span>
                 </div>
+              </div>
+              }
+            }
+            @else {
+              <div class="h-full flex items-center justify-center text-xs text-slate-400">
+                No workflow definitions found on the server. Add nodes and publish a new workflow.
               </div>
             }
 

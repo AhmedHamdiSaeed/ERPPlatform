@@ -1,0 +1,86 @@
+<div class="p-6 space-y-6 max-w-4xl mx-auto">
+  <!-- Header -->
+  <div>
+    <h1 class="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+      <i class="pi pi-qrcode text-indigo-600 dark:text-indigo-400"></i>
+      Barcode & QR Code Scanner
+    </h1>
+    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+      Optical Barcode Intake, Stock Transfer Verification, and Audit Verification
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Camera Viewport Card -->
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5 space-y-4">
+      <h2 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+        <i class="pi pi-camera text-indigo-500"></i> Camera Viewport
+      </h2>
+
+      <div class="relative bg-slate-900 rounded-lg overflow-hidden h-64 flex items-center justify-center border-2 border-dashed border-slate-700">
+        @if (isScanning()) {
+          <!-- Laser Animation -->
+          <div class="absolute inset-x-0 h-1 bg-rose-500 shadow-lg shadow-rose-500/50 animate-pulse"></div>
+          <p class="text-xs text-rose-400 font-mono flex items-center gap-2">
+            <i class="pi font-spin pi-spin pi-spinner"></i> Scanning optical barcode...
+          </p>
+        } @else {
+          <div class="text-center p-4">
+            <i class="pi pi-qrcode text-5xl text-slate-600 mb-2"></i>
+            <p class="text-xs text-slate-400">Align barcode or QR code within frame</p>
+          </div>
+        }
+      </div>
+
+      <button 
+        (click)="startScanner()"
+        [disabled]="isScanning()"
+        class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium text-sm transition-all shadow hover:shadow-indigo-500/25 flex items-center justify-center gap-2">
+        <i class="pi pi-play"></i> {{ isScanning() ? 'Scanning...' : 'Activate Camera Scanner' }}
+      </button>
+    </div>
+
+    <!-- Manual Lookup & Scanned Output -->
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5 space-y-4">
+      <h2 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+        <i class="pi pi-search text-indigo-500"></i> Manual SKU / Barcode Entry
+      </h2>
+
+      <div class="flex gap-2">
+        <input 
+          type="text" 
+          [(ngModel)]="manualCode"
+          placeholder="e.g. PRD-2026-001"
+          class="flex-1 px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm">
+        <button 
+          (click)="lookupManual()"
+          class="px-4 py-2 bg-slate-800 dark:bg-slate-700 text-white rounded-lg text-sm font-medium hover:bg-slate-700">
+          Lookup
+        </button>
+      </div>
+
+      <!-- Scanned Item Card -->
+      @if (scannedResult()) {
+        <div class="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 space-y-2">
+          <div class="flex justify-between items-start">
+            <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200">
+              {{ scannedResult()!.sku }}
+            </span>
+            <span class="text-xs px-2 py-0.5 rounded font-semibold bg-emerald-200 dark:bg-emerald-800 text-emerald-900 dark:text-emerald-100">
+              Verified Match
+            </span>
+          </div>
+
+          <h3 class="font-bold text-base text-slate-900 dark:text-white">{{ scannedResult()!.name }}</h3>
+          <div class="text-xs text-slate-600 dark:text-slate-300 space-y-1">
+            <p><strong>Category:</strong> {{ scannedResult()!.category }}</p>
+            <p><strong>Stock Available:</strong> {{ scannedResult()!.stock }} {{ scannedResult()!.unit }}</p>
+
+            <p><strong>Warehouse Location:</strong> {{ scannedResult()!.warehouseName }}</p>
+            <p><strong>Unit Price:</strong> ${{ scannedResult()!.price }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

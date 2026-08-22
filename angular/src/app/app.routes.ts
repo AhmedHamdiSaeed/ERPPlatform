@@ -19,6 +19,12 @@ export const appRoutes: Routes = [
         loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent)
       },
 
+      // ─── Finance Module ───
+      {
+        path: 'finance/dashboard',
+        loadComponent: () => import('./features/finance/finance-dashboard.component').then(m => m.FinanceDashboardComponent)
+      },
+
       // ─── HR Module ───
       {
         path: 'hr/employees',
@@ -39,6 +45,10 @@ export const appRoutes: Routes = [
       {
         path: 'hr/leave',
         loadComponent: () => import('./features/hr/leave/leave-management.component').then(m => m.LeaveManagementComponent)
+      },
+      {
+        path: 'hr/payroll',
+        loadComponent: () => import('./features/hr/payroll/payroll-management.component').then(m => m.PayrollManagementComponent)
       },
       {
         path: 'hr/recruitment',
@@ -62,11 +72,19 @@ export const appRoutes: Routes = [
         path: 'inventory/purchase-orders',
         loadComponent: () => import('./features/inventory/purchase-orders/purchase-order-list.component').then(m => m.PurchaseOrderListComponent)
       },
+      {
+        path: 'inventory/barcode-scanner',
+        loadComponent: () => import('./shared/components/barcode-scanner/barcode-scanner.component').then(m => m.BarcodeScannerComponent)
+      },
 
-      // ─── Sales & Financials ───
+      // ─── Sales & CRM ───
       {
         path: 'sales/invoices',
         loadComponent: () => import('./features/sales/sales-invoices.component').then(m => m.SalesInvoicesComponent)
+      },
+      {
+        path: 'sales/pipeline',
+        loadComponent: () => import('./features/sales/pipeline/sales-pipeline-kanban.component').then(m => m.SalesPipelineKanbanComponent)
       },
 
       // ─── Workflow Engine ───
@@ -98,13 +116,29 @@ export const appRoutes: Routes = [
       // ─── Notifications ───
       {
         path: 'notifications',
-        loadComponent: () => import('./features/notifications/notification-center.component').then(m => m.NotificationCenterComponent)
+        loadComponent: () => import('./features/notifications/notifications.component').then(m => m.NotificationsComponent)
       },
 
-      // ─── Settings ───
+      // ─── Chat ───
+      {
+        path: 'chat',
+        loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent)
+      },
+
+      // ─── Settings & Audit ───
       {
         path: 'settings',
         loadComponent: () => import('./features/settings/settings.component').then(m => m.SettingsComponent)
+      },
+      {
+        path: 'settings/audit-trail',
+        loadComponent: () => import('./features/settings/audit-trail/audit-trail.component').then(m => m.AuditTrailComponent)
+      },
+
+      // ─── Document Manager ───
+      {
+        path: 'documents',
+        loadComponent: () => import('./features/documents/document-manager.component').then(m => m.DocumentManagerComponent)
       },
 
       // Default redirect
@@ -115,13 +149,6 @@ export const appRoutes: Routes = [
       }
     ]
   },
-
-  // ABP built-in module routes are available when backend integration is active
-  // Uncomment when connecting to ABP backend:
-  // { path: 'account', loadChildren: () => import('@abp/ng.account').then(m => m.createRoutes()) },
-  // { path: 'identity', loadChildren: () => import('@abp/ng.identity').then(m => m.createRoutes()) },
-  // { path: 'tenant-management', loadChildren: () => import('@abp/ng.tenant-management').then(m => m.createRoutes()) },
-  // { path: 'setting-management', loadChildren: () => import('@abp/ng.setting-management').then(m => m.createRoutes()) },
 
   // Catch-all redirect
   {

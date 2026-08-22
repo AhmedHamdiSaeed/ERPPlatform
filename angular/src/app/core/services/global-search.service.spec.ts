@@ -31,7 +31,7 @@ describe('GlobalSearchService', () => {
     const results = service.search(firstEmployee.name.substring(0, 4));
     const empGroup = results.find(r => r.category === 'Employees');
     expect(empGroup).toBeDefined();
-    expect(empGroup!.items.length).toBeGreaterThanOrEqualTo(1);
+    expect(empGroup!.items.length).toBeGreaterThanOrEqual(1);
   });
 
   it('search() by employee name should map to correct link format', () => {
@@ -80,7 +80,7 @@ describe('GlobalSearchService', () => {
     const results = service.search(firstProduct.name.substring(0, 5));
     const prodGroup = results.find(r => r.category === 'Products & Inventory');
     expect(prodGroup).toBeDefined();
-    expect(prodGroup!.items.length).toBeGreaterThanOrEqualTo(1);
+    expect(prodGroup!.items.length).toBeGreaterThanOrEqual(1);
   });
 
   it('search() product result link should point to inventory/products', () => {
@@ -114,6 +114,6 @@ describe('GlobalSearchService', () => {
   it('search() with broad query should return multiple groups', () => {
     // 'a' likely matches employees, products, departments, etc.
     const results = service.search('a');
-    expect(results.length).toBeGreaterThanOrEqualTo(1);
+    expect(results.length).toBeGreaterThanOrEqual(1);
   });
 });

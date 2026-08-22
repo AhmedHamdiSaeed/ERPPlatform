@@ -1,7 +1,8 @@
 import {
   UserProfile, Employee, Department, AttendanceRecord, LeaveRequest, Candidate,
   Product, Warehouse, StockTransfer, PurchaseOrder, WorkflowDefinition,
-  WorkflowTask, WorkflowExecutionLog, NotificationItem, ReportDefinition
+  WorkflowTask, WorkflowExecutionLog, NotificationItem, ReportDefinition,
+  Account, JournalEntry, PayrollRun, Payslip, Deal, AuditLogEntry
 } from '../models/erp-models';
 
 export const CURRENT_USER: UserProfile = {
@@ -211,3 +212,47 @@ export const MOCK_REPORTS: ReportDefinition[] = [
   { id: 'rep-3', title: 'Workflow SLA & Bottleneck Analysis', category: 'Workflow', description: 'Average approval times, step durations, and execution failure rates.', lastGenerated: '2026-08-05', recordCount: 380 },
   { id: 'rep-4', title: 'Quarterly Procurement & Supplier Expenses', category: 'Financial', description: 'Total purchase order expenditures, supplier performance, and savings.', lastGenerated: '2026-07-31', recordCount: 88 }
 ];
+
+export const MOCK_ACCOUNTS: Account[] = [
+  { id: 'acc-1', code: '1010', name: 'Cash & Cash Equivalents', type: 'Asset', balance: 450000, currency: 'USD', isActive: true },
+  { id: 'acc-2', code: '1020', name: 'Accounts Receivable', type: 'Asset', balance: 185000, currency: 'USD', isActive: true },
+  { id: 'acc-3', code: '1030', name: 'Inventory Asset', type: 'Asset', balance: 375450, currency: 'USD', isActive: true },
+  { id: 'acc-4', code: '2010', name: 'Accounts Payable', type: 'Liability', balance: 120000, currency: 'USD', isActive: true },
+  { id: 'acc-5', code: '3010', name: 'Common Stock & Retained Earnings', type: 'Equity', balance: 500000, currency: 'USD', isActive: true },
+  { id: 'acc-6', code: '4010', name: 'SaaS Software Revenue', type: 'Revenue', balance: 1450000, currency: 'USD', isActive: true },
+  { id: 'acc-7', code: '5010', name: 'Salaries & Payroll Expense', type: 'Expense', balance: 620000, currency: 'USD', isActive: true },
+  { id: 'acc-8', code: '5020', name: 'Cloud Infrastructure & Hosting', type: 'Expense', balance: 180000, currency: 'USD', isActive: true }
+];
+
+export const MOCK_JOURNAL_ENTRIES: JournalEntry[] = [
+  { id: 'je-1', entryNumber: 'JE-2026-0801', entryDate: '2026-08-01', description: 'Monthly Cloud Infrastructure Hosting Fee', totalDebit: 15000, totalCredit: 15000, status: 'Posted', createdBy: 'Ahmed Hamdi' },
+  { id: 'je-2', entryNumber: 'JE-2026-0802', entryDate: '2026-08-05', description: 'Enterprise License Invoice #INV-2026-9901 Payment Received', totalDebit: 45000, totalCredit: 45000, status: 'Posted', createdBy: 'Sara Mahmoud' },
+  { id: 'je-3', entryNumber: 'JE-2026-0803', entryDate: '2026-08-10', description: 'August Monthly Payroll Salary Disbursement', totalDebit: 215000, totalCredit: 215000, status: 'Posted', createdBy: 'Finance Admin' }
+];
+
+export const MOCK_PAYROLL_RUNS: PayrollRun[] = [
+  { id: 'pay-1', period: 'August 2026', totalEmployees: 245, totalGrossSalary: 1225000, totalDeductions: 183750, totalNetSalary: 1041250, status: 'Approved', processedDate: '2026-08-20' },
+  { id: 'pay-2', period: 'July 2026', totalEmployees: 242, totalGrossSalary: 1210000, totalDeductions: 181500, totalNetSalary: 1028500, status: 'Approved', processedDate: '2026-07-20' },
+  { id: 'pay-3', period: 'June 2026', totalEmployees: 238, totalGrossSalary: 1190000, totalDeductions: 178500, totalNetSalary: 1011500, status: 'Approved', processedDate: '2026-06-20' }
+];
+
+export const MOCK_PAYSLIPS: Payslip[] = [
+  { id: 'ps-1', employeeId: 'emp-1', employeeName: 'Ahmed Hamdi', period: 'August 2026', baseSalary: 8500, allowances: 1200, deductions: 1455, netSalary: 8245, status: 'Paid' },
+  { id: 'ps-2', employeeId: 'emp-2', employeeName: 'Sara Mahmoud', period: 'August 2026', baseSalary: 9200, allowances: 1500, deductions: 1605, netSalary: 9095, status: 'Paid' },
+  { id: 'ps-3', employeeId: 'emp-3', employeeName: 'Omar Farouk', period: 'August 2026', baseSalary: 7800, allowances: 1000, deductions: 1320, netSalary: 7480, status: 'Paid' }
+];
+
+export const MOCK_DEALS: Deal[] = [
+  { id: 'deal-1', title: 'Global Logistics Cloud ERP Migration', customerName: 'Apex Transport Group', value: 185000, stage: 'Negotiation', probability: 80, expectedCloseDate: '2026-09-15', ownerName: 'John Sales' },
+  { id: 'deal-2', title: 'Healthcare System HR & Payroll Module', customerName: 'Cairo Medical Center', value: 95000, stage: 'Proposal', probability: 60, expectedCloseDate: '2026-09-30', ownerName: 'Sara Mahmoud' },
+  { id: 'deal-3', title: 'Warehouse IoT & Stock Tracking Suite', customerName: 'Nile Distribution Hub', value: 120000, stage: 'Closed Won', probability: 100, expectedCloseDate: '2026-08-10', ownerName: 'Ahmed Hamdi' },
+  { id: 'deal-4', title: 'Automotive Parts Inventory Expansion', customerName: 'AutoParts Direct', value: 65000, stage: 'Prospecting', probability: 20, expectedCloseDate: '2026-10-15', ownerName: 'Omar Farouk' }
+];
+
+export const MOCK_AUDIT_LOGS: AuditLogEntry[] = [
+  { id: 'aud-1', entityName: 'Employee', entityId: 'EMP-2026-001', action: 'Updated', userName: 'Ahmed Hamdi', timestamp: '2026-08-22 13:45:00', changesJson: '{"field": "position", "old": "Software Engineer", "new": "Senior Tech Lead"}' },
+  { id: 'aud-2', entityName: 'PurchaseOrder', entityId: 'PO-2026-8801', action: 'Created', userName: 'Omar Farouk', timestamp: '2026-08-22 12:10:00', changesJson: '{"grandTotal": 18880, "supplier": "TechSupply Co."}' },
+  { id: 'aud-3', entityName: 'StockTransfer', entityId: 'TRF-2026-002', action: 'Updated', userName: 'Sara Mahmoud', timestamp: '2026-08-22 11:30:00', changesJson: '{"status": "Completed"}' },
+  { id: 'aud-4', entityName: 'Account', entityId: '1010', action: 'Updated', userName: 'Finance Admin', timestamp: '2026-08-21 16:00:00', changesJson: '{"balance": 450000}' }
+];
+

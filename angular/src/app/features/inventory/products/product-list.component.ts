@@ -1,7 +1,8 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Product } from '../../../core/models/erp-models';
-import { MOCK_PRODUCTS } from '../../../core/mock/mock-data';
+import { InventoryApiService } from '../../../core/services/api/inventory-api.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-product-list',
@@ -10,12 +11,28 @@ import { MOCK_PRODUCTS } from '../../../core/mock/mock-data';
   templateUrl: './product-list.component.html'
 })
 export class ProductListComponent {
-  products = signal<Product[]>(MOCK_PRODUCTS);
+  private inventoryApi = inject(InventoryApiService);
+  private toast = inject(ToastService);
+
+  products = signal<Product[]>([]);
   searchQuery = '';
   statusFilter = 'ALL';
 
   adjustProduct = signal<Product | null>(null);
   newStockVal = 0;
+
+  constructor() {
+    this.loadProducts();
+  }
+
+  async loadProducts() {
+    try {
+      this.products.set(await this.inventoryApi.getProducts());
+    } catch (e) {
+      console.error('Failed to load products', e);
+      this.toast.error('Could not load products from the server.');
+    }
+  }
 
   filteredProducts() {
     return this.products().filter(p => {
@@ -25,21 +42,26 @@ export class ProductListComponent {
     });
   }
 
-  openAddModal() {
-    const newP: Product = {
-      id: `prod-${Date.now()}`,
-      sku: `PRD-NEW-00${Math.floor(Math.random()*90)}`,
-      name: 'Wireless Ergonomic Mechanical Keyboard',
-      category: 'Electronics',
-      price: 180,
-      stock: 25,
-      reorderLevel: 5,
-      unit: 'pcs',
-      warehouseName: 'Main Warehouse',
-      status: 'In Stock',
-      supplierName: 'TechSupply Co.'
-    };
-    this.products.update(list => [newP, ...list]);
+  async openAddModal() {
+    const sku = `PRD-NEW-00${Math.floor(Math.random()*90)}`;
+    try {
+      await this.inventoryApi.createProduct({
+        sku,
+        name: 'Wireless Ergonomic Mechanical Keyboard',
+        category: 'Electronics',
+        price: 180,
+        stock: 25,
+        reorderLevel: 5,
+        unit: 'pcs',
+        warehouseName: 'Main Warehouse',
+        supplierName: 'TechSupply Co.'
+      });
+      await this.loadProducts();
+      this.toast.success(`Product ${sku} added to catalog.`);
+    } catch (e) {
+      console.error('Failed to create product', e);
+      this.toast.error('Failed to create the product.');
+    }
   }
 
   openAdjustStock(p: Product) {
@@ -47,11 +69,17 @@ export class ProductListComponent {
     this.newStockVal = p.stock;
   }
 
-  saveStockAdjustment() {
+  async saveStockAdjustment() {
     const target = this.adjustProduct();
     if (!target) return;
-    const nextStatus = this.newStockVal === 0 ? 'Out of Stock' : (this.newStockVal <= target.reorderLevel ? 'Low Stock' : 'In Stock');
-    this.products.update(list => list.map(p => p.id === target.id ? { ...p, stock: this.newStockVal, status: nextStatus } : p));
+    try {
+      await this.inventoryApi.adjustStock(target.id, this.newStockVal);
+      await this.loadProducts();
+      this.toast.success(`Stock adjusted for ${target.name}.`);
+    } catch (e) {
+      console.error('Failed to adjust stock', e);
+      this.toast.error('Failed to adjust stock level.');
+    }
     this.adjustProduct.set(null);
   }
 }

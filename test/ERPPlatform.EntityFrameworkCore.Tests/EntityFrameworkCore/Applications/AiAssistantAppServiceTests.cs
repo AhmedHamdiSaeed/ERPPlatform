@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using ERPPlatform.Modules.AI.Application;
 using Shouldly;
@@ -9,7 +10,7 @@ namespace ERPPlatform.EntityFrameworkCore.Applications;
 /// Unit tests for AiAssistantAppService (no DB dependency — service is pure logic).
 /// Tests AI response generation and executive summary formatting.
 /// </summary>
-public class AiAssistantAppServiceTests : ERPPlatformEntityFrameworkCoreTestBase<ERPPlatformEntityFrameworkCoreTestModule>
+public class AiAssistantAppServiceTests : ERPPlatformEntityFrameworkCoreTestBase
 {
     private readonly IAiAssistantAppService _aiService;
 
@@ -30,7 +31,7 @@ public class AiAssistantAppServiceTests : ERPPlatformEntityFrameworkCoreTestBase
 
         response.ShouldNotBeNull();
         response.Answer.ShouldNotBeNullOrWhiteSpace();
-        response.Timestamp.ShouldNotBeDefault();
+        response.Timestamp.ShouldNotBe(default(DateTime));
     }
 
     [Fact]

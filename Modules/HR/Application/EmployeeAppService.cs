@@ -46,5 +46,58 @@ namespace ERPPlatform.Modules.HR.Application
         public EmployeeAppService(IRepository<Employee, Guid> repository) : base(repository)
         {
         }
+
+        protected override Task<Employee> MapToEntityAsync(CreateUpdateEmployeeDto createInput)
+        {
+            return Task.FromResult(new Employee
+            {
+                EmployeeCode = createInput.EmployeeCode,
+                Name = createInput.Name,
+                Email = createInput.Email,
+                Phone = createInput.Phone,
+                Position = createInput.Position,
+                DepartmentName = createInput.DepartmentName,
+                Salary = createInput.Salary,
+                Status = string.IsNullOrWhiteSpace(createInput.Status) ? "Active" : createInput.Status,
+                Location = "Cairo HQ",
+                JoiningDate = DateTime.UtcNow
+            });
+        }
+
+        protected override Task MapToEntityAsync(CreateUpdateEmployeeDto updateInput, Employee entity)
+        {
+            entity.EmployeeCode = updateInput.EmployeeCode;
+            entity.Name = updateInput.Name;
+            entity.Email = updateInput.Email;
+            entity.Phone = updateInput.Phone;
+            entity.Position = updateInput.Position;
+            entity.DepartmentName = updateInput.DepartmentName;
+            entity.Salary = updateInput.Salary;
+            if (!string.IsNullOrWhiteSpace(updateInput.Status))
+            {
+                entity.Status = updateInput.Status;
+            }
+            return Task.CompletedTask;
+        }
+
+        protected override Task<EmployeeDto> MapToGetOutputDtoAsync(Employee entity)
+        {
+            return Task.FromResult(new EmployeeDto
+            {
+                Id = entity.Id,
+                EmployeeCode = entity.EmployeeCode,
+                Name = entity.Name,
+                Email = entity.Email,
+                Phone = entity.Phone,
+                Position = entity.Position,
+                DepartmentName = entity.DepartmentName,
+                Salary = entity.Salary,
+                JoiningDate = entity.JoiningDate,
+                Status = entity.Status,
+                Avatar = entity.Avatar,
+                ManagerName = entity.ManagerName,
+                Location = entity.Location
+            });
+        }
     }
 }

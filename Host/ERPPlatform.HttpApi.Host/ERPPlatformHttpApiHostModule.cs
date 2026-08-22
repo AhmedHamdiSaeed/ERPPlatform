@@ -30,6 +30,9 @@ using Volo.Abp.Security.Claims;
 using Volo.Abp.Swashbuckle;
 using Volo.Abp.UI.Navigation.Urls;
 using Volo.Abp.VirtualFileSystem;
+using Volo.Abp.AspNetCore.SignalR;
+using Volo.Abp.BlobStoring;
+using Volo.Abp.BlobStoring.FileSystem;
 
 using ERPPlatform.Modules.HR;
 using ERPPlatform.Modules.Inventory;
@@ -57,7 +60,9 @@ namespace ERPPlatform;
     typeof(WorkflowEntityFrameworkCoreModule),
     typeof(AIHttpApiModule),
     typeof(AIEntityFrameworkCoreModule),
-    typeof(ERPPlatformDapperQueriesModule)
+    typeof(ERPPlatformDapperQueriesModule),
+    typeof(AbpAspNetCoreSignalRModule),
+    typeof(AbpBlobStoringFileSystemModule)
 )]
 public class ERPPlatformHttpApiHostModule : AbpModule
 {
@@ -86,6 +91,7 @@ public class ERPPlatformHttpApiHostModule : AbpModule
         ConfigureVirtualFileSystem(context);
         ConfigureCors(context, configuration);
         ConfigureSwaggerServices(context, configuration);
+        ConfigureBlobStoring(context);
 
         Configure<AbpMvcLibsOptions>(options =>
         {
@@ -99,6 +105,22 @@ public class ERPPlatformHttpApiHostModule : AbpModule
         context.Services.Configure<AbpClaimsPrincipalFactoryOptions>(options =>
         {
             options.IsDynamicClaimsEnabled = true;
+        });
+    }
+
+    private void ConfigureBlobStoring(ServiceConfigurationContext context)
+    {
+        Configure<AbpBlobStoringOptions>(options =>
+        {
+            options.Containers.ConfigureDefault(container =>
+            {
+                container.UseFileSystem(fileSystem =>
+                {
+                    fileSystem.BasePath = Path.Combine(
+                        context.Services.GetHostingEnvironment().ContentRootPath,
+                        "wwwroot", "blobs");
+                });
+            });
         });
     }
 

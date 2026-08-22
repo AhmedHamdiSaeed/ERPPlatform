@@ -7,6 +7,7 @@ using Volo.Abp.PermissionManagement;
 using Volo.Abp.SettingManagement;
 using Volo.Abp.TenantManagement;
 using Microsoft.Extensions.DependencyInjection;
+using Volo.Abp.BlobStoring;
 
 namespace ERPPlatform;
 
@@ -19,7 +20,8 @@ namespace ERPPlatform;
     typeof(AbpTenantManagementApplicationModule),
     typeof(AbpFeatureManagementApplicationModule),
     typeof(AbpSettingManagementApplicationModule),
-    typeof(AbpAutoMapperModule)
+    typeof(AbpAutoMapperModule),
+    typeof(AbpBlobStoringModule)
     )]
 public class ERPPlatformApplicationModule : AbpModule
 {
