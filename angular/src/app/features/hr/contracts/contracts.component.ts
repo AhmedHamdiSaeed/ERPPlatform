@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ToastService } from '../../../core/services/toast.service';
 
@@ -16,7 +17,7 @@ export interface EmployeeContract {
 @Component({
   selector: 'app-contracts',
   standalone: true,
-  imports: [FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './contracts.component.html'
 })
 export class ContractsComponent {
@@ -37,7 +38,10 @@ export class ContractsComponent {
   }
 
   saveContract() {
-    if (!this.newCnt.employeeName) return;
+    if (!this.newCnt.employeeName) {
+      this.toast.warning('Please enter the employee name.');
+      return;
+    }
     this.contracts.update(list => [{ ...this.newCnt, id: `cnt-${Date.now()}` } as EmployeeContract, ...list]);
     this.toast.success('Employee contract recorded.');
     this.showModal.set(false);

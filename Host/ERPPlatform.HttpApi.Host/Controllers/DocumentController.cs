@@ -57,12 +57,14 @@ public class DocumentController : AbpControllerBase
     }
 
     [HttpPost("upload")]
+    [Consumes("multipart/form-data")]
     [RequestSizeLimit(104_857_600)] // 100 MB
-    public async Task<IActionResult> Upload([FromForm] IFormFile file, [FromForm] Guid? folderId)
+    public async Task<IActionResult> Upload([FromForm] UploadDocumentDto dto)
     {
-        if (file == null || file.Length == 0)
+        if (dto?.File == null || dto.File.Length == 0)
             return BadRequest("No file provided.");
 
+        var file = dto.File;
         var ext = System.IO.Path.GetExtension(file.FileName);
         var title = System.IO.Path.GetFileNameWithoutExtension(file.FileName);
 
@@ -71,7 +73,7 @@ public class DocumentController : AbpControllerBase
         var bytes = ms.ToArray();
 
         var result = await _documentAppService.UploadAsync(
-            title, ext, file.Length, file.ContentType, folderId, bytes);
+            title, ext, file.Length, file.ContentType, dto.FolderId, bytes);
 
         return Ok(result);
     }
@@ -95,4 +97,10 @@ public class CreateFolderRequest
 {
     public string Name { get; set; }
     public Guid? ParentId { get; set; }
+}
+
+public class UploadDocumentDto
+{
+    public IFormFile File { get; set; }
+    public Guid? FolderId { get; set; }
 }

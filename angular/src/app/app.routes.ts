@@ -29,7 +29,7 @@ export const appRoutes: Routes = [
         loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent)
       },
 
-      // Profile & Change Password
+      // Profile & Security
       {
         path: 'profile',
         loadComponent: () => import('./features/auth/profile/user-profile.component').then(m => m.UserProfileComponent)
@@ -39,10 +39,56 @@ export const appRoutes: Routes = [
         loadComponent: () => import('./features/auth/change-password/change-password.component').then(m => m.ChangePasswordComponent)
       },
 
+      // ─── SaaS Subscription & Usage Module ───
+      {
+        path: 'saas/subscription',
+        loadComponent: () => import('./features/saas/subscription/my-subscription.component').then(m => m.MySubscriptionComponent)
+      },
+      {
+        path: 'saas/usage',
+        loadComponent: () => import('./features/saas/usage/subscription-usage.component').then(m => m.SubscriptionUsageComponent)
+      },
+      {
+        path: 'saas/plans',
+        loadComponent: () => import('./features/saas/plans/plans.component').then(m => m.PlansComponent)
+      },
+
+      // ─── CRM Module ───
+      {
+        path: 'sales/crm/leads',
+        loadComponent: () => import('./features/sales/crm/leads.component').then(m => m.LeadsComponent)
+      },
+      {
+        path: 'sales/customers',
+        loadComponent: () => import('./features/sales/customers/customer-list.component').then(m => m.CustomerListComponent)
+      },
+
       // ─── Finance Module ───
       {
         path: 'finance/dashboard',
         loadComponent: () => import('./features/finance/finance-dashboard.component').then(m => m.FinanceDashboardComponent)
+      },
+      {
+        path: 'finance/expenses',
+        loadComponent: () => import('./features/finance/expenses/expenses.component').then(m => m.ExpensesComponent)
+      },
+
+      // ─── Projects & Timesheets ───
+      {
+        path: 'projects',
+        loadComponent: () => import('./features/projects/projects.component').then(m => m.ProjectsComponent)
+      },
+
+      // ─── Manufacturing & Production ───
+      {
+        path: 'manufacturing',
+        loadComponent: () => import('./features/manufacturing/manufacturing.component').then(m => m.ManufacturingComponent)
+      },
+
+      // ─── Fixed Assets & Maintenance ───
+      {
+        path: 'assets',
+        loadComponent: () => import('./features/assets/asset-management.component').then(m => m.AssetManagementComponent)
       },
 
       // ─── HR Module ───
@@ -83,7 +129,7 @@ export const appRoutes: Routes = [
         loadComponent: () => import('./features/hr/recruitment/recruitment-kanban.component').then(m => m.RecruitmentKanbanComponent)
       },
 
-      // ─── Inventory Module ───
+      // ─── Inventory & Purchasing Module ───
       {
         path: 'inventory/products',
         loadComponent: () => import('./features/inventory/products/product-list.component').then(m => m.ProductListComponent)
@@ -97,8 +143,24 @@ export const appRoutes: Routes = [
         loadComponent: () => import('./features/inventory/transfers/stock-transfer-list.component').then(m => m.StockTransferListComponent)
       },
       {
+        path: 'inventory/stock-operations',
+        loadComponent: () => import('./features/inventory/stock-operations/stock-operations.component').then(m => m.StockOperationsComponent)
+      },
+      {
         path: 'inventory/purchase-orders',
         loadComponent: () => import('./features/inventory/purchase-orders/purchase-order-list.component').then(m => m.PurchaseOrderListComponent)
+      },
+      {
+        path: 'inventory/purchase-requests',
+        loadComponent: () => import('./features/inventory/purchase-requests/purchase-requests.component').then(m => m.PurchaseRequestsComponent)
+      },
+      {
+        path: 'inventory/goods-receipts',
+        loadComponent: () => import('./features/inventory/goods-receipts/goods-receipts.component').then(m => m.GoodsReceiptsComponent)
+      },
+      {
+        path: 'inventory/suppliers',
+        loadComponent: () => import('./features/inventory/suppliers/supplier-list.component').then(m => m.SupplierListComponent)
       },
       {
         path: 'inventory/barcode-scanner',
@@ -109,6 +171,14 @@ export const appRoutes: Routes = [
       {
         path: 'sales/dashboard',
         loadComponent: () => import('./features/sales/sales-dashboard/sales-dashboard.component').then(m => m.SalesDashboardComponent)
+      },
+      {
+        path: 'sales/orders',
+        loadComponent: () => import('./features/sales/orders/sales-orders.component').then(m => m.SalesOrdersComponent)
+      },
+      {
+        path: 'sales/delivery-notes',
+        loadComponent: () => import('./features/sales/delivery-notes/delivery-notes.component').then(m => m.DeliveryNotesComponent)
       },
       {
         path: 'sales/invoices',
@@ -189,6 +259,10 @@ export const appRoutes: Routes = [
       {
         path: 'settings/audit-trail',
         loadComponent: () => import('./features/settings/audit-trail/audit-trail.component').then(m => m.AuditTrailComponent)
+      },
+      {
+        path: 'settings/integrations',
+        loadComponent: () => import('./features/settings/integrations/integrations.component').then(m => m.IntegrationsComponent)
       },
 
       // ─── Document Manager ───

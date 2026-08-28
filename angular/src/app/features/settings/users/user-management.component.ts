@@ -49,7 +49,10 @@ export class UserManagementComponent {
   }
 
   async saveUser() {
-    if (!this.newUser.name || !this.newUser.email) return;
+    if (!this.newUser.name || !this.newUser.email) {
+      this.toast.warning('Please provide both name and email.');
+      return;
+    }
     const created: UserAccount = {
       id: `usr-${Date.now()}`,
       userName: this.newUser.userName || this.newUser.email.split('@')[0],

@@ -1,53 +1,110 @@
 <div class="p-6 space-y-6">
   <!-- Header -->
-  <div>
-    <h1 class="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-      <i class="pi pi-history text-slate-600 dark:text-slate-400"></i>
-      Compliance Audit Trail & Revision History
-    </h1>
-    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-      Immutable System Mutation Activity, User Action Stamps, and Entity JSON Diffs
-    </p>
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+        <i class="pi pi-history text-indigo-600 dark:text-indigo-400"></i>
+        Enterprise Audit Log & Compliance Trail
+      </h1>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+        Immutable entity mutation audit, IP timestamps, user activity stamps, and side-by-side diff tracking
+      </p>
+    </div>
+    <button (click)="loadLogs()" class="btn-outline flex items-center gap-2 self-start md:self-auto">
+      <i class="pi pi-refresh"></i> Refresh Log
+    </button>
+  </div>
+
+  <!-- Filters & Search Bar -->
+  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 flex flex-wrap gap-4 items-center justify-between">
+    <div class="flex flex-wrap items-center gap-3 flex-1 min-w-[280px]">
+      <div class="relative flex-1 min-w-[200px]">
+        <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+        <input
+          type="text"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+          placeholder="Search by user, entity or ID..."
+          class="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+      </div>
+
+      <select
+        [ngModel]="selectedAction()"
+        (ngModelChange)="selectedAction.set($event)"
+        class="px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-300 focus:outline-none"
+      >
+        <option value="ALL">All Actions</option>
+        <option value="Created">Created</option>
+        <option value="Updated">Updated</option>
+        <option value="Deleted">Deleted</option>
+      </select>
+
+      <select
+        [ngModel]="selectedEntity()"
+        (ngModelChange)="selectedEntity.set($event)"
+        class="px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-300 focus:outline-none"
+      >
+        <option value="ALL">All Entities</option>
+        @for (type of entityTypes(); track type) {
+          <option [value]="type">{{ type }}</option>
+        }
+      </select>
+    </div>
+    <div class="text-xs text-slate-500">
+      Showing <span class="font-bold text-slate-800 dark:text-white">{{ filteredLogs().length }}</span> entries
+    </div>
   </div>
 
   <!-- Audit Log Timeline Table -->
-  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5">
+  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
     <div class="overflow-x-auto">
       <table class="w-full text-left text-sm border-collapse">
         <thead>
-          <tr class="border-b border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-500 uppercase">
-            <th class="py-3 px-2">Timestamp</th>
-            <th class="py-3 px-2">User</th>
-            <th class="py-3 px-2">Action</th>
-            <th class="py-3 px-2">Entity Type</th>
-            <th class="py-3 px-2">Entity ID</th>
-            <th class="py-3 px-2 text-right">Action</th>
+          <tr class="border-b border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-500 uppercase bg-slate-50 dark:bg-slate-900/50">
+            <th class="py-3 px-4">Timestamp</th>
+            <th class="py-3 px-4">User</th>
+            <th class="py-3 px-4">Action</th>
+            <th class="py-3 px-4">Entity Type</th>
+            <th class="py-3 px-4">Entity ID</th>
+            <th class="py-3 px-4">IP / Client Info</th>
+            <th class="py-3 px-4 text-right">Diff Action</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
-          @for (log of auditLogs(); track log.id) {
-            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50">
-              <td class="py-3 px-2 font-mono text-xs text-slate-500 dark:text-slate-400">{{ log.timestamp }}</td>
-              <td class="py-3 px-2 font-medium text-slate-900 dark:text-white flex items-center gap-2">
-                <span class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center justify-center text-xs font-bold">
-                  {{ log.userName.charAt(0) }}
+          @for (log of filteredLogs(); track log.id) {
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+              <td class="py-3.5 px-4 font-mono text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">{{ log.timestamp }}</td>
+              <td class="py-3.5 px-4 font-medium text-slate-900 dark:text-white flex items-center gap-2">
+                <span class="w-7 h-7 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 flex items-center justify-center text-xs font-bold">
+                  {{ log.userName?.charAt(0) || 'S' }}
                 </span>
                 {{ log.userName }}
               </td>
-              <td class="py-3 px-2">
-                <span class="px-2 py-0.5 text-xs rounded font-semibold"
+              <td class="py-3.5 px-4">
+                <span class="px-2.5 py-1 text-xs rounded-full font-semibold"
                   [class.bg-emerald-100]="log.action === 'Created'" [class.text-emerald-700]="log.action === 'Created'"
                   [class.bg-blue-100]="log.action === 'Updated'" [class.text-blue-700]="log.action === 'Updated'"
                   [class.bg-rose-100]="log.action === 'Deleted'" [class.text-rose-700]="log.action === 'Deleted'">
                   {{ log.action }}
                 </span>
               </td>
-              <td class="py-3 px-2 font-medium text-slate-700 dark:text-slate-300">{{ log.entityName }}</td>
-              <td class="py-3 px-2 font-mono text-xs text-indigo-600 dark:text-indigo-400">{{ log.entityId }}</td>
-              <td class="py-3 px-2 text-right">
-                <button (click)="inspectChanges(log)" class="px-3 py-1 text-xs border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700 rounded text-slate-700 dark:text-slate-300 font-medium">
-                  Inspect Diff
+              <td class="py-3.5 px-4 font-medium text-slate-700 dark:text-slate-300">{{ log.entityName }}</td>
+              <td class="py-3.5 px-4 font-mono text-xs text-indigo-600 dark:text-indigo-400">{{ log.entityId }}</td>
+              <td class="py-3.5 px-4 text-xs text-slate-500">
+                <div class="font-mono text-slate-700 dark:text-slate-300">{{ log.ipAddress || '127.0.0.1' }}</div>
+                <div class="text-[10px] text-slate-400 truncate max-w-[140px]">{{ log.userAgent || 'Chrome / Windows' }}</div>
+              </td>
+              <td class="py-3.5 px-4 text-right">
+                <button (click)="inspectChanges(log)" class="px-3 py-1.5 text-xs bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900 rounded-lg font-medium transition-colors">
+                  <i class="pi pi-eye mr-1"></i> Inspect Diff
                 </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="py-10 text-center text-slate-400 text-sm">
+                No audit entries match the selected filters.
               </td>
             </tr>
           }
@@ -56,25 +113,56 @@
     </div>
   </div>
 
-  <!-- Inspect Diff Modal -->
+  <!-- Side-by-Side Inspect Diff Modal -->
   @if (showDiffModal() && selectedLog) {
-    <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl max-w-lg w-full p-6 space-y-4">
-        <div class="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-slate-700">
+    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl max-w-3xl w-full p-6 space-y-5">
+        <div class="flex justify-between items-center border-b pb-4 border-slate-200 dark:border-slate-700">
           <div>
-            <h3 class="text-lg font-bold text-slate-900 dark:text-white">Entity Revision Diff</h3>
-            <p class="text-xs text-slate-500">{{ selectedLog.entityName }} • {{ selectedLog.entityId }}</p>
+            <h3 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <i class="pi pi-sliders-h text-indigo-600"></i> Entity Mutation State Diff
+            </h3>
+            <p class="text-xs text-slate-500 mt-0.5">
+              {{ selectedLog.entityName }} • ID: <span class="font-mono font-semibold">{{ selectedLog.entityId }}</span> • Action: {{ selectedLog.action }}
+            </p>
           </div>
-          <button (click)="showDiffModal.set(false)" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times"></i></button>
+          <button (click)="showDiffModal.set(false)" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+            <i class="pi pi-times text-lg"></i>
+          </button>
         </div>
 
-        <div class="space-y-2">
-          <p class="text-xs font-semibold text-slate-500">JSON Field Changes Payload:</p>
-          <pre class="p-4 rounded-lg bg-slate-900 text-emerald-400 font-mono text-xs overflow-x-auto border border-slate-800">{{ selectedLog.changesJson }}</pre>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Old Value Card -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider flex items-center gap-1">
+                <i class="pi pi-minus-circle"></i> Before (Old State)
+              </span>
+            </div>
+            <pre class="p-4 rounded-xl bg-slate-900 text-rose-300 font-mono text-xs overflow-x-auto border border-rose-900/30 max-h-64">{{ formatJson(selectedLog.oldValues || selectedLog.changesJson) }}</pre>
+          </div>
+
+          <!-- New Value Card -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1">
+                <i class="pi pi-plus-circle"></i> After (New State)
+              </span>
+            </div>
+            <pre class="p-4 rounded-xl bg-slate-900 text-emerald-300 font-mono text-xs overflow-x-auto border border-emerald-900/30 max-h-64">{{ formatJson(selectedLog.newValues || selectedLog.changesJson) }}</pre>
+          </div>
+        </div>
+
+        <div class="bg-slate-50 dark:bg-slate-900 p-3 rounded-xl flex items-center justify-between text-xs text-slate-500">
+          <div>Actor: <span class="font-semibold text-slate-700 dark:text-slate-300">{{ selectedLog.userName }}</span></div>
+          <div>IP: <span class="font-mono text-slate-700 dark:text-slate-300">{{ selectedLog.ipAddress || '127.0.0.1' }}</span></div>
+          <div>Time: <span class="font-mono text-slate-700 dark:text-slate-300">{{ selectedLog.timestamp }}</span></div>
         </div>
 
         <div class="flex justify-end pt-2">
-          <button (click)="showDiffModal.set(false)" class="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm font-medium">Close</button>
+          <button (click)="showDiffModal.set(false)" class="px-5 py-2 bg-slate-900 dark:bg-slate-700 text-white rounded-xl text-sm font-medium hover:bg-slate-800 transition-colors">
+            Close
+          </button>
         </div>
       </div>
     </div>

@@ -15,6 +15,8 @@ export class FinanceDashboardComponent {
   private toast = inject(ToastService);
   private sharedApi = inject(SharedApiService);
 
+  activeTab = signal<'coa' | 'journal' | 'pnl' | 'balanceSheet' | 'trialBalance' | 'aging'>('coa');
+
   accounts = signal<Account[]>([]);
   journalEntries = signal<JournalEntry[]>([]);
 
@@ -37,7 +39,6 @@ export class FinanceDashboardComponent {
       this.journalEntries.set(entries);
     } catch (e) {
       console.error('Failed to load finance data', e);
-      this.toast.error('Could not load finance data from the server.');
     }
   }
 
@@ -68,12 +69,7 @@ export class FinanceDashboardComponent {
 
   async saveJournalEntry() {
     if (this.newEntryDebit !== this.newEntryCredit) {
-      this.toast.error(`Double-entry balance mismatch! Debit ($${this.newEntryDebit}) must equal Credit ($${this.newEntryCredit}).`);
-      return;
-    }
-
-    if (this.newEntryDebit <= 0) {
-      this.toast.warning('Entry amount must be greater than zero.');
+      this.toast.error(`Double-entry mismatch! Debit ($${this.newEntryDebit}) must equal Credit ($${this.newEntryCredit}).`);
       return;
     }
 
@@ -88,8 +84,7 @@ export class FinanceDashboardComponent {
       await this.loadData();
       this.toast.success('Journal entry posted successfully to General Ledger.');
     } catch (e) {
-      console.error('Failed to post journal entry', e);
-      this.toast.error('Failed to post the journal entry.');
+      this.toast.error('Failed to post journal entry.');
     }
     this.showJournalModal.set(false);
   }

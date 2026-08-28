@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -97,6 +99,11 @@ public class ERPPlatformHttpApiHostModule : AbpModule
         {
             options.CheckLibs = false;
         });
+
+        Configure<Microsoft.AspNetCore.Mvc.MvcOptions>(options =>
+        {
+            options.Conventions.Add(new RouteNormalizationConvention());
+        });
     }
 
     private void ConfigureAuthentication(ServiceConfigurationContext context)
@@ -178,11 +185,26 @@ public class ERPPlatformHttpApiHostModule : AbpModule
     {
         Configure<AbpAspNetCoreMvcOptions>(options =>
         {
-            options.ConventionalControllers.Create(typeof(ERPPlatformApplicationModule).Assembly);
-            options.ConventionalControllers.Create(typeof(HRApplicationModule).Assembly);
-            options.ConventionalControllers.Create(typeof(InventoryApplicationModule).Assembly);
-            options.ConventionalControllers.Create(typeof(WorkflowApplicationModule).Assembly);
-            options.ConventionalControllers.Create(typeof(AIApplicationModule).Assembly);
+            options.ConventionalControllers.Create(typeof(ERPPlatformApplicationModule).Assembly, opts =>
+            {
+                opts.RootPath = "app";
+            });
+            options.ConventionalControllers.Create(typeof(HRApplicationModule).Assembly, opts =>
+            {
+                opts.RootPath = "hr";
+            });
+            options.ConventionalControllers.Create(typeof(InventoryApplicationModule).Assembly, opts =>
+            {
+                opts.RootPath = "inventory";
+            });
+            options.ConventionalControllers.Create(typeof(WorkflowApplicationModule).Assembly, opts =>
+            {
+                opts.RootPath = "workflow";
+            });
+            options.ConventionalControllers.Create(typeof(AIApplicationModule).Assembly, opts =>
+            {
+                opts.RootPath = "ai";
+            });
         });
     }
 
@@ -198,7 +220,8 @@ public class ERPPlatformHttpApiHostModule : AbpModule
             {
                 options.SwaggerDoc("v1", new OpenApiInfo { Title = "ERPPlatform API", Version = "v1" });
                 options.DocInclusionPredicate((docName, description) => true);
-                options.CustomSchemaIds(type => type.FullName);
+                options.CustomSchemaIds(type => type.FullName ?? type.Name);
+                options.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
             });
     }
 
@@ -267,5 +290,39 @@ public class ERPPlatformHttpApiHostModule : AbpModule
         app.UseAuditing();
         app.UseAbpSerilogEnrichers();
         app.UseConfiguredEndpoints();
+    }
+}
+
+public class RouteNormalizationConvention : IApplicationModelConvention
+{
+    public void Apply(ApplicationModel application)
+    {
+        foreach (var controller in application.Controllers)
+        {
+            foreach (var selector in controller.Selectors)
+            {
+                if (selector.AttributeRouteModel?.Template != null)
+                {
+                    while (selector.AttributeRouteModel.Template.Contains("//"))
+                    {
+                        selector.AttributeRouteModel.Template = selector.AttributeRouteModel.Template.Replace("//", "/");
+                    }
+                }
+            }
+
+            foreach (var action in controller.Actions)
+            {
+                foreach (var selector in action.Selectors)
+                {
+                    if (selector.AttributeRouteModel?.Template != null)
+                    {
+                        while (selector.AttributeRouteModel.Template.Contains("//"))
+                        {
+                            selector.AttributeRouteModel.Template = selector.AttributeRouteModel.Template.Replace("//", "/");
+                        }
+                    }
+                }
+            }
+        }
     }
 }

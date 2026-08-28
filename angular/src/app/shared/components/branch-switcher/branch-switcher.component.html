@@ -1,0 +1,36 @@
+<div class="relative">
+  <button
+    (click)="toggleDropdown()"
+    class="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
+  >
+    <i class="pi pi-building text-indigo-600 dark:text-indigo-400"></i>
+    <span class="max-w-[120px] truncate">{{ activeBranch()?.name || 'Main Branch' }}</span>
+    <i class="pi pi-chevron-down text-[10px] text-slate-400"></i>
+  </button>
+
+  @if (isOpen()) {
+    <div class="absolute right-0 mt-2 w-56 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl z-50 p-2 space-y-1">
+      <div class="px-2 py-1 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Select Branch Scope</div>
+      @for (branch of branches(); track branch.id) {
+        <button
+          (click)="selectBranch(branch)"
+          class="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition-colors"
+          [class.bg-indigo-50]="activeBranch()?.id === branch.id"
+          [class.dark:bg-indigo-950]="activeBranch()?.id === branch.id"
+          [class.text-indigo-600]="activeBranch()?.id === branch.id"
+          [class.dark:text-indigo-400]="activeBranch()?.id === branch.id"
+          [class.hover:bg-slate-100]="activeBranch()?.id !== branch.id"
+          [class.dark:hover:bg-slate-700]="activeBranch()?.id !== branch.id"
+        >
+          <div>
+            <div class="font-medium text-slate-900 dark:text-white">{{ branch.name }}</div>
+            <div class="text-[10px] text-slate-400">{{ branch.code }} • {{ branch.companyName }}</div>
+          </div>
+          @if (activeBranch()?.id === branch.id) {
+            <i class="pi pi-check text-indigo-600 dark:text-indigo-400"></i>
+          }
+        </button>
+      }
+    </div>
+  }
+</div>

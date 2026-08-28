@@ -1,4 +1,4 @@
-<div aria-live="polite" aria-atomic="true" class="fixed top-5 right-5 z-50 flex flex-col gap-3 max-w-sm w-full pointer-events-none px-4 sm:px-0">
+<div aria-live="polite" aria-atomic="true" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3 max-w-sm w-full pointer-events-none px-4 sm:px-0">
   @for (toast of toastService.toasts(); track toast.id) {
     <div 
       role="alert"
@@ -30,10 +30,11 @@
 
       <!-- Close Button -->
       <button 
-        (click)="toastService.dismiss(toast.id)" 
+        type="button"
+        (click)="dismiss(toast.id, $event)" 
         aria-label="Close notification"
-        class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-md transition-colors">
-        <i class="pi pi-times text-xs"></i>
+        class="cursor-pointer pointer-events-auto text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0">
+        <i class="pi pi-times text-xs pointer-events-none"></i>
       </button>
 
     </div>

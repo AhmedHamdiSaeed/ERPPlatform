@@ -39,31 +39,74 @@ public class ERPPlatformDbContext :
     public DbSet<Tenant> Tenants { get; set; }
     public DbSet<TenantConnectionString> TenantConnectionStrings { get; set; }
 
+    // SaaS Subscription & Features Module DbSets
+    public DbSet<Plan> Plans { get; set; }
+    public DbSet<Feature> Features { get; set; }
+    public DbSet<PlanFeature> PlanFeatures { get; set; }
+    public DbSet<Subscription> Subscriptions { get; set; }
+    public DbSet<SubscriptionHistory> SubscriptionHistories { get; set; }
+    public DbSet<UsageRecord> UsageRecords { get; set; }
+
     // HR Module DbSets
     public DbSet<Employee> Employees { get; set; }
     public DbSet<Department> Departments { get; set; }
     public DbSet<LeaveRequest> LeaveRequests { get; set; }
+    public DbSet<Attendance> Attendances { get; set; }
 
-    // Inventory Module DbSets
+    // Organization Setup DbSets
+    public DbSet<CompanyGroup> CompanyGroups { get; set; }
+    public DbSet<UserBranchAssignment> UserBranchAssignments { get; set; }
+    public DbSet<Company> Companies { get; set; }
+    public DbSet<Branch> Branches { get; set; }
+    public DbSet<CostCenter> CostCenters { get; set; }
+    public DbSet<FiscalYear> FiscalYears { get; set; }
+    public DbSet<Currency> Currencies { get; set; }
+    public DbSet<TaxConfig> TaxConfigs { get; set; }
+    public DbSet<PaymentTerm> PaymentTerms { get; set; }
+
+    // External Integration DbSets
+    public DbSet<IntegrationConfig> IntegrationConfigs { get; set; }
+
+    // Inventory & Purchasing Module DbSets
     public DbSet<Product> Products { get; set; }
     public DbSet<Warehouse> Warehouses { get; set; }
     public DbSet<StockTransfer> StockTransfers { get; set; }
     public DbSet<PurchaseOrder> PurchaseOrders { get; set; }
+    public DbSet<PurchaseRequest> PurchaseRequests { get; set; }
+    public DbSet<Rfq> Rfqs { get; set; }
+    public DbSet<GoodsReceipt> GoodsReceipts { get; set; }
+    public DbSet<Supplier> Suppliers { get; set; }
+
+    // Sales & CRM DbSets
+    public DbSet<Deal> Deals { get; set; }
+    public DbSet<Lead> Leads { get; set; }
+    public DbSet<Customer> Customers { get; set; }
+    public DbSet<SalesOrder> SalesOrders { get; set; }
+    public DbSet<DeliveryNote> DeliveryNotes { get; set; }
+    public DbSet<SalesInvoice> SalesInvoices { get; set; }
+    public DbSet<SalesQuotation> SalesQuotations { get; set; }
 
     // Workflow Module DbSets
     public DbSet<WorkflowDefinition> WorkflowDefinitions { get; set; }
     public DbSet<WorkflowTask> WorkflowTasks { get; set; }
 
-    // Finance Module DbSets
+    // Finance & Expenses DbSets
     public DbSet<Account> Accounts { get; set; }
     public DbSet<JournalEntry> JournalEntries { get; set; }
+    public DbSet<ExpenseRequest> ExpenseRequests { get; set; }
+
+    // Projects & Manufacturing DbSets
+    public DbSet<Project> Projects { get; set; }
+    public DbSet<BillOfMaterials> BillOfMaterials { get; set; }
+    public DbSet<ManufacturingOrder> ManufacturingOrders { get; set; }
+
+    // Fixed Assets & Maintenance DbSets
+    public DbSet<FixedAsset> FixedAssets { get; set; }
+    public DbSet<MaintenanceRequest> MaintenanceRequests { get; set; }
 
     // Payroll DbSets
     public DbSet<PayrollRun> PayrollRuns { get; set; }
     public DbSet<Payslip> Payslips { get; set; }
-
-    // CRM DbSets
-    public DbSet<Deal> Deals { get; set; }
 
     // Audit Log DbSets
     public DbSet<AuditLogEntry> AuditLogEntries { get; set; }
@@ -95,5 +138,26 @@ public class ERPPlatformDbContext :
         builder.ConfigureOpenIddict();
         builder.ConfigureFeatureManagement();
         builder.ConfigureTenantManagement();
+
+        // Unique indexes for Subscription System
+        builder.Entity<Plan>(b =>
+        {
+            b.HasIndex(x => x.Code).IsUnique();
+        });
+
+        builder.Entity<Feature>(b =>
+        {
+            b.HasIndex(x => x.Code).IsUnique();
+        });
+
+        builder.Entity<PlanFeature>(b =>
+        {
+            b.HasIndex(x => new { x.PlanId, x.FeatureId }).IsUnique();
+        });
+
+        builder.Entity<UsageRecord>(b =>
+        {
+            b.HasIndex(x => new { x.TenantId, x.FeatureCode, x.PeriodStart, x.PeriodEnd }).IsUnique();
+        });
     }
 }

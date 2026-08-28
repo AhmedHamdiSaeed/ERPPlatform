@@ -11,6 +11,14 @@ import { ToastService, ToastItem } from '../../../core/services/toast.service';
 export class ToastContainerComponent {
   toastService = inject(ToastService);
 
+  dismiss(id: string, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
+    this.toastService.dismiss(id);
+  }
+
   getIcon(type: string): string {
     switch (type) {
       case 'success': return 'pi-check-circle';

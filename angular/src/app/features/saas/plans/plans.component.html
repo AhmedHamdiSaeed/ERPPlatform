@@ -1,0 +1,72 @@
+<div class="space-y-6 animate-fade-in pb-8">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">SaaS Subscription Plans & Feature Matrix</h1>
+      <p class="text-xs text-[var(--text-muted)] mt-0.5">Define multi-tenant subscription tiers, price models, and limit caps per feature.</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    @for (p of plans(); track p.id) {
+      <div class="card-panel flex flex-col justify-between space-y-4 border border-[var(--border-color)] hover:border-blue-500 transition-all">
+        <div class="space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="font-mono text-[10px] font-bold text-blue-600 uppercase">{{ p.code }}</span>
+            <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded-full">Active</span>
+          </div>
+          <h3 class="font-bold text-base text-[var(--text-main)]">{{ p.name }}</h3>
+          <p class="text-xs text-[var(--text-muted)] min-h-[36px]">{{ p.description }}</p>
+          <div class="pt-2">
+            <span class="text-2xl font-extrabold text-[var(--text-main)]">${{ p.price }}</span>
+            <span class="text-xs text-[var(--text-muted)]"> / {{ p.billingPeriod }}</span>
+          </div>
+        </div>
+
+        <button (click)="configureFeatures(p)" class="btn-primary w-full text-xs flex items-center justify-center gap-2">
+          <i class="pi pi-cog"></i> Configure Feature Limits
+        </button>
+      </div>
+    }
+  </div>
+
+  @if (showConfigModal()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60">
+      <div class="w-full max-w-2xl bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-6 space-y-4 text-xs max-h-[85vh] overflow-y-auto">
+        <div class="flex justify-between items-center border-b pb-3">
+          <h3 class="font-bold text-sm">Feature Limits — {{ selectedPlan()?.name }}</h3>
+          <button (click)="showConfigModal.set(false)" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times"></i></button>
+        </div>
+
+        <div class="space-y-3">
+          @for (f of planFeatures(); track f.featureId) {
+            <div class="flex items-center justify-between p-3 border rounded-xl bg-[var(--bg-main)]">
+              <div class="space-y-0.5">
+                <span class="font-bold text-[var(--text-main)] block">{{ f.featureName }}</span>
+                <span class="font-mono text-[10px] text-blue-600">{{ f.featureCode }}</span>
+              </div>
+
+              <div class="flex items-center gap-4">
+                <label class="flex items-center gap-2 cursor-pointer font-bold">
+                  <input type="checkbox" [(ngModel)]="f.isEnabled" class="rounded text-blue-600" />
+                  Enabled
+                </label>
+
+                @if (f.isEnabled) {
+                  <div class="flex items-center gap-2">
+                    <input type="number" [(ngModel)]="f.limitValue" class="w-24 p-1.5 border rounded-lg text-xs" placeholder="Limit / Unlimited" />
+                    <span class="text-[10px] text-[var(--text-muted)]">{{ f.unit }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2 border-t">
+          <button (click)="showConfigModal.set(false)" class="btn-outline text-xs">Cancel</button>
+          <button (click)="saveFeatures()" class="btn-primary text-xs">Save Plan Limits</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

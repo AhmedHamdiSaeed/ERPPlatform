@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ToastService } from '../../../core/services/toast.service';
 
@@ -15,7 +16,7 @@ export interface JobPosition {
 @Component({
   selector: 'app-positions',
   standalone: true,
-  imports: [FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './positions.component.html'
 })
 export class PositionsComponent {
@@ -37,7 +38,10 @@ export class PositionsComponent {
   }
 
   savePosition() {
-    if (!this.newPos.title) return;
+    if (!this.newPos.title) {
+      this.toast.warning('Please enter a position title.');
+      return;
+    }
     this.positions.update(list => [{ ...this.newPos, id: `pos-${Date.now()}` } as JobPosition, ...list]);
     this.toast.success('Job position registered.');
     this.showModal.set(false);

@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ERPPlatform.Domain.Entities;
+using ERPPlatform.Domain.Subscriptions;
+using ERPPlatform.Application.Subscriptions;
+using Volo.Abp;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
@@ -51,7 +54,33 @@ namespace ERPPlatform.Modules.Inventory.Application
 
     public class SalesInvoiceAppService : CrudAppService<SalesInvoice, SalesInvoiceDto, Guid, PagedAndSortedResultRequestDto, SalesInvoiceDto>
     {
-        public SalesInvoiceAppService(IRepository<SalesInvoice, Guid> repository) : base(repository) { }
+        private readonly IFeatureChecker _featureChecker;
+        private readonly IUsageService _usageService;
+
+        public SalesInvoiceAppService(
+            IRepository<SalesInvoice, Guid> repository,
+            IFeatureChecker featureChecker,
+            IUsageService usageService) : base(repository)
+        {
+            _featureChecker = featureChecker;
+            _usageService = usageService;
+        }
+
+        public override async Task<SalesInvoiceDto> CreateAsync(SalesInvoiceDto input)
+        {
+            // 1. Subscription Feature Limit Check
+            var check = await _featureChecker.CheckLimitAsync(ErpFeatures.InvoicesMonthly, 1);
+            if (!check.Allowed)
+            {
+                throw new UserFriendlyException($"Monthly invoice limit of {check.Limit} reached! Upgrade your SaaS subscription plan to create more invoices.");
+            }
+
+            var result = await base.CreateAsync(input);
+
+            // 2. Increment usage counter
+            await _usageService.IncrementAsync(CurrentTenant.Id, ErpFeatures.InvoicesMonthly, 1);
+            return result;
+        }
 
         public async Task MarkAsPaidAsync(Guid id)
         {
@@ -83,12 +112,31 @@ namespace ERPPlatform.Modules.Inventory.Application
     public class SalesQuotationAppService : CrudAppService<SalesQuotation, SalesQuotationDto, Guid, PagedAndSortedResultRequestDto, SalesQuotationDto>
     {
         private readonly IRepository<SalesInvoice, Guid> _invoiceRepository;
+        private readonly IFeatureChecker _featureChecker;
+        private readonly IUsageService _usageService;
 
         public SalesQuotationAppService(
             IRepository<SalesQuotation, Guid> repository,
-            IRepository<SalesInvoice, Guid> invoiceRepository) : base(repository)
+            IRepository<SalesInvoice, Guid> invoiceRepository,
+            IFeatureChecker featureChecker,
+            IUsageService usageService) : base(repository)
         {
             _invoiceRepository = invoiceRepository;
+            _featureChecker = featureChecker;
+            _usageService = usageService;
+        }
+
+        public override async Task<SalesQuotationDto> CreateAsync(SalesQuotationDto input)
+        {
+            var check = await _featureChecker.CheckLimitAsync(ErpFeatures.QuotationsMonthly, 1);
+            if (!check.Allowed)
+            {
+                throw new UserFriendlyException($"Monthly quotation limit of {check.Limit} reached! Upgrade your SaaS subscription plan to create more quotations.");
+            }
+
+            var result = await base.CreateAsync(input);
+            await _usageService.IncrementAsync(CurrentTenant.Id, ErpFeatures.QuotationsMonthly, 1);
+            return result;
         }
 
         public async Task ConvertToInvoiceAsync(Guid quotationId)
@@ -113,6 +161,7 @@ namespace ERPPlatform.Modules.Inventory.Application
                 CreatedBy = q.CreatedBy
             };
             await _invoiceRepository.InsertAsync(invoice);
+            await _usageService.IncrementAsync(CurrentTenant.Id, ErpFeatures.InvoicesMonthly, 1);
         }
     }
 }

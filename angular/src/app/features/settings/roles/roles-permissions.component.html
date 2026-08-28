@@ -15,7 +15,6 @@
             (click)="selectRole(r.id)"
             [class.bg-blue-50]="selectedRoleId() === r.id"
             [class.border-blue-500]="selectedRoleId() === r.id"
-            [class.dark:bg-blue-900/30]="selectedRoleId() === r.id"
             class="p-3 rounded-xl border border-[var(--border-color)] cursor-pointer hover:border-blue-400 transition-all">
             <div class="flex items-center justify-between">
               <span class="font-bold text-xs text-[var(--text-main)]">{{ r.name }}</span>
