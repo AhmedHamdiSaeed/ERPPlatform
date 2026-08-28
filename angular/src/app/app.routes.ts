@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { LayoutShellComponent } from './layout/layout-shell.component';
+import { authGuard } from './core/guards/auth.guard';
 
 export const appRoutes: Routes = [
   // Auth routes (no layout shell)
@@ -7,16 +8,35 @@ export const appRoutes: Routes = [
     path: 'auth/login',
     loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent)
   },
+  {
+    path: 'auth/forgot-password',
+    loadComponent: () => import('./features/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)
+  },
+  {
+    path: 'auth/reset-password',
+    loadComponent: () => import('./features/auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent)
+  },
 
-  // ERP Application routes (wrapped in layout shell)
+  // ERP Application routes (wrapped in layout shell & protected by authGuard)
   {
     path: '',
     component: LayoutShellComponent,
+    canActivate: [authGuard],
     children: [
       // Dashboard
       {
         path: 'dashboard',
         loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent)
+      },
+
+      // Profile & Change Password
+      {
+        path: 'profile',
+        loadComponent: () => import('./features/auth/profile/user-profile.component').then(m => m.UserProfileComponent)
+      },
+      {
+        path: 'auth/change-password',
+        loadComponent: () => import('./features/auth/change-password/change-password.component').then(m => m.ChangePasswordComponent)
       },
 
       // ─── Finance Module ───
@@ -37,6 +57,14 @@ export const appRoutes: Routes = [
       {
         path: 'hr/departments',
         loadComponent: () => import('./features/hr/departments/department-list.component').then(m => m.DepartmentListComponent)
+      },
+      {
+        path: 'hr/positions',
+        loadComponent: () => import('./features/hr/positions/positions.component').then(m => m.PositionsComponent)
+      },
+      {
+        path: 'hr/contracts',
+        loadComponent: () => import('./features/hr/contracts/contracts.component').then(m => m.ContractsComponent)
       },
       {
         path: 'hr/attendance',
@@ -79,8 +107,16 @@ export const appRoutes: Routes = [
 
       // ─── Sales & CRM ───
       {
+        path: 'sales/dashboard',
+        loadComponent: () => import('./features/sales/sales-dashboard/sales-dashboard.component').then(m => m.SalesDashboardComponent)
+      },
+      {
         path: 'sales/invoices',
         loadComponent: () => import('./features/sales/sales-invoices.component').then(m => m.SalesInvoicesComponent)
+      },
+      {
+        path: 'sales/quotations',
+        loadComponent: () => import('./features/sales/quotations/sales-quotations.component').then(m => m.SalesQuotationsComponent)
       },
       {
         path: 'sales/pipeline',
@@ -125,10 +161,30 @@ export const appRoutes: Routes = [
         loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent)
       },
 
-      // ─── Settings & Audit ───
+      // ─── Settings, Security & Org ───
       {
         path: 'settings',
         loadComponent: () => import('./features/settings/settings.component').then(m => m.SettingsComponent)
+      },
+      {
+        path: 'settings/company',
+        loadComponent: () => import('./features/settings/company/company-management.component').then(m => m.CompanyManagementComponent)
+      },
+      {
+        path: 'settings/currency-tax',
+        loadComponent: () => import('./features/settings/currency-tax/currency-tax.component').then(m => m.CurrencyTaxComponent)
+      },
+      {
+        path: 'settings/payment-terms',
+        loadComponent: () => import('./features/settings/payment-terms/payment-terms.component').then(m => m.PaymentTermsComponent)
+      },
+      {
+        path: 'settings/users',
+        loadComponent: () => import('./features/settings/users/user-management.component').then(m => m.UserManagementComponent)
+      },
+      {
+        path: 'settings/roles',
+        loadComponent: () => import('./features/settings/roles/roles-permissions.component').then(m => m.RolesPermissionsComponent)
       },
       {
         path: 'settings/audit-trail',

@@ -1,0 +1,98 @@
+<div class="space-y-6 animate-fade-in pb-8">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">Sales & Revenue Operations</h1>
+      <p class="text-xs text-[var(--text-muted)] mt-0.5">Real-time overview of revenue performance, billing throughput, and pending receivables.</p>
+    </div>
+    <div class="flex gap-2">
+      <a routerLink="/sales/invoices" class="btn-outline text-xs"><i class="pi pi-file-pdf"></i> Invoices</a>
+      <a routerLink="/sales/quotations" class="btn-primary text-xs"><i class="pi pi-plus"></i> New Quotation</a>
+    </div>
+  </div>
+
+  @if (stats()) {
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="card-panel flex items-start justify-between">
+        <div>
+          <span class="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider block">Total Invoices</span>
+          <span class="text-2xl font-extrabold text-slate-900 dark:text-white mt-1 block">{{ stats()?.totalInvoices }}</span>
+          <span class="text-[11px] text-emerald-600 font-bold mt-1 block">Active Billing Cycle</span>
+        </div>
+        <div class="w-11 h-11 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 flex items-center justify-center text-lg">
+          <i class="pi pi-file-pdf"></i>
+        </div>
+      </div>
+
+      <div class="card-panel flex items-start justify-between">
+        <div>
+          <span class="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider block">Paid Invoices</span>
+          <span class="text-2xl font-extrabold text-slate-900 dark:text-white mt-1 block">{{ stats()?.paidInvoices }}</span>
+          <span class="text-[11px] text-emerald-600 font-bold mt-1 block">Settled Accounts</span>
+        </div>
+        <div class="w-11 h-11 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 flex items-center justify-center text-lg">
+          <i class="pi pi-check-circle"></i>
+        </div>
+      </div>
+
+      <div class="card-panel flex items-start justify-between">
+        <div>
+          <span class="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider block">Collected Revenue</span>
+          <span class="text-2xl font-extrabold text-slate-900 dark:text-white mt-1 block">${{ stats()?.paidAmount | number:'1.0-0' }}</span>
+          <span class="text-[11px] text-emerald-600 font-bold mt-1 block">+12.4% vs last month</span>
+        </div>
+        <div class="w-11 h-11 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 flex items-center justify-center text-lg">
+          <i class="pi pi-dollar"></i>
+        </div>
+      </div>
+
+      <div class="card-panel flex items-start justify-between">
+        <div>
+          <span class="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider block">Outstanding Receivables</span>
+          <span class="text-2xl font-extrabold text-slate-900 dark:text-white mt-1 block">${{ stats()?.pendingAmount | number:'1.0-0' }}</span>
+          <span class="text-[11px] text-amber-600 font-bold mt-1 block">Pending Payments</span>
+        </div>
+        <div class="w-11 h-11 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 flex items-center justify-center text-lg">
+          <i class="pi pi-clock"></i>
+        </div>
+      </div>
+    </div>
+  }
+
+  <div class="card-panel space-y-4">
+    <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
+      <h3 class="font-bold text-sm text-[var(--text-main)]">Recent Sales Invoices</h3>
+      <a routerLink="/sales/invoices" class="text-xs text-blue-600 font-bold hover:underline">View All</a>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs">
+        <thead class="bg-slate-50 dark:bg-slate-800/50 text-[var(--text-muted)] font-bold text-[10px] uppercase">
+          <tr>
+            <th class="p-3">Invoice #</th>
+            <th class="p-3">Customer</th>
+            <th class="p-3">Issue Date</th>
+            <th class="p-3">Total Amount</th>
+            <th class="p-3">Status</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[var(--border-color)]">
+          @for (inv of recentInvoices(); track inv.id) {
+            <tr>
+              <td class="p-3 font-mono font-bold text-blue-600">{{ inv.invoiceNumber }}</td>
+              <td class="p-3 font-bold text-[var(--text-main)]">{{ inv.customerName }}</td>
+              <td class="p-3 text-[var(--text-muted)]">{{ inv.issueDate }}</td>
+              <td class="p-3 font-bold text-[var(--text-main)]">${{ inv.totalAmount | number:'1.2-2' }}</td>
+              <td class="p-3">
+                @if (inv.status === 'Paid') {
+                  <span class="px-2.5 py-0.5 bg-emerald-100 text-emerald-800 font-bold text-[10px] rounded-full">Paid</span>
+                } @else {
+                  <span class="px-2.5 py-0.5 bg-amber-100 text-amber-800 font-bold text-[10px] rounded-full">{{ inv.status }}</span>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

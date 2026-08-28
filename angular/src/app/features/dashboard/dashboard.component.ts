@@ -2,21 +2,35 @@ import { Component, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { StateService } from '../../core/services/state.service';
 import { AiService } from '../../core/services/ai.service';
+import { DashboardApiService, DashboardStats } from '../../core/services/api/dashboard-api.service';
 import { ChartModule } from 'primeng/chart';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [RouterModule, ChartModule],
+  imports: [CommonModule, RouterModule, ChartModule],
   templateUrl: './dashboard.component.html'
 })
 export class DashboardComponent {
   state = inject(StateService);
   aiService = inject(AiService);
+  private dashboardApi = inject(DashboardApiService);
 
   showAiModal = signal(false);
   aiLoading = signal(false);
   aiSummary = signal('');
+
+  stats = signal<DashboardStats | null>(null);
+
+  constructor() {
+    this.loadStats();
+  }
+
+  async loadStats() {
+    const data = await this.dashboardApi.getDashboardStats();
+    this.stats.set(data);
+  }
 
   // Department Bar Chart Data
   deptChartData = {
@@ -45,17 +59,13 @@ export class DashboardComponent {
   chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false }
-    }
+    plugins: { legend: { display: false } }
   };
 
   doughnutOptions = {
     responsive: true,
     maintainAspectRatio: false,
-    plugins: {
-      legend: { position: 'bottom' }
-    }
+    plugins: { legend: { position: 'bottom' } }
   };
 
   activities = [

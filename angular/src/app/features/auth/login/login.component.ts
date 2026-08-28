@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -11,6 +12,7 @@ import { Router, RouterModule } from '@angular/router';
 export class LoginComponent {
   private fb = inject(FormBuilder);
   private router = inject(Router);
+  private authService = inject(AuthService);
 
   loading = signal(false);
   errorMessage = signal('');
@@ -21,7 +23,7 @@ export class LoginComponent {
     rememberMe: [true]
   });
 
-  onSubmit() {
+  async onSubmit() {
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
       return;
@@ -30,10 +32,17 @@ export class LoginComponent {
     this.loading.set(true);
     this.errorMessage.set('');
 
-    setTimeout(() => {
-      this.loading.set(false);
+    const email = this.loginForm.value.email!;
+    const password = this.loginForm.value.password!;
+
+    const success = await this.authService.login(email, password);
+    this.loading.set(false);
+
+    if (success) {
       this.router.navigateByUrl('/dashboard');
-    }, 800);
+    } else {
+      this.errorMessage.set('Invalid email or password. Please try again.');
+    }
   }
 
   fillDemo(email: string) {

@@ -1,0 +1,61 @@
+<div class="space-y-6 animate-fade-in pb-8">
+  <div>
+    <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">Role-Based Access Control (RBAC)</h1>
+    <p class="text-xs text-[var(--text-muted)] mt-0.5">Define system roles and assign granular module permissions.</p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Roles Column -->
+    <div class="card-panel space-y-3">
+      <h3 class="font-bold text-xs text-[var(--text-main)] border-b border-[var(--border-color)] pb-3">System Roles</h3>
+      
+      <div class="space-y-2">
+        @for (r of roles(); track r.id) {
+          <div 
+            (click)="selectRole(r.id)"
+            [class.bg-blue-50]="selectedRoleId() === r.id"
+            [class.border-blue-500]="selectedRoleId() === r.id"
+            [class.dark:bg-blue-900/30]="selectedRoleId() === r.id"
+            class="p-3 rounded-xl border border-[var(--border-color)] cursor-pointer hover:border-blue-400 transition-all">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-xs text-[var(--text-main)]">{{ r.name }}</span>
+              <span class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-[10px] font-bold rounded-full text-[var(--text-muted)]">
+                {{ r.userCount }} users
+              </span>
+            </div>
+            <p class="text-[11px] text-[var(--text-muted)] mt-1">{{ r.description }}</p>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Permissions Panel -->
+    <div class="card-panel lg:col-span-2 space-y-5">
+      <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
+        <div>
+          <h3 class="font-bold text-sm text-[var(--text-main)]">Granted Permissions Policy</h3>
+          <p class="text-[11px] text-[var(--text-muted)]">Toggle capability flags for selected role.</p>
+        </div>
+        <button (click)="savePermissions()" class="btn-primary text-xs flex items-center gap-2">
+          <i class="pi pi-check"></i> Save Policy
+        </button>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        @for (group of permissions; track group.group) {
+          <div class="p-3.5 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-[var(--border-color)] space-y-2.5">
+            <h4 class="font-bold text-blue-600 dark:text-blue-400 text-xs">{{ group.group }}</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              @for (item of group.items; track item) {
+                <label class="flex items-center gap-2 cursor-pointer text-[var(--text-main)]">
+                  <input type="checkbox" checked class="rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+                  <span>{{ item }}</span>
+                </label>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

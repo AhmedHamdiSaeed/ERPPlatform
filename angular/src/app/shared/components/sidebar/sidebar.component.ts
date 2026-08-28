@@ -20,25 +20,37 @@ export class SidebarComponent {
   state = inject(StateService);
 
   menu: NavGroup[] = [
-    { label: 'Dashboard', icon: 'pi-home', link: '/dashboard' },
+    { label: 'Executive Dashboard', icon: 'pi-home', link: '/dashboard' },
+    {
+      label: 'Organization Setup',
+      icon: 'pi-building',
+      expanded: true,
+      items: [
+        { label: 'Companies & Branches', link: '/settings/company', icon: 'pi-sitemap', badge: 'Org' },
+        { label: 'Currencies & Tax', link: '/settings/currency-tax', icon: 'pi-dollar' },
+        { label: 'Payment Terms', link: '/settings/payment-terms', icon: 'pi-percentage' }
+      ]
+    },
     {
       label: 'Finance & Ledger',
       icon: 'pi-wallet',
       expanded: true,
       items: [
-        { label: 'General Ledger & COA', link: '/finance/dashboard', icon: 'pi-chart-line', badge: 'New' }
+        { label: 'General Ledger & COA', link: '/finance/dashboard', icon: 'pi-chart-line' }
       ]
     },
     {
-      label: 'HR & Payroll',
+      label: 'HR & Workforce',
       icon: 'pi-users',
       expanded: true,
       items: [
         { label: 'Employees', link: '/hr/employees', icon: 'pi-user' },
         { label: 'Departments', link: '/hr/departments', icon: 'pi-building' },
+        { label: 'Job Positions', link: '/hr/positions', icon: 'pi-id-card', badge: 'New' },
+        { label: 'Contracts', link: '/hr/contracts', icon: 'pi-file', badge: 'New' },
         { label: 'Attendance', link: '/hr/attendance', icon: 'pi-calendar' },
         { label: 'Leave Management', link: '/hr/leave', icon: 'pi-briefcase' },
-        { label: 'Payroll & Payslips', link: '/hr/payroll', icon: 'pi-dollar', badge: 'New' },
+        { label: 'Payroll & Payslips', link: '/hr/payroll', icon: 'pi-dollar' },
         { label: 'Recruitment Kanban', link: '/hr/recruitment', icon: 'pi-user-plus' }
       ]
     },
@@ -47,7 +59,7 @@ export class SidebarComponent {
       icon: 'pi-box',
       expanded: true,
       items: [
-        { label: 'Products', link: '/inventory/products', icon: 'pi-list' },
+        { label: 'Products Catalog', link: '/inventory/products', icon: 'pi-list' },
         { label: 'Warehouses', link: '/inventory/warehouses', icon: 'pi-building' },
         { label: 'Stock Transfers', link: '/inventory/transfers', icon: 'pi-sync' },
         { label: 'Purchase Orders', link: '/inventory/purchase-orders', icon: 'pi-shopping-bag' },
@@ -59,8 +71,10 @@ export class SidebarComponent {
       icon: 'pi-briefcase',
       expanded: true,
       items: [
+        { label: 'Sales Dashboard', link: '/sales/dashboard', icon: 'pi-chart-line', badge: 'New' },
+        { label: 'Quotations', link: '/sales/quotations', icon: 'pi-file', badge: 'New' },
         { label: 'Billing & Invoices', link: '/sales/invoices', icon: 'pi-file-pdf' },
-        { label: 'Sales Deal Pipeline', link: '/sales/pipeline', icon: 'pi-chart-bar', badge: 'New' }
+        { label: 'Sales Pipeline', link: '/sales/pipeline', icon: 'pi-chart-bar' }
       ]
     },
     {
@@ -84,7 +98,9 @@ export class SidebarComponent {
       expanded: true,
       items: [
         { label: 'System Settings', link: '/settings', icon: 'pi-sliders-h' },
-        { label: 'Audit Trail Logs', link: '/settings/audit-trail', icon: 'pi-history', badge: 'Audit' }
+        { label: 'User Accounts', link: '/settings/users', icon: 'pi-user-edit', badge: 'RBAC' },
+        { label: 'Roles & Permissions', link: '/settings/roles', icon: 'pi-shield', badge: 'RBAC' },
+        { label: 'Audit Trail Logs', link: '/settings/audit-trail', icon: 'pi-history' }
       ]
     }
   ];
