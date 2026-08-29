@@ -1,7 +1,9 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { StateService } from '../../core/services/state.service';
+import { PERMISSIONS } from '../../core/models/permissions';
 
 export interface SalesInvoice {
   id: string;
@@ -22,6 +24,8 @@ export interface SalesInvoice {
   templateUrl: './sales-invoices.component.html'
 })
 export class SalesInvoicesComponent {
+  state = inject(StateService);
+  readonly PERMISSIONS = PERMISSIONS;
   invoices = signal<SalesInvoice[]>([
     {
       id: 'inv-1',

@@ -25,8 +25,8 @@
                 <span class="font-bold text-[var(--text-main)] block">Dark Mode</span>
                 <span class="text-[11px] text-[var(--text-muted)]">Switch between light and dark color schemes.</span>
               </div>
-              <button (click)="state.toggleTheme()" class="relative w-12 h-6 rounded-full transition-colors cursor-pointer" [class.bg-blue-600]="state.isDark()" [class.bg-slate-300]="!state.isDark()">
-                <span class="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform" [class.translate-x-6]="state.isDark()" [class.translate-x-0.5]="!state.isDark()"></span>
+              <button (click)="state.toggleTheme()" class="relative w-11 h-6 rounded-full transition-colors cursor-pointer flex-shrink-0" [class.bg-blue-600]="state.isDark()" [class.bg-slate-300]="!state.isDark()">
+                <span class="absolute top-[3px] left-[3px] w-[18px] h-[18px] bg-white rounded-full shadow-md transition-transform duration-200" [style.transform]="state.isDark() ? 'translateX(20px)' : 'translateX(0)'"></span>
               </button>
             </div>
 
@@ -35,8 +35,8 @@
                 <span class="font-bold text-[var(--text-main)] block">Compact Sidebar</span>
                 <span class="text-[11px] text-[var(--text-muted)]">Collapse sidebar to icon-only mode.</span>
               </div>
-              <button (click)="state.toggleSidebar()" class="relative w-12 h-6 rounded-full transition-colors cursor-pointer" [class.bg-blue-600]="state.sidebarCollapsed()" [class.bg-slate-300]="!state.sidebarCollapsed()">
-                <span class="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform" [class.translate-x-6]="state.sidebarCollapsed()" [class.translate-x-0.5]="!state.sidebarCollapsed()"></span>
+              <button (click)="state.toggleSidebar()" class="relative w-11 h-6 rounded-full transition-colors cursor-pointer flex-shrink-0" [class.bg-blue-600]="state.sidebarCollapsed()" [class.bg-slate-300]="!state.sidebarCollapsed()">
+                <span class="absolute top-[3px] left-[3px] w-[18px] h-[18px] bg-white rounded-full shadow-md transition-transform duration-200" [style.transform]="state.sidebarCollapsed() ? 'translateX(20px)' : 'translateX(0)'"></span>
               </button>
             </div>
           </div>
@@ -107,8 +107,8 @@
                   <span class="font-bold text-[var(--text-main)] block">{{ channel.label }}</span>
                   <span class="text-[11px] text-[var(--text-muted)]">{{ channel.description }}</span>
                 </div>
-                <button (click)="channel.enabled = !channel.enabled" class="relative w-12 h-6 rounded-full transition-colors cursor-pointer" [class.bg-blue-600]="channel.enabled" [class.bg-slate-300]="!channel.enabled">
-                  <span class="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform" [class.translate-x-6]="channel.enabled" [class.translate-x-0.5]="!channel.enabled"></span>
+                <button (click)="channel.enabled = !channel.enabled" class="relative w-11 h-6 rounded-full transition-colors cursor-pointer flex-shrink-0" [class.bg-blue-600]="channel.enabled" [class.bg-slate-300]="!channel.enabled">
+                  <span class="absolute top-[3px] left-[3px] w-[18px] h-[18px] bg-white rounded-full shadow-md transition-transform duration-200" [style.transform]="channel.enabled ? 'translateX(20px)' : 'translateX(0)'"></span>
                 </button>
               </div>
             }

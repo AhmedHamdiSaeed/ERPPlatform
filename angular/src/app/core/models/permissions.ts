@@ -1,0 +1,20 @@
+export const PERMISSIONS = {
+  DashboardView: 'ERPPlatform.Dashboard.View',
+  Users: 'ERPPlatform.Users',
+  UsersCreate: 'ERPPlatform.Users.Create',
+  UsersEdit: 'ERPPlatform.Users.Edit',
+  UsersDelete: 'ERPPlatform.Users.Delete',
+  Roles: 'ERPPlatform.Roles',
+  RolesCreate: 'ERPPlatform.Roles.Create',
+  RolesEdit: 'ERPPlatform.Roles.Edit',
+  RolesDelete: 'ERPPlatform.Roles.Delete',
+  Customers: 'ERPPlatform.Customers',
+  CustomersCreate: 'ERPPlatform.Customers.Create',
+  CustomersEdit: 'ERPPlatform.Customers.Edit',
+  CustomersDelete: 'ERPPlatform.Customers.Delete',
+  Invoices: 'ERPPlatform.Invoices',
+  InvoicesCreate: 'ERPPlatform.Invoices.Create',
+  InvoicesEdit: 'ERPPlatform.Invoices.Edit',
+  InvoicesDelete: 'ERPPlatform.Invoices.Delete',
+  Settings: 'ERPPlatform.Settings'
+} as const;

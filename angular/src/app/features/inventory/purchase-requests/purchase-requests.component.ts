@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PurchaseApiService, PurchaseRequest, RfqItem } from '../../../core/services/api/purchase-api.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -6,7 +7,7 @@ import { ToastService } from '../../../core/services/toast.service';
 @Component({
   selector: 'app-purchase-requests',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './purchase-requests.component.html'
 })
 export class PurchaseRequestsComponent {

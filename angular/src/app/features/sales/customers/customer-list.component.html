@@ -4,9 +4,11 @@
       <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">Customer Accounts & Profiles</h1>
       <p class="text-xs text-[var(--text-muted)] mt-0.5">Manage client master profiles, tax IDs, credit limits, payment terms, and account statements.</p>
     </div>
-    <button (click)="openAddModal()" class="btn-primary text-xs flex items-center gap-2">
-      <i class="pi pi-user-plus"></i> Add Customer
-    </button>
+    @if (state.hasPermission(PERMISSIONS.CustomersCreate)) {
+      <button (click)="openAddModal()" class="btn-primary text-xs flex items-center gap-2">
+        <i class="pi pi-user-plus"></i> Add Customer
+      </button>
+    }
   </div>
 
   <div class="card-panel overflow-x-auto">

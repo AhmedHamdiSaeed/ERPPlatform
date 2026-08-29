@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { EnvironmentService } from '@abp/ng.core';
+import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 
 export interface FolderDto {
@@ -21,10 +21,9 @@ export interface DocumentDto {
 @Injectable({ providedIn: 'root' })
 export class DocumentService {
   private http = inject(HttpClient);
-  private env = inject(EnvironmentService);
 
   private get baseUrl(): string {
-    return this.env.getEnvironment().apis.default.url + '/api/documents';
+    return environment.apis.default.url + '/api/documents';
   }
 
   // Folders

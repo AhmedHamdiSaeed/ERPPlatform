@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ToastService } from '../../../core/services/toast.service';
 
@@ -15,7 +16,7 @@ export interface SalesOrder {
 @Component({
   selector: 'app-sales-orders',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './sales-orders.component.html'
 })
 export class SalesOrdersComponent {

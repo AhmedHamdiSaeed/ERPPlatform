@@ -1,28 +1,40 @@
 <div class="space-y-6 animate-fade-in pb-8">
-  <div>
-    <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">Role-Based Access Control (RBAC)</h1>
-    <p class="text-xs text-[var(--text-muted)] mt-0.5">Define system roles and assign granular module permissions.</p>
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">Role-Based Access Control (RBAC)</h1>
+      <p class="text-xs text-[var(--text-muted)] mt-0.5">Define system roles and assign granular module permissions.</p>
+    </div>
+    <button (click)="openCreateModal()" class="btn-primary text-xs flex items-center gap-2">
+      <i class="pi pi-plus"></i> Create Role
+    </button>
   </div>
 
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <!-- Roles Column -->
     <div class="card-panel space-y-3">
-      <h3 class="font-bold text-xs text-[var(--text-main)] border-b border-[var(--border-color)] pb-3">System Roles</h3>
+      <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
+        <h3 class="font-bold text-xs text-[var(--text-main)]">System Roles</h3>
+        <span class="text-[10px] text-[var(--text-muted)] font-mono">{{ roles().length }} roles</span>
+      </div>
       
       <div class="space-y-2">
-        @for (r of roles(); track r.id) {
+        @for (r of roles(); track r.name) {
           <div 
-            (click)="selectRole(r.id)"
-            [class.bg-blue-50]="selectedRoleId() === r.id"
-            [class.border-blue-500]="selectedRoleId() === r.id"
+            (click)="selectRole(r)"
+            [class.bg-blue-50]="selectedRole()?.name === r.name"
+            [class.border-blue-500]="selectedRole()?.name === r.name"
             class="p-3 rounded-xl border border-[var(--border-color)] cursor-pointer hover:border-blue-400 transition-all">
             <div class="flex items-center justify-between">
               <span class="font-bold text-xs text-[var(--text-main)]">{{ r.name }}</span>
-              <span class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-[10px] font-bold rounded-full text-[var(--text-muted)]">
-                {{ r.userCount }} users
-              </span>
+              @if (r.userCount !== undefined) {
+                <span class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-[10px] font-bold rounded-full text-[var(--text-muted)]">
+                  {{ r.userCount }} users
+                </span>
+              }
             </div>
-            <p class="text-[11px] text-[var(--text-muted)] mt-1">{{ r.description }}</p>
+            @if (r.description) {
+              <p class="text-[11px] text-[var(--text-muted)] mt-1">{{ r.description }}</p>
+            }
           </div>
         }
       </div>
@@ -32,23 +44,25 @@
     <div class="card-panel lg:col-span-2 space-y-5">
       <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
         <div>
-          <h3 class="font-bold text-sm text-[var(--text-main)]">Granted Permissions Policy</h3>
+          <h3 class="font-bold text-sm text-[var(--text-main)]">
+            Granted Permissions Policy: <span class="text-blue-600 dark:text-blue-400">{{ selectedRole()?.name }}</span>
+          </h3>
           <p class="text-[11px] text-[var(--text-muted)]">Toggle capability flags for selected role.</p>
         </div>
-        <button (click)="savePermissions()" class="btn-primary text-xs flex items-center gap-2">
-          <i class="pi pi-check"></i> Save Policy
+        <button (click)="savePermissions()" [disabled]="savingPermissions()" class="btn-primary text-xs flex items-center gap-2">
+          <i [class]="savingPermissions() ? 'pi pi-spin pi-spinner' : 'pi pi-check'"></i> Save Policy
         </button>
       </div>
 
       <div class="space-y-4 text-xs">
-        @for (group of permissions; track group.group) {
+        @for (group of permissionGroups(); track group.name) {
           <div class="p-3.5 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-[var(--border-color)] space-y-2.5">
-            <h4 class="font-bold text-blue-600 dark:text-blue-400 text-xs">{{ group.group }}</h4>
+            <h4 class="font-bold text-blue-600 dark:text-blue-400 text-xs">{{ group.displayName || group.name }}</h4>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              @for (item of group.items; track item) {
-                <label class="flex items-center gap-2 cursor-pointer text-[var(--text-main)]">
-                  <input type="checkbox" checked class="rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
-                  <span>{{ item }}</span>
+              @for (item of group.permissions; track item.name) {
+                <label (click)="$event.preventDefault(); togglePermission(item)" class="flex items-center gap-2 cursor-pointer text-[var(--text-main)] select-none">
+                  <input type="checkbox" [checked]="item.isGranted" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500 pointer-events-none" />
+                  <span>{{ item.displayName || item.name }}</span>
                 </label>
               }
             </div>
@@ -57,4 +71,38 @@
       </div>
     </div>
   </div>
+
+  <!-- Create Role Modal -->
+  @if (showCreateModal()) {
+    <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-6 space-y-5 shadow-2xl">
+        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+          <h3 class="font-bold text-sm text-slate-800 dark:text-white">Create New Role</h3>
+          <button (click)="showCreateModal.set(false)" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+            <i class="pi pi-times text-sm"></i>
+          </button>
+        </div>
+
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Role Name</label>
+            <input 
+              type="text" 
+              [(ngModel)]="newRoleName" 
+              placeholder="e.g. Sales Viewer"
+              class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:border-blue-500" />
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+          <button (click)="showCreateModal.set(false)" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-xl hover:bg-slate-200 transition-colors">
+            Cancel
+          </button>
+          <button (click)="createRole()" class="btn-primary text-xs px-4 py-2">
+            Create Role
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 </div>

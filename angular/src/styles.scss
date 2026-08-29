@@ -45,6 +45,38 @@ body {
   color: var(--text-main);
   line-height: 1.5;
   overflow-x: hidden;
+  min-height: 100vh;
+}
+
+@supports (height: 100dvh) {
+  body {
+    min-height: 100dvh;
+  }
+}
+
+/* Layout: the scrollable page area always spans the viewport so page content
+   and the application background never stop short of the screen. */
+main {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+main > :not(router-outlet) {
+  flex: 1 1 0%;
+  min-height: 100%;
+}
+
+/* Hard guarantee: routed page wrappers can never become a containing block
+   (transform/filter/perspective/will-change/contain all make position:fixed
+   descendants anchor to the page instead of the viewport). */
+main > :not(router-outlet),
+main > :not(router-outlet) > * {
+  transform: none !important;
+  filter: none !important;
+  perspective: none !important;
+  will-change: auto !important;
+  contain: none !important;
 }
 
 /* Utility Classes */
@@ -127,13 +159,27 @@ body {
 }
 
 /* Animations */
+/* Page entrance: OPACITY ONLY. Any transform/filter on a page wrapper would make
+   it a containing block, trapping the position:fixed modal overlays inside the
+   page instead of the viewport. */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .animate-fade-in {
   animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Modal Overlays - always cover the FULL viewport, keep the popup centered above
+   the backdrop, and scroll if the popup is taller than the screen. */
+.fixed.inset-0.z-50 {
+  position: fixed !important;
+  inset: 0 !important;
+  overflow-y: auto;
+}
+.fixed.inset-0.z-50 > *:first-child {
+  margin: auto;
 }
 
 /* Custom Scrollbar */

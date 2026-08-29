@@ -217,4 +217,35 @@ describe('StateService', () => {
     expect(service.lang()).toBe('en');
     expect(service.isRtl()).toBeFalse();
   });
+
+  // ─── PERMISSIONS ──────────────────────────────────────────────────────────
+
+  it('hasPermission should return true for wildcard permissions', () => {
+    service.currentUser.set({
+      id: 'usr-1',
+      name: 'Admin',
+      email: 'admin@erpplatform.com',
+      role: 'Admin',
+      avatar: '',
+      permissions: ['*']
+    });
+    expect(service.hasPermission('ERPPlatform.Dashboard.View')).toBeTrue();
+    expect(service.hasPermission('ERPPlatform.Customers')).toBeTrue();
+  });
+
+  it('hasPermission should check specific granted permissions correctly', () => {
+    service.currentUser.set({
+      id: 'usr-2',
+      name: 'Sales Viewer',
+      email: 'sales.viewer@erpplatform.com',
+      role: 'Sales Viewer',
+      avatar: '',
+      permissions: ['ERPPlatform.Dashboard.View', 'ERPPlatform.Customers', 'ERPPlatform.Invoices']
+    });
+    expect(service.hasPermission('ERPPlatform.Dashboard.View')).toBeTrue();
+    expect(service.hasPermission('ERPPlatform.Customers')).toBeTrue();
+    expect(service.hasPermission('ERPPlatform.Invoices')).toBeTrue();
+    expect(service.hasPermission('ERPPlatform.Users')).toBeFalse();
+    expect(service.hasPermission('ERPPlatform.Roles')).toBeFalse();
+  });
 });

@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { StateService } from './state.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,6 +11,7 @@ import { environment } from '../../../environments/environment';
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
+  private state = inject(StateService);
 
   private readonly tokenKey = 'erp_access_token';
 
@@ -33,6 +35,7 @@ export class AuthService {
       );
       if (response && response.access_token) {
         localStorage.setItem(this.tokenKey, response.access_token);
+        await this.state.loadAppConfig();
         return true;
       }
       return false;
@@ -40,12 +43,14 @@ export class AuthService {
       console.error('Login failed', error);
       // Fallback for demo when backend endpoint is unavailable or returns 400
       localStorage.setItem(this.tokenKey, 'demo_token_' + Date.now());
+      await this.state.loadAppConfig();
       return true;
     }
   }
 
   logout(): void {
     localStorage.removeItem(this.tokenKey);
+    this.state.loadAppConfig();
     this.router.navigateByUrl('/auth/login');
   }
 

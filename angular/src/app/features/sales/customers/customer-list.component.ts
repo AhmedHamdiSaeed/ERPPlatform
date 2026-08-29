@@ -1,19 +1,25 @@
 import { Component, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CustomerApiService, CustomerProfile } from '../../../core/services/api/customer-api.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { DialogService } from '../../../core/services/dialog.service';
+import { StateService } from '../../../core/services/state.service';
+import { PERMISSIONS } from '../../../core/models/permissions';
 
 @Component({
   selector: 'app-customer-list',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './customer-list.component.html'
 })
 export class CustomerListComponent {
   private customerApi = inject(CustomerApiService);
   private toast = inject(ToastService);
   private dialog = inject(DialogService);
+  state = inject(StateService);
+
+  readonly PERMISSIONS = PERMISSIONS;
 
   customers = signal<CustomerProfile[]>([]);
   showModal = signal(false);

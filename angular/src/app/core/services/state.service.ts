@@ -1,6 +1,9 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { UserProfile, NotificationItem } from '../models/erp-models';
 import { CURRENT_USER, MOCK_NOTIFICATIONS } from '../mock/mock-data';
+import { environment } from '../../../environments/environment';
 
 export type ThemeMode = 'light' | 'dark';
 export type LanguageMode = 'en' | 'ar';
@@ -9,6 +12,7 @@ export type LanguageMode = 'en' | 'ar';
   providedIn: 'root'
 })
 export class StateService {
+  private http = inject(HttpClient);
   // Signals State
   currentUser = signal<UserProfile>(CURRENT_USER);
   theme = signal<ThemeMode>('light');
@@ -30,6 +34,52 @@ export class StateService {
 
   constructor() {
     this.initKeyboardShortcuts();
+    this.loadAppConfig();
+  }
+
+  async loadAppConfig() {
+    try {
+      const config = await firstValueFrom(
+        this.http.get<any>(`${environment.apis.default.url}/api/abp/application-configuration`)
+      );
+      if (config && config.currentUser && config.currentUser.isAuthenticated) {
+        const userRoles = config.currentUser.roles || [];
+        const policies = config.auth?.policies || {};
+        const grantedPermissions = Object.keys(policies).filter(key => policies[key] === true);
+
+        this.currentUser.set({
+          id: config.currentUser.id,
+          name: config.currentUser.userName || config.currentUser.name || 'User',
+          email: config.currentUser.email || '',
+          role: userRoles.includes('Admin') ? 'Admin' : (userRoles[0] || 'Employee'),
+          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+          permissions: grantedPermissions
+        });
+      } else {
+        this.setGuestUser();
+      }
+    } catch (err) {
+      console.error('Failed to load application configuration', err);
+      this.setGuestUser();
+    }
+  }
+
+  private setGuestUser() {
+    this.currentUser.set({
+      id: '',
+      name: '',
+      email: '',
+      role: 'Employee',
+      avatar: '',
+      permissions: []
+    });
+  }
+
+  hasPermission(permission: string): boolean {
+    const user = this.currentUser();
+    if (!user) return false;
+    if (user.permissions.includes('*')) return true;
+    return user.permissions.includes(permission);
   }
 
   toggleTheme() {

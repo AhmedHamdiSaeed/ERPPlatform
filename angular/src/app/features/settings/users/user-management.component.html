@@ -4,9 +4,11 @@
       <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">System Users & Authentication Access</h1>
       <p class="text-xs text-[var(--text-muted)] mt-0.5">Manage user credentials, role assignments, and active account statuses.</p>
     </div>
-    <button (click)="openAddModal()" class="btn-primary text-xs flex items-center gap-2">
-      <i class="pi pi-user-plus"></i> Create User Account
-    </button>
+    @if (state.hasPermission(PERMISSIONS.UsersCreate)) {
+      <button (click)="openAddModal()" class="btn-primary text-xs flex items-center gap-2">
+        <i class="pi pi-user-plus"></i> Create User Account
+      </button>
+    }
   </div>
 
   <div class="card-panel space-y-4">
@@ -53,9 +55,11 @@
                 }
               </td>
               <td class="p-3">
-                <button (click)="toggleActive(u.id)" class="text-xs font-bold text-blue-600 hover:underline">
-                  {{ u.isActive ? 'Deactivate' : 'Activate' }}
-                </button>
+                @if (state.hasPermission(PERMISSIONS.UsersEdit)) {
+                  <button (click)="toggleActive(u.id)" class="text-xs font-bold text-blue-600 hover:underline">
+                    {{ u.isActive ? 'Deactivate' : 'Activate' }}
+                  </button>
+                }
               </td>
             </tr>
           }
@@ -73,10 +77,9 @@
         <div>
           <label class="block mb-1 font-bold">Assigned Role</label>
           <select [(ngModel)]="newUser.role" class="w-full p-2 border rounded-xl bg-[var(--bg-main)]">
-            <option>Admin</option>
-            <option>HR Manager</option>
-            <option>Inventory Manager</option>
-            <option>Employee</option>
+            @for (r of availableRoles(); track r) {
+              <option [value]="r">{{ r }}</option>
+            }
           </select>
         </div>
         <div class="flex justify-end gap-2 pt-2">

@@ -8,9 +8,11 @@
     </div>
 
     <div class="flex items-center gap-2">
-      <button (click)="showCreateModal.set(true)" class="btn-primary text-xs">
-        <i class="pi pi-plus"></i> Create Invoice
-      </button>
+      @if (state.hasPermission(PERMISSIONS.InvoicesCreate)) {
+        <button (click)="showCreateModal.set(true)" class="btn-primary text-xs">
+          <i class="pi pi-plus"></i> Create Invoice
+        </button>
+      }
     </div>
   </div>
 

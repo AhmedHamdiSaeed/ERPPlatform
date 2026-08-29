@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EnterpriseApiService, ExpenseRequest } from '../../../core/services/api/enterprise-api.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -6,7 +7,7 @@ import { ToastService } from '../../../core/services/toast.service';
 @Component({
   selector: 'app-expenses',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './expenses.component.html'
 })
 export class ExpensesComponent {

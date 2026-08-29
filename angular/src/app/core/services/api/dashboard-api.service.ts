@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ErpApiService } from './erp-api.service';
+import { environment } from '../../../../environments/environment';
 
 export interface DashboardStats {
   totalEmployees: number;
@@ -16,18 +17,11 @@ export interface DashboardStats {
 
 @Injectable({ providedIn: 'root' })
 export class DashboardApiService extends ErpApiService {
+  protected override apiPrefix(): string {
+    return `${environment.apis.default.url}/api/hr`;
+  }
+
   getDashboardStats(): Promise<DashboardStats> {
-    return this.get<DashboardStats>('dashboard-stats/stats').catch(() => ({
-      totalEmployees: 245,
-      activeEmployees: 238,
-      onLeaveCount: 7,
-      totalDepartments: 7,
-      totalProducts: 120,
-      lowStockCount: 12,
-      outOfStockCount: 2,
-      inventoryValue: 125450,
-      pendingLeavesCount: 18,
-      totalWarehouses: 3
-    }));
+    return this.get<DashboardStats>('dashboard-stats/stats');
   }
 }

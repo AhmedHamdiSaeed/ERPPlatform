@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ErpApiService, toDateString, AbpEntity } from './erp-api.service';
 import { WorkflowDefinition, WorkflowTask } from '../../models/erp-models';
+import { environment } from '../../../../environments/environment';
 
 interface WorkflowDefinitionDto extends AbpEntity {
   code: string; name: string; description: string; category: string;
@@ -15,6 +16,10 @@ interface WorkflowTaskDto extends AbpEntity {
 
 @Injectable({ providedIn: 'root' })
 export class WorkflowApiService extends ErpApiService {
+  protected override apiPrefix(): string {
+    return `${environment.apis.default.url}/api/workflow`;
+  }
+
   getDefinitions(): Promise<WorkflowDefinition[]> {
     return this.getList<WorkflowDefinitionDto>('workflow-definition').then(items =>
       items.map(d => {

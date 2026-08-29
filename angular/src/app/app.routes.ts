@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 import { LayoutShellComponent } from './layout/layout-shell.component';
 import { authGuard } from './core/guards/auth.guard';
+import { permissionGuard } from './core/guards/permission.guard';
+import { PERMISSIONS } from './core/models/permissions';
 
 export const appRoutes: Routes = [
   // Auth routes (no layout shell)
@@ -26,6 +28,7 @@ export const appRoutes: Routes = [
       // Dashboard
       {
         path: 'dashboard',
+        canActivate: [permissionGuard(PERMISSIONS.DashboardView)],
         loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent)
       },
 
@@ -60,6 +63,7 @@ export const appRoutes: Routes = [
       },
       {
         path: 'sales/customers',
+        canActivate: [permissionGuard(PERMISSIONS.Customers)],
         loadComponent: () => import('./features/sales/customers/customer-list.component').then(m => m.CustomerListComponent)
       },
 
@@ -182,6 +186,7 @@ export const appRoutes: Routes = [
       },
       {
         path: 'sales/invoices',
+        canActivate: [permissionGuard(PERMISSIONS.Invoices)],
         loadComponent: () => import('./features/sales/sales-invoices.component').then(m => m.SalesInvoicesComponent)
       },
       {
@@ -234,6 +239,7 @@ export const appRoutes: Routes = [
       // ─── Settings, Security & Org ───
       {
         path: 'settings',
+        canActivate: [permissionGuard(PERMISSIONS.Settings)],
         loadComponent: () => import('./features/settings/settings.component').then(m => m.SettingsComponent)
       },
       {
@@ -250,10 +256,12 @@ export const appRoutes: Routes = [
       },
       {
         path: 'settings/users',
+        canActivate: [permissionGuard(PERMISSIONS.Users)],
         loadComponent: () => import('./features/settings/users/user-management.component').then(m => m.UserManagementComponent)
       },
       {
         path: 'settings/roles',
+        canActivate: [permissionGuard(PERMISSIONS.Roles)],
         loadComponent: () => import('./features/settings/roles/roles-permissions.component').then(m => m.RolesPermissionsComponent)
       },
       {

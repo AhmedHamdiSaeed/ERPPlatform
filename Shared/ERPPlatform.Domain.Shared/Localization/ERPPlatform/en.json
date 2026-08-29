@@ -4,6 +4,26 @@
     "AppName": "ERPPlatform",
     "Menu:Home": "Home",
     "Welcome": "Welcome",
-    "LongWelcomeMessage": "Welcome to the application. This is a startup project based on the ABP framework. For more information, visit abp.io."
+    "LongWelcomeMessage": "Welcome to the application. This is a startup project based on the ABP framework. For more information, visit abp.io.",
+    "Permission:GroupName": "ERP Platform",
+    "Permission:Dashboard": "Dashboard Management",
+    "Permission:Dashboard:View": "View Dashboard",
+    "Permission:Users": "User Management",
+    "Permission:Users:Create": "Create User",
+    "Permission:Users:Edit": "Edit User",
+    "Permission:Users:Delete": "Delete User",
+    "Permission:Roles": "Role Management",
+    "Permission:Roles:Create": "Create Role",
+    "Permission:Roles:Edit": "Edit Role",
+    "Permission:Roles:Delete": "Delete Role",
+    "Permission:Customers": "Customer Management",
+    "Permission:Customers:Create": "Create Customer",
+    "Permission:Customers:Edit": "Edit Customer",
+    "Permission:Customers:Delete": "Delete Customer",
+    "Permission:Invoices": "Invoice Management",
+    "Permission:Invoices:Create": "Create Invoice",
+    "Permission:Invoices:Edit": "Edit Invoice",
+    "Permission:Invoices:Delete": "Delete Invoice",
+    "Permission:Settings": "System Settings"
   }
 }

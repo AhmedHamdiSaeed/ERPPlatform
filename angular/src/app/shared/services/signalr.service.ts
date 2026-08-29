@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
-import { OAuthService } from 'angular-oauth2-oidc';
-import { EnvironmentService } from '@abp/ng.core';
+import { AuthService } from '../../core/services/auth.service';
+import { environment } from '../../../environments/environment';
 import { Subject } from 'rxjs';
 
 export interface ChatMessage {
@@ -13,8 +13,7 @@ export interface ChatMessage {
   providedIn: 'root'
 })
 export class SignalrService {
-  private oAuthService = inject(OAuthService);
-  private envService = inject(EnvironmentService);
+  private authService = inject(AuthService);
 
   private notificationConnection: signalR.HubConnection | null = null;
   private chatConnection: signalR.HubConnection | null = null;
@@ -26,18 +25,18 @@ export class SignalrService {
   public chatMessages$ = this.chatSubject.asObservable();
 
   private get baseUrl(): string {
-    return this.envService.getEnvironment().apis.default.url;
+    return environment.apis.default.url;
   }
 
   public async startConnections() {
-    const token = this.oAuthService.getAccessToken();
+    const token = this.authService.getToken();
     if (!token) return;
 
     // Initialize Notification Hub
     if (!this.notificationConnection) {
       this.notificationConnection = new signalR.HubConnectionBuilder()
         .withUrl(`${this.baseUrl}/signalr-hubs/notification`, {
-          accessTokenFactory: () => this.oAuthService.getAccessToken()
+          accessTokenFactory: () => this.authService.getToken()
         })
         .withAutomaticReconnect()
         .build();
@@ -58,7 +57,7 @@ export class SignalrService {
     if (!this.chatConnection) {
       this.chatConnection = new signalR.HubConnectionBuilder()
         .withUrl(`${this.baseUrl}/signalr-hubs/chat`, {
-          accessTokenFactory: () => this.oAuthService.getAccessToken()
+          accessTokenFactory: () => this.authService.getToken()
         })
         .withAutomaticReconnect()
         .build();

@@ -1,4 +1,5 @@
 import { Component, inject, signal, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { SalesApiService, SalesQuotation } from '../../../core/services/api/sales-api.service';
@@ -8,7 +9,7 @@ import { DialogService } from '../../../core/services/dialog.service';
 @Component({
   selector: 'app-sales-quotations',
   standalone: true,
-  imports: [FormsModule, RouterModule],
+  imports: [FormsModule, RouterModule, CommonModule],
   templateUrl: './sales-quotations.component.html'
 })
 export class SalesQuotationsComponent {

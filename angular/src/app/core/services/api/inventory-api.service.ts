@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ErpApiService, toDateString, AbpEntity } from './erp-api.service';
 import { Product, Warehouse, StockTransfer, PurchaseOrder } from '../../models/erp-models';
+import { environment } from '../../../../environments/environment';
 
 interface ProductDto extends AbpEntity {
   sku: string; name: string; category: string; price: number; stock: number;
@@ -25,6 +26,10 @@ interface PurchaseOrderDto extends AbpEntity {
 
 @Injectable({ providedIn: 'root' })
 export class InventoryApiService extends ErpApiService {
+  protected override apiPrefix(): string {
+    return `${environment.apis.default.url}/api/inventory`;
+  }
+
   getProducts(): Promise<Product[]> {
     return this.getList<ProductDto>('product').then(items =>
       items.map(p => ({
@@ -78,7 +83,7 @@ export class InventoryApiService extends ErpApiService {
   }
 
   updateStockTransferStatus(id: string, newStatus: string): Promise<void> {
-    return this.post(`stock-transfer/${id}/update-status?newStatus=${encodeURIComponent(newStatus)}`, {});
+    return this.put(`stock-transfer/${id}/status?newStatus=${encodeURIComponent(newStatus)}`, {});
   }
 
   deleteStockTransfer(id: string): Promise<void> {
@@ -109,7 +114,7 @@ export class InventoryApiService extends ErpApiService {
   }
 
   updatePurchaseOrderStatus(id: string, newStatus: string): Promise<void> {
-    return this.post(`purchase-order/${id}/update-status?newStatus=${encodeURIComponent(newStatus)}`, {});
+    return this.put(`purchase-order/${id}/status?newStatus=${encodeURIComponent(newStatus)}`, {});
   }
 
   deletePurchaseOrder(id: string): Promise<void> {

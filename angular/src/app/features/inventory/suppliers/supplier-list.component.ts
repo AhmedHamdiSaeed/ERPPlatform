@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SupplierApiService, SupplierProfile } from '../../../core/services/api/supplier-api.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -6,7 +7,7 @@ import { ToastService } from '../../../core/services/toast.service';
 @Component({
   selector: 'app-supplier-list',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './supplier-list.component.html'
 })
 export class SupplierListComponent {

@@ -1,12 +1,22 @@
 import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { StateService } from '../../../core/services/state.service';
+import { PERMISSIONS } from '../../../core/models/permissions';
+
+interface NavItem {
+  label: string;
+  link: string;
+  icon: string;
+  badge?: string;
+  permission?: string;
+}
 
 interface NavGroup {
   label: string;
   icon: string;
   expanded?: boolean;
-  items?: { label: string; link: string; icon: string; badge?: string }[];
+  permission?: string;
+  items?: NavItem[];
   link?: string;
 }
 
@@ -20,7 +30,7 @@ export class SidebarComponent {
   state = inject(StateService);
 
   menu: NavGroup[] = [
-    { label: 'Executive Dashboard', icon: 'pi-home', link: '/dashboard' },
+    { label: 'Executive Dashboard', icon: 'pi-home', link: '/dashboard', permission: PERMISSIONS.DashboardView },
     {
       label: 'SaaS & Subscriptions',
       icon: 'pi-star',
@@ -37,7 +47,7 @@ export class SidebarComponent {
       expanded: true,
       items: [
         { label: 'CRM Leads', link: '/sales/crm/leads', icon: 'pi-user-plus', badge: 'CRM' },
-        { label: 'Customer Roster', link: '/sales/customers', icon: 'pi-users' },
+        { label: 'Customer Roster', link: '/sales/customers', icon: 'pi-users', permission: PERMISSIONS.Customers },
         { label: 'Sales Deal Pipeline', link: '/sales/pipeline', icon: 'pi-chart-bar' }
       ]
     },
@@ -50,7 +60,7 @@ export class SidebarComponent {
         { label: 'Sales Quotations', link: '/sales/quotations', icon: 'pi-file' },
         { label: 'Sales Orders', link: '/sales/orders', icon: 'pi-shopping-bag', badge: 'Orders' },
         { label: 'Delivery Notes', link: '/sales/delivery-notes', icon: 'pi-truck' },
-        { label: 'Billing & Invoices', link: '/sales/invoices', icon: 'pi-file-pdf' }
+        { label: 'Billing & Invoices', link: '/sales/invoices', icon: 'pi-file-pdf', permission: PERMISSIONS.Invoices }
       ]
     },
     {
@@ -140,12 +150,27 @@ export class SidebarComponent {
       icon: 'pi-cog',
       expanded: true,
       items: [
-        { label: 'System Settings', link: '/settings', icon: 'pi-sliders-h' },
-        { label: 'User Accounts', link: '/settings/users', icon: 'pi-user-edit', badge: 'RBAC' },
-        { label: 'Roles & Permissions', link: '/settings/roles', icon: 'pi-shield', badge: 'RBAC' },
+        { label: 'System Settings', link: '/settings', icon: 'pi-sliders-h', permission: PERMISSIONS.Settings },
+        { label: 'User Accounts', link: '/settings/users', icon: 'pi-user-edit', badge: 'RBAC', permission: PERMISSIONS.Users },
+        { label: 'Roles & Permissions', link: '/settings/roles', icon: 'pi-shield', badge: 'RBAC', permission: PERMISSIONS.Roles },
         { label: 'Audit Trail Logs', link: '/settings/audit-trail', icon: 'pi-history' },
         { label: 'API & Integrations', link: '/settings/integrations', icon: 'pi-cloud', badge: 'API' }
       ]
     }
   ];
+
+  isItemVisible(permission?: string): boolean {
+    if (!permission) return true;
+    return this.state.hasPermission(permission);
+  }
+
+  isGroupVisible(group: NavGroup): boolean {
+    if (group.permission && !this.state.hasPermission(group.permission)) {
+      return false;
+    }
+    if (group.items) {
+      return group.items.some(item => this.isItemVisible(item.permission));
+    }
+    return true;
+  }
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ErpApiService, toDateString, AbpEntity } from './erp-api.service';
 import { Employee, Department, LeaveRequest } from '../../models/erp-models';
+import { environment } from '../../../../environments/environment';
 
 interface EmployeeDto extends AbpEntity {
   employeeCode: string; name: string; email: string; phone: string; position: string;
@@ -21,6 +22,10 @@ interface LeaveRequestDto extends AbpEntity {
 
 @Injectable({ providedIn: 'root' })
 export class HrApiService extends ErpApiService {
+  protected override apiPrefix(): string {
+    return `${environment.apis.default.url}/api/hr`;
+  }
+
   getEmployees(): Promise<Employee[]> {
     return this.getList<EmployeeDto>('employee').then(items =>
       items.map(e => ({

@@ -56,11 +56,11 @@ export class SharedApiService extends ErpApiService {
   }
 
   createDeal(deal: Partial<Deal>): Promise<void> {
-    return this.post('crm/deals', deal);
+    return this.post('crm/deal', deal);
   }
 
   updateDealStage(id: string, newStage: string): Promise<void> {
-    return this.put(`crm/${id}/update-deal-stage?newStage=${encodeURIComponent(newStage)}`, {});
+    return this.put(`crm/${id}/deal-stage?newStage=${encodeURIComponent(newStage)}`, {});
   }
 
   getAccounts(): Promise<Account[]> {

@@ -75,8 +75,8 @@
 
       <!-- Candidate Detail Drawer Modal -->
       @if (selectedCandidate()) {
-        <div class="fixed inset-0 z-50 flex items-center justify-end bg-slate-900/60 backdrop-blur-xs animate-fade-in">
-          <div class="w-full max-w-md h-full bg-[var(--bg-card)] border-l border-[var(--border-color)] p-6 shadow-2xl overflow-y-auto space-y-6">
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs animate-fade-in">
+          <div class="w-full max-w-md max-h-[90vh] bg-[var(--bg-card)] border border-[var(--border-color)] p-6 shadow-2xl overflow-y-auto space-y-6 m-4">
             <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-4">
               <h3 class="font-extrabold text-base text-[var(--text-main)]">Candidate Profile</h3>
               <button (click)="selectedCandidate.set(null)" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times text-lg"></i></button>
