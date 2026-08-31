@@ -57,5 +57,5 @@ export class PurchaseApiService extends ErpApiService {
     return this.getList<GoodsReceiptItem>('goods-receipt');
   }
   createGoodsReceipt(grn: Partial<GoodsReceiptItem>): Promise<void> { return this.post('goods-receipt', grn); }
-  passQualityCheck(id: string): Promise<void> { return this.post(`goods-receipt/${id}/pass-qc`, {}); }
+  passQualityCheck(id: string): Promise<void> { return this.post(`goods-receipt/${id}/pass-quality-check`, {}); }
 }

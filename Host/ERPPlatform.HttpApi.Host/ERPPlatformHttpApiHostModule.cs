@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
@@ -15,6 +17,7 @@ using ERPPlatform.MultiTenancy;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite.Bundling;
 using Microsoft.OpenApi.Models;
+using OpenIddict.Server;
 using OpenIddict.Validation.AspNetCore;
 using Volo.Abp;
 using Volo.Abp.Account;
@@ -35,12 +38,14 @@ using Volo.Abp.VirtualFileSystem;
 using Volo.Abp.AspNetCore.SignalR;
 using Volo.Abp.BlobStoring;
 using Volo.Abp.BlobStoring.FileSystem;
+using Asp.Versioning;
 
 using ERPPlatform.Modules.HR;
 using ERPPlatform.Modules.Inventory;
 using ERPPlatform.Modules.Workflow;
 using ERPPlatform.Modules.AI;
 using ERPPlatform.Dapper.Queries;
+using ERPPlatform.Hubs;
 
 namespace ERPPlatform;
 
@@ -89,11 +94,13 @@ public class ERPPlatformHttpApiHostModule : AbpModule
         ConfigureAuthentication(context);
         ConfigureBundles();
         ConfigureUrls(configuration);
-        ConfigureConventionalControllers();
+        ConfigureConventionalControllers(context);
         ConfigureVirtualFileSystem(context);
         ConfigureCors(context, configuration);
         ConfigureSwaggerServices(context, configuration);
         ConfigureBlobStoring(context);
+        ConfigureRateLimiting(context);
+        ConfigureTokenLifetimes(context);
 
         Configure<AbpMvcLibsOptions>(options =>
         {
@@ -104,6 +111,9 @@ public class ERPPlatformHttpApiHostModule : AbpModule
         {
             options.Conventions.Add(new RouteNormalizationConvention());
         });
+
+        // Register custom SignalR user ID provider for user-targeted push
+        context.Services.AddSingleton<Microsoft.AspNetCore.SignalR.IUserIdProvider, AbpUserIdProvider>();
     }
 
     private void ConfigureAuthentication(ServiceConfigurationContext context)
@@ -128,6 +138,79 @@ public class ERPPlatformHttpApiHostModule : AbpModule
                         "wwwroot", "blobs");
                 });
             });
+        });
+    }
+
+    /// <summary>
+    /// Access tokens stay short lived on purpose. The long user session
+    /// (3 hours on desktop, 6 months on phones/tablets) is owned by the client
+    /// and survives because the SPA silently exchanges its refresh token for a
+    /// new access token. The refresh token therefore has to outlive the longest
+    /// session we support, i.e. 180 days.
+    /// </summary>
+    private void ConfigureTokenLifetimes(ServiceConfigurationContext context)
+    {
+        var configuration = context.Services.GetConfiguration();
+
+        var accessTokenMinutes = configuration.GetValue<int?>("Auth:AccessTokenLifetimeMinutes") ?? 30;
+        var refreshTokenDays = configuration.GetValue<int?>("Auth:RefreshTokenLifetimeDays") ?? 180;
+
+        Configure<OpenIddictServerOptions>(options =>
+        {
+            options.AccessTokenLifetime = TimeSpan.FromMinutes(accessTokenMinutes);
+            options.RefreshTokenLifetime = TimeSpan.FromDays(refreshTokenDays);
+        });
+    }
+
+    private void ConfigureRateLimiting(ServiceConfigurationContext context)
+    {
+        context.Services.AddRateLimiter(options =>
+        {
+            options.GlobalLimiter = PartitionedRateLimiter.Create<Microsoft.AspNetCore.Http.HttpContext, string>(httpContext =>
+            {
+                var userId = httpContext.User?.FindFirst("sub")?.Value
+                             ?? httpContext.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                             ?? httpContext.Connection.RemoteIpAddress?.ToString()
+                             ?? "anonymous";
+
+                return RateLimitPartition.GetFixedWindowLimiter(userId, _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 200,
+                    Window = TimeSpan.FromMinutes(1),
+                    QueueLimit = 0
+                });
+            });
+
+            // More restrictive limit for write operations (POST/PUT/DELETE)
+            options.AddPolicy("WriteOperations", httpContext =>
+            {
+                var method = httpContext.Request.Method.ToUpperInvariant();
+                if (method == "POST" || method == "PUT" || method == "DELETE" || method == "PATCH")
+                {
+                    var userId = httpContext.User?.FindFirst("sub")?.Value
+                                 ?? httpContext.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                                 ?? httpContext.Connection.RemoteIpAddress?.ToString()
+                                 ?? "anonymous";
+
+                    return RateLimitPartition.GetFixedWindowLimiter(userId, _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = 50,
+                        Window = TimeSpan.FromMinutes(1),
+                        QueueLimit = 0
+                    });
+                }
+
+                return RateLimitPartition.GetNoLimiter(httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous");
+            });
+
+            options.OnRejected = async (context, cancellationToken) =>
+            {
+                context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+                context.HttpContext.Response.ContentType = "application/json";
+                await context.HttpContext.Response.WriteAsync(
+                    """{"error":{"code":"RATE_LIMITED","message":"Too many requests. Please slow down."}}""",
+                    cancellationToken);
+            };
         });
     }
 
@@ -181,7 +264,7 @@ public class ERPPlatformHttpApiHostModule : AbpModule
         }
     }
 
-    private void ConfigureConventionalControllers()
+    private void ConfigureConventionalControllers(ServiceConfigurationContext context)
     {
         Configure<AbpAspNetCoreMvcOptions>(options =>
         {
@@ -206,6 +289,19 @@ public class ERPPlatformHttpApiHostModule : AbpModule
                 opts.RootPath = "ai";
             });
         });
+
+        // Configure API Versioning using Asp.Versioning.Mvc directly
+        context.Services.AddApiVersioning(options =>
+        {
+            options.DefaultApiVersion = new ApiVersion(1, 0);
+            options.AssumeDefaultVersionWhenUnspecified = true;
+            options.ReportApiVersions = true;
+            options.ApiVersionReader = ApiVersionReader.Combine(
+                new QueryStringApiVersionReader("api-version"),
+                new HeaderApiVersionReader("api-version"));
+        });
+
+        context.Services.AddMvcCore().AddApiExplorer();
     }
 
     private static void ConfigureSwaggerServices(ServiceConfigurationContext context, IConfiguration configuration)
@@ -266,6 +362,7 @@ public class ERPPlatformHttpApiHostModule : AbpModule
         app.MapAbpStaticAssets();
         app.UseRouting();
         app.UseCors();
+        app.UseRateLimiter();
         app.UseAuthentication();
         app.UseAbpOpenIddictValidation();
 

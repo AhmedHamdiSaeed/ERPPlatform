@@ -257,3 +257,33 @@ Shared/ERPPlatform.DbMigrator/Logs/*
 
 # Use abp install-libs to restore.
 **/wwwroot/libs/*
+
+# ──────────────────────────────────────────────────────────────
+# Flutter / Dart (mobile app lives in mobile/app)
+# ──────────────────────────────────────────────────────────────
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
+coverage/
+*.dart.js
+*.info.json
+*.js.deps
+*.js.map
+*.js_
+.fvm/flutter_sdk
+.idea/libraries/
+*.iml
+
+# Generated code produced by build_runner (freezed, json_serializable, ...)
+*.freezed.dart
+*.g.dart
+*.mocks.dart
+*.config.dart
+
+# Flutter/Dart SDK leftovers
+*.pyc
+.mtones/

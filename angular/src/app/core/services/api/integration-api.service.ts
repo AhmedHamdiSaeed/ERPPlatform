@@ -1,4 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { ErpApiService } from './erp-api.service';
 
 export interface IntegrationConfig {
@@ -18,19 +20,31 @@ export interface IntegrationConfig {
 })
 export class IntegrationApiService extends ErpApiService {
 
+  private get basePath(): string {
+    return `${this.apiRoot}/integration-config`;
+  }
+
   getConfigs(): Promise<IntegrationConfig[]> {
-    return this.getList<IntegrationConfig>('');
+    return firstValueFrom(
+      this.http.get<{ items: IntegrationConfig[] }>(`${this.basePath}`)
+    ).then(res => res.items ?? []);
   }
 
   async saveConfig(data: Partial<IntegrationConfig>): Promise<void> {
     if (data.id) {
-      await this.put(`${data.id}`, data);
+      await firstValueFrom(this.http.put(`${this.basePath}/${data.id}`, data));
     } else {
-      await this.post('', data);
+      await firstValueFrom(this.http.post(`${this.basePath}`, data));
     }
   }
 
   async testConnection(id: string): Promise<boolean> {
-    return this.post<boolean>(`${id}/test-connection`, {});
+    return firstValueFrom(this.http.post<boolean>(`${this.basePath}/${id}/test-connection`, {}));
+  }
+
+  async getActiveProviders(): Promise<IntegrationConfig[]> {
+    return firstValueFrom(
+      this.http.get<{ items: IntegrationConfig[] }>(`${this.basePath}/active-providers`)
+    ).then(res => res.items ?? []);
   }
 }

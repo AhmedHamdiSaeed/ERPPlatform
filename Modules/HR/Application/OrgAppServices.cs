@@ -10,7 +10,7 @@ using Volo.Abp.Domain.Repositories;
 namespace ERPPlatform.Modules.HR.Application
 {
     // Existing DTOs
-    public class CompanyDto : EntityDto<Guid> { public string Name { get; set; } = string.Empty; public string TaxNumber { get; set; } = string.Empty; public string Email { get; set; } = string.Empty; public string Phone { get; set; } = string.Empty; public string Address { get; set; } = string.Empty; public string Country { get; set; } = "Egypt"; public string Currency { get; set; } = "USD"; public string Website { get; set; } = string.Empty; public string LogoUrl { get; set; } = string.Empty; public bool IsActive { get; set; } = true; }
+    public class CompanyDto : EntityDto<Guid> { public string Name { get; set; } = string.Empty; public string TaxNumber { get; set; } = string.Empty; public string Email { get; set; } = string.Empty; public string Phone { get; set; } = string.Empty; public string Address { get; set; } = string.Empty; public string Country { get; set; } = "Egypt"; public string Currency { get; set; } = "USD"; public string Website { get; set; } = string.Empty; public string LogoUrl { get; set; } = string.Empty; public string PrimaryColor { get; set; } = "#1890ff"; public string SecondaryColor { get; set; } = "#52c41a"; public string Theme { get; set; } = "default"; public bool IsActive { get; set; } = true; }
     public class BranchDto : EntityDto<Guid> { public Guid CompanyId { get; set; } public string CompanyName { get; set; } = string.Empty; public string Name { get; set; } = string.Empty; public string Code { get; set; } = string.Empty; public string Address { get; set; } = string.Empty; public string Phone { get; set; } = string.Empty; public string Email { get; set; } = string.Empty; public bool IsHeadquarters { get; set; } public bool IsActive { get; set; } }
     public class CostCenterDto : EntityDto<Guid> { public string Code { get; set; } = string.Empty; public string Name { get; set; } = string.Empty; public string Description { get; set; } = string.Empty; public bool IsActive { get; set; } }
     public class FiscalYearDto : EntityDto<Guid> { public string Name { get; set; } = string.Empty; public DateTime StartDate { get; set; } public DateTime EndDate { get; set; } public bool IsCurrent { get; set; } public bool IsClosed { get; set; } }
@@ -21,7 +21,7 @@ namespace ERPPlatform.Modules.HR.Application
     public class CustomerDto : EntityDto<Guid> { public string CustomerCode { get; set; } = string.Empty; public string Name { get; set; } = string.Empty; public string Email { get; set; } = string.Empty; public string Phone { get; set; } = string.Empty; public string Address { get; set; } = string.Empty; public string ContactPerson { get; set; } = string.Empty; public string TaxNumber { get; set; } = string.Empty; public decimal CreditLimit { get; set; } public decimal OutstandingBalance { get; set; } public string PaymentTerms { get; set; } = "Net 30 Days"; public string Currency { get; set; } = "USD"; public bool IsActive { get; set; } = true; }
     public class SupplierDto : EntityDto<Guid> { public string SupplierCode { get; set; } = string.Empty; public string CompanyName { get; set; } = string.Empty; public string Email { get; set; } = string.Empty; public string Phone { get; set; } = string.Empty; public string Address { get; set; } = string.Empty; public string ContactPerson { get; set; } = string.Empty; public string TaxNumber { get; set; } = string.Empty; public decimal CreditLimit { get; set; } public decimal OutstandingBalance { get; set; } public string PaymentTerms { get; set; } = "Net 30 Days"; public bool IsActive { get; set; } = true; }
     public class SalesOrderDto : EntityDto<Guid> { public string OrderNumber { get; set; } = string.Empty; public string CustomerName { get; set; } = string.Empty; public DateTime OrderDate { get; set; } public DateTime ExpectedDeliveryDate { get; set; } public decimal Subtotal { get; set; } public decimal TaxAmount { get; set; } public decimal TotalAmount { get; set; } public string Status { get; set; } = "Draft"; public string Notes { get; set; } = string.Empty; }
-    public class DeliveryNoteDto : EntityDto<Guid> { public string DeliveryNumber { get; set; } = string.Empty; public string SalesOrderNumber { get; set; } = string.Empty; public string CustomerName { get; set; } = string.Empty; public DateTime DeliveryDate { get; set; } public string DispatchWarehouse { get; set; } = "Main Warehouse"; public string Status { get; set; } = "Dispatched"; public string Carrier { get; set; } = "Express Freight"; }
+    public class DeliveryNoteDto : EntityDto<Guid> { public string DeliveryNumber { get; set; } = string.Empty; public string SalesOrderNumber { get; set; } = string.Empty; public string CustomerName { get; set; } = string.Empty; public DateTime DeliveryDate { get; set; } public string DispatchWarehouse { get; set; } = "Main Warehouse"; public string Status { get; set; } = "Dispatched"; public string Carrier { get; set; } = "Express Freight"; public string TrackingNumber { get; set; } = string.Empty; public string CurrentLocation { get; set; } = string.Empty; public string DeliveryProof { get; set; } = string.Empty; public string SignatureBase64 { get; set; } = string.Empty; public string SignedBy { get; set; } = string.Empty; public DateTime? SignedAt { get; set; } }
     public class PurchaseRequestDto : EntityDto<Guid> { public string PrNumber { get; set; } = string.Empty; public string DepartmentName { get; set; } = string.Empty; public string RequestedBy { get; set; } = string.Empty; public string ItemName { get; set; } = string.Empty; public int Quantity { get; set; } public decimal EstimatedCost { get; set; } public string Status { get; set; } = "Pending Approval"; }
     public class RfqDto : EntityDto<Guid> { public string RfqNumber { get; set; } = string.Empty; public string SupplierName { get; set; } = string.Empty; public string Title { get; set; } = string.Empty; public DateTime IssueDate { get; set; } public DateTime DeadlineDate { get; set; } public string Status { get; set; } = "Sent"; }
     public class GoodsReceiptDto : EntityDto<Guid> { public string GrnNumber { get; set; } = string.Empty; public string PoNumber { get; set; } = string.Empty; public string SupplierName { get; set; } = string.Empty; public DateTime ReceivedDate { get; set; } public string ReceivingWarehouse { get; set; } = "Main Warehouse"; public string QcStatus { get; set; } = "Passed"; }
@@ -109,10 +109,38 @@ namespace ERPPlatform.Modules.HR.Application
     public class CustomerAppService : CrudAppService<Customer, CustomerDto, Guid, PagedAndSortedResultRequestDto, CustomerDto> { public CustomerAppService(IRepository<Customer, Guid> repository) : base(repository) { } }
     public class SupplierAppService : CrudAppService<Supplier, SupplierDto, Guid, PagedAndSortedResultRequestDto, SupplierDto> { public SupplierAppService(IRepository<Supplier, Guid> repository) : base(repository) { } }
     public class SalesOrderAppService : CrudAppService<SalesOrder, SalesOrderDto, Guid, PagedAndSortedResultRequestDto, SalesOrderDto> { public SalesOrderAppService(IRepository<SalesOrder, Guid> repository) : base(repository) { } public async Task ApproveAsync(Guid id) { var order = await Repository.GetAsync(id); order.Status = "Approved"; await Repository.UpdateAsync(order); } }
-    public class DeliveryNoteAppService : CrudAppService<DeliveryNote, DeliveryNoteDto, Guid, PagedAndSortedResultRequestDto, DeliveryNoteDto> { public DeliveryNoteAppService(IRepository<DeliveryNote, Guid> repository) : base(repository) { } }
+    public class DeliveryNoteAppService : CrudAppService<DeliveryNote, DeliveryNoteDto, Guid, PagedAndSortedResultRequestDto, DeliveryNoteDto>
+    {
+        public DeliveryNoteAppService(IRepository<DeliveryNote, Guid> repository) : base(repository) { }
+        public async Task CaptureSignatureAsync(Guid id, string signatureBase64, string signedBy)
+        {
+            var dn = await Repository.GetAsync(id);
+            dn.SignatureBase64 = signatureBase64;
+            dn.SignedBy = signedBy;
+            dn.SignedAt = DateTime.UtcNow;
+            dn.Status = "Delivered";
+            await Repository.UpdateAsync(dn);
+        }
+        public async Task UpdateTrackingAsync(Guid id, string trackingNumber, string currentLocation)
+        {
+            var dn = await Repository.GetAsync(id);
+            dn.TrackingNumber = trackingNumber;
+            dn.CurrentLocation = currentLocation;
+            await Repository.UpdateAsync(dn);
+        }
+    }
     public class PurchaseRequestAppService : CrudAppService<PurchaseRequest, PurchaseRequestDto, Guid, PagedAndSortedResultRequestDto, PurchaseRequestDto> { public PurchaseRequestAppService(IRepository<PurchaseRequest, Guid> repository) : base(repository) { } public async Task ApproveAsync(Guid id) { var pr = await Repository.GetAsync(id); pr.Status = "Approved"; await Repository.UpdateAsync(pr); } }
     public class RfqAppService : CrudAppService<Rfq, RfqDto, Guid, PagedAndSortedResultRequestDto, RfqDto> { public RfqAppService(IRepository<Rfq, Guid> repository) : base(repository) { } }
-    public class GoodsReceiptAppService : CrudAppService<GoodsReceipt, GoodsReceiptDto, Guid, PagedAndSortedResultRequestDto, GoodsReceiptDto> { public GoodsReceiptAppService(IRepository<GoodsReceipt, Guid> repository) : base(repository) { } }
+    public class GoodsReceiptAppService : CrudAppService<GoodsReceipt, GoodsReceiptDto, Guid, PagedAndSortedResultRequestDto, GoodsReceiptDto>
+    {
+        public GoodsReceiptAppService(IRepository<GoodsReceipt, Guid> repository) : base(repository) { }
+        public async Task PassQualityCheckAsync(Guid id)
+        {
+            var gr = await Repository.GetAsync(id);
+            gr.QcStatus = "Passed";
+            await Repository.UpdateAsync(gr);
+        }
+    }
 
     // AppServices for Modules 16-20
     public class ExpenseAppService : CrudAppService<ExpenseRequest, ExpenseRequestDto, Guid, PagedAndSortedResultRequestDto, ExpenseRequestDto>

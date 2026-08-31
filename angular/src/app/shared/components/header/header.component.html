@@ -41,6 +41,15 @@
           <i class="pi pi-search text-lg"></i>
         </button>
 
+        <!-- Global Import Button -->
+        <button 
+          (click)="fileImport.openDialog()"
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 text-white font-medium text-xs shadow-xs hover:bg-blue-700 transition-colors cursor-pointer"
+          title="Import a file (resumable, runs in the background)">
+          <i class="pi pi-upload"></i>
+          <span class="hidden sm:inline">Import</span>
+        </button>
+
         <!-- AI Assistant Button -->
         <button 
           (click)="state.toggleAiWidget()"

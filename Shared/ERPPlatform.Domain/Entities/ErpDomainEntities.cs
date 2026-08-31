@@ -92,6 +92,7 @@ namespace ERPPlatform.Domain.Entities
         public string Avatar { get; set; } = string.Empty;
         public string ManagerName { get; set; } = string.Empty;
         public string Location { get; set; } = "Cairo HQ";
+        public decimal LeaveBalance { get; set; } = 21.0m; // Annual leave balance in days
     }
 
     public class Department : FullAuditedAggregateRoot<Guid>
@@ -127,6 +128,10 @@ namespace ERPPlatform.Domain.Entities
         public decimal WorkingHours { get; set; }
         public decimal OvertimeHours { get; set; }
         public string Status { get; set; } = "Present";
+        public double? CheckInLatitude { get; set; }
+        public double? CheckInLongitude { get; set; }
+        public double? CheckOutLatitude { get; set; }
+        public double? CheckOutLongitude { get; set; }
     }
 
     // Organization Setup Entities
@@ -143,6 +148,9 @@ namespace ERPPlatform.Domain.Entities
         public string Currency { get; set; } = "USD";
         public string Website { get; set; } = string.Empty;
         public string LogoUrl { get; set; } = string.Empty;
+        public string PrimaryColor { get; set; } = "#1890ff";
+        public string SecondaryColor { get; set; } = "#52c41a";
+        public string Theme { get; set; } = "default"; // default, dark, compact
         public bool IsActive { get; set; } = true;
     }
 
@@ -208,6 +216,7 @@ namespace ERPPlatform.Domain.Entities
     public class Product : FullAuditedAggregateRoot<Guid>
     {
         public string Sku { get; set; } = string.Empty;
+        public string Barcode { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public string Category { get; set; } = string.Empty;
         public decimal Price { get; set; }
@@ -365,6 +374,12 @@ namespace ERPPlatform.Domain.Entities
         public string DispatchWarehouse { get; set; } = "Main Warehouse";
         public string Status { get; set; } = "Dispatched";
         public string Carrier { get; set; } = "Express Freight";
+        public string TrackingNumber { get; set; } = string.Empty;
+        public string CurrentLocation { get; set; } = string.Empty;
+        public string DeliveryProof { get; set; } = string.Empty; // base64 image or document URL
+        public string SignatureBase64 { get; set; } = string.Empty; // captured digital signature
+        public string SignedBy { get; set; } = string.Empty;
+        public DateTime? SignedAt { get; set; }
     }
 
     public class SalesInvoice : FullAuditedAggregateRoot<Guid>
@@ -421,6 +436,9 @@ namespace ERPPlatform.Domain.Entities
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
         public string Status { get; set; } = "Pending";
         public string Comments { get; set; } = string.Empty;
+        public string SignatureBase64 { get; set; } = string.Empty;
+        public string SignedBy { get; set; } = string.Empty;
+        public DateTime? SignedAt { get; set; }
     }
 
     // Finance & Accounting Entities
@@ -614,5 +632,195 @@ namespace ERPPlatform.Domain.Entities
         public string Link { get; set; } = string.Empty;
         public DateTime Timestamp { get; set; } = DateTime.UtcNow;
         public bool IsRead { get; set; } = false;
+    }
+
+    // Push Notification Device Registration Entity
+    public class DeviceRegistration : FullAuditedAggregateRoot<Guid>
+    {
+        public Guid? UserId { get; set; }
+        public string DeviceToken { get; set; } = string.Empty; // FCM or APNS token
+        public string Platform { get; set; } = "Android"; // Android, iOS
+        public string DeviceName { get; set; } = string.Empty;
+        public string AppVersion { get; set; } = string.Empty;
+        public string OsVersion { get; set; } = string.Empty;
+        public bool IsEnabled { get; set; } = true;
+        public DateTime? LastRegisteredAt { get; set; } = DateTime.UtcNow;
+    }
+
+    // Stock Count / Cycle Count Entities
+    public class StockCount : FullAuditedAggregateRoot<Guid>
+    {
+        public string CountNumber { get; set; } = string.Empty;
+        public Guid? WarehouseId { get; set; }
+        public string WarehouseName { get; set; } = string.Empty;
+        public DateTime CountDate { get; set; } = DateTime.UtcNow;
+        public string Status { get; set; } = "Draft"; // Draft, InProgress, Submitted, Approved, Rejected
+        public string CountedBy { get; set; } = string.Empty;
+        public string ApprovedBy { get; set; } = string.Empty;
+        public DateTime? ApprovedAt { get; set; }
+        public string Notes { get; set; } = string.Empty;
+    }
+
+    public class StockCountItem : FullAuditedAggregateRoot<Guid>
+    {
+        public Guid StockCountId { get; set; }
+        public Guid ProductId { get; set; }
+        public string ProductName { get; set; } = string.Empty;
+        public string Sku { get; set; } = string.Empty;
+        public string Barcode { get; set; } = string.Empty;
+        public int SystemStock { get; set; }
+        public int CountedStock { get; set; }
+        public int Discrepancy { get; set; }
+        public string Notes { get; set; } = string.Empty;
+    }
+
+    // Picking / Pick List Entities
+    public class PickList : FullAuditedAggregateRoot<Guid>
+    {
+        public string PickNumber { get; set; } = string.Empty;
+        public Guid? SalesOrderId { get; set; }
+        public string SalesOrderNumber { get; set; } = string.Empty;
+        public Guid? WarehouseId { get; set; }
+        public string WarehouseName { get; set; } = string.Empty;
+        public string AssignedTo { get; set; } = string.Empty;
+        public DateTime AssignedAt { get; set; } = DateTime.UtcNow;
+        public string Status { get; set; } = "Open"; // Open, Assigned, InProgress, Completed, Cancelled
+        public DateTime? CompletedAt { get; set; }
+        public string Notes { get; set; } = string.Empty;
+    }
+
+    public class PickListItem : FullAuditedAggregateRoot<Guid>
+    {
+        public Guid PickListId { get; set; }
+        public Guid ProductId { get; set; }
+        public string ProductName { get; set; } = string.Empty;
+        public string Sku { get; set; } = string.Empty;
+        public string Barcode { get; set; } = string.Empty;
+        public int RequiredQuantity { get; set; }
+        public int PickedQuantity { get; set; }
+        public string BinLocation { get; set; } = string.Empty;
+        public bool IsPicked { get; set; } = false;
+    }
+
+    // Packing / Pack List Entities
+    public class PackList : FullAuditedAggregateRoot<Guid>
+    {
+        public string PackNumber { get; set; } = string.Empty;
+        public Guid? PickListId { get; set; }
+        public string PickListNumber { get; set; } = string.Empty;
+        public Guid? SalesOrderId { get; set; }
+        public string SalesOrderNumber { get; set; } = string.Empty;
+        public string CustomerName { get; set; } = string.Empty;
+        public string PackedBy { get; set; } = string.Empty;
+        public DateTime PackedAt { get; set; } = DateTime.UtcNow;
+        public string Status { get; set; } = "Open"; // Open, Packed, Shipped, Cancelled
+        public string TrackingNumber { get; set; } = string.Empty;
+        public string Carrier { get; set; } = string.Empty;
+        public string ShippingLabelUrl { get; set; } = string.Empty;
+        public string Notes { get; set; } = string.Empty;
+    }
+
+    public class PackListItem : FullAuditedAggregateRoot<Guid>
+    {
+        public Guid PackListId { get; set; }
+        public Guid ProductId { get; set; }
+        public string ProductName { get; set; } = string.Empty;
+        public string Sku { get; set; } = string.Empty;
+        public string Barcode { get; set; } = string.Empty;
+        public int PackedQuantity { get; set; }
+        public int ShippedQuantity { get; set; }
+        public string PackageType { get; set; } = "Carton"; // Carton, Pallet, Box, Envelope
+        public decimal WeightKg { get; set; }
+    }
+
+    // Field Visit / Customer Visit Tracking Entity
+    public class FieldVisit : FullAuditedAggregateRoot<Guid>
+    {
+        public Guid EmployeeId { get; set; }
+        public string EmployeeName { get; set; } = string.Empty;
+        public Guid CustomerId { get; set; }
+        public string CustomerName { get; set; } = string.Empty;
+        public DateTime VisitDate { get; set; } = DateTime.UtcNow;
+        public string Purpose { get; set; } = string.Empty; // Sales, Support, Delivery, Audit
+        public DateTime? CheckInTime { get; set; }
+        public double? CheckInLatitude { get; set; }
+        public double? CheckInLongitude { get; set; }
+        public DateTime? CheckOutTime { get; set; }
+        public double? CheckOutLatitude { get; set; }
+        public double? CheckOutLongitude { get; set; }
+        public string Notes { get; set; } = string.Empty;
+        public string Outcome { get; set; } = string.Empty; // Positive, Neutral, Negative, Follow-up Needed
+        public string Status { get; set; } = "Planned"; // Planned, CheckedIn, Completed, Cancelled
+        public string NextFollowUpDate { get; set; } = string.Empty;
+    }
+
+    // Payment Entity
+    public class Payment : FullAuditedAggregateRoot<Guid>
+    {
+        public string PaymentNumber { get; set; } = string.Empty;
+        public Guid? SalesInvoiceId { get; set; }
+        public string InvoiceNumber { get; set; } = string.Empty;
+        public string CustomerName { get; set; } = string.Empty;
+        public decimal Amount { get; set; }
+        public string Currency { get; set; } = "USD";
+        public string PaymentMethod { get; set; } = "Card"; // Card, BankTransfer, Cash, Cheque
+        public string Provider { get; set; } = "Stripe"; // Stripe, PayPal, Manual
+        public string ExternalPaymentId { get; set; } = string.Empty; // Stripe charge/payment intent ID
+        public string Status { get; set; } = "Pending"; // Pending, Completed, Failed, Refunded, PartiallyRefunded
+        public DateTime PaymentDate { get; set; } = DateTime.UtcNow;
+        public decimal? RefundedAmount { get; set; }
+        public DateTime? RefundedAt { get; set; }
+        public string Notes { get; set; } = string.Empty;
+    }
+
+    // AI Chat Session Entity
+    public class AiChatSession : FullAuditedAggregateRoot<Guid>
+    {
+        public Guid? UserId { get; set; }
+        public string SessionId { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime LastMessageAt { get; set; } = DateTime.UtcNow;
+        public string MessagesJson { get; set; } = "[]"; // JSON array of {role, content, timestamp}
+        public string Status { get; set; } = "Active"; // Active, Archived
+    }
+
+    // Dashboard Widget Catalog Entity
+    public class DashboardWidget : FullAuditedAggregateRoot<Guid>
+    {
+        public string Code { get; set; } = string.Empty; // e.g. "sales-summary", "hr-stats", "pending-approvals"
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string Category { get; set; } = "General"; // Sales, HR, Inventory, Finance, Workflow, AI
+        public string ComponentName { get; set; } = string.Empty; // Angular component name to render
+        public string Icon { get; set; } = string.Empty; // e.g. "fas fa-chart-line"
+        public int DefaultWidth { get; set; } = 6; // 1-12 grid columns
+        public int DefaultHeight { get; set; } = 300; // px
+        public int DefaultOrder { get; set; } = 0;
+        public bool IsEnabled { get; set; } = true;
+    }
+
+    // User Dashboard Configuration Entity (per-user widget layout)
+    public class UserDashboardConfig : FullAuditedAggregateRoot<Guid>
+    {
+        public Guid? UserId { get; set; }
+        public string DashboardName { get; set; } = "Default"; // Default, Executive, Sales, HR, etc.
+        public string LayoutJson { get; set; } = "[]"; // JSON array of {widgetCode, x, y, w, h, order}
+        public bool IsDefault { get; set; } = false;
+    }
+
+    // Leave Policy Entity (accrual rules per leave type)
+    public class LeavePolicy : FullAuditedAggregateRoot<Guid>
+    {
+        public string Name { get; set; } = string.Empty; // e.g. "Annual Leave Policy", "Sick Leave Policy"
+        public string LeaveType { get; set; } = "Annual"; // Annual, Sick, Casual, Maternity, Paternity, Unpaid
+        public decimal AnnualAccrualDays { get; set; } = 21.0m; // Days accrued per year
+        public decimal MaxCarryForwardDays { get; set; } = 5.0m; // Max days that can be carried to next year
+        public decimal MaxConsecutiveDays { get; set; } = 30.0m; // Max consecutive leave days allowed
+        public bool RequiresApproval { get; set; } = true;
+        public bool AllowHalfDay { get; set; } = true;
+        public int ProbationPeriodMonths { get; set; } = 3; // Months before leave is available
+        public bool IsActive { get; set; } = true;
+        public string Description { get; set; } = string.Empty;
     }
 }

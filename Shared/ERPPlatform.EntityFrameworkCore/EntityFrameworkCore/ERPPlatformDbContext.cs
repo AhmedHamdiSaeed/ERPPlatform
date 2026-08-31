@@ -119,6 +119,25 @@ public class ERPPlatformDbContext :
     public DbSet<Document> Documents { get; set; }
     public DbSet<Folder> Folders { get; set; }
 
+    // Mobile Support DbSets
+    public DbSet<DeviceRegistration> DeviceRegistrations { get; set; }
+    public DbSet<StockCount> StockCounts { get; set; }
+    public DbSet<StockCountItem> StockCountItems { get; set; }
+    public DbSet<PickList> PickLists { get; set; }
+    public DbSet<PickListItem> PickListItems { get; set; }
+    public DbSet<PackList> PackLists { get; set; }
+    public DbSet<PackListItem> PackListItems { get; set; }
+    public DbSet<FieldVisit> FieldVisits { get; set; }
+    public DbSet<Payment> Payments { get; set; }
+    public DbSet<AiChatSession> AiChatSessions { get; set; }
+
+    // Dashboard Customization DbSets
+    public DbSet<DashboardWidget> DashboardWidgets { get; set; }
+    public DbSet<UserDashboardConfig> UserDashboardConfigs { get; set; }
+
+    // Leave Policy DbSets
+    public DbSet<LeavePolicy> LeavePolicies { get; set; }
+
     public ERPPlatformDbContext(DbContextOptions<ERPPlatformDbContext> options)
         : base(options)
     {
@@ -164,6 +183,68 @@ public class ERPPlatformDbContext :
         builder.Entity<UsageRecord>(b =>
         {
             b.HasIndex(x => new { x.TenantId, x.FeatureCode, x.PeriodStart, x.PeriodEnd }).IsUnique();
+        });
+
+        // Mobile Support Indexes
+        builder.Entity<Product>(b =>
+        {
+            b.HasIndex(x => x.Barcode);
+        });
+
+        builder.Entity<DeviceRegistration>(b =>
+        {
+            b.HasIndex(x => x.DeviceToken);
+            b.HasIndex(x => x.UserId);
+        });
+
+        builder.Entity<StockCountItem>(b =>
+        {
+            b.HasIndex(x => x.StockCountId);
+        });
+
+        builder.Entity<PickListItem>(b =>
+        {
+            b.HasIndex(x => x.PickListId);
+        });
+
+        builder.Entity<PackListItem>(b =>
+        {
+            b.HasIndex(x => x.PackListId);
+        });
+
+        builder.Entity<FieldVisit>(b =>
+        {
+            b.HasIndex(x => x.EmployeeId);
+            b.HasIndex(x => x.CustomerId);
+        });
+
+        builder.Entity<Payment>(b =>
+        {
+            b.HasIndex(x => x.SalesInvoiceId);
+        });
+
+        builder.Entity<AiChatSession>(b =>
+        {
+            b.HasIndex(x => x.UserId);
+            b.HasIndex(x => x.SessionId);
+        });
+
+        // Dashboard Customization Indexes
+        builder.Entity<DashboardWidget>(b =>
+        {
+            b.HasIndex(x => x.Code).IsUnique();
+        });
+
+        builder.Entity<UserDashboardConfig>(b =>
+        {
+            b.HasIndex(x => x.UserId);
+            b.HasIndex(x => new { x.UserId, x.DashboardName });
+        });
+
+        // Leave Policy Index
+        builder.Entity<LeavePolicy>(b =>
+        {
+            b.HasIndex(x => x.LeaveType);
         });
     }
 }

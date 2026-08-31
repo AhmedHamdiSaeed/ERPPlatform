@@ -52,7 +52,28 @@ namespace ERPPlatform.Modules.Inventory.Application
         public decimal PaidAmount { get; set; }
     }
 
-    public class SalesInvoiceAppService : CrudAppService<SalesInvoice, SalesInvoiceDto, Guid, PagedAndSortedResultRequestDto, SalesInvoiceDto>
+    public class SalesInvoiceGetListInput : PagedAndSortedResultRequestDto
+    {
+        public string Filter { get; set; } = string.Empty; // Search by invoice number, customer name, email
+        public string Status { get; set; } = string.Empty; // Draft, Sent, Paid, Overdue, Cancelled
+        public string CustomerName { get; set; } = string.Empty;
+        public DateTime? IssueDateFrom { get; set; }
+        public DateTime? IssueDateTo { get; set; }
+        public DateTime? DueDateFrom { get; set; }
+        public DateTime? DueDateTo { get; set; }
+        public decimal? MinAmount { get; set; }
+        public decimal? MaxAmount { get; set; }
+    }
+
+    public interface ISalesInvoiceAppService : ICrudAppService<SalesInvoiceDto, Guid, PagedAndSortedResultRequestDto, SalesInvoiceDto>
+    {
+        Task MarkAsPaidAsync(Guid id);
+        Task SendInvoiceAsync(Guid id);
+        Task<SalesDashboardStatsDto> GetStatsAsync();
+        Task<PagedResultDto<SalesInvoiceDto>> GetListFilteredAsync(SalesInvoiceGetListInput input);
+    }
+
+    public class SalesInvoiceAppService : CrudAppService<SalesInvoice, SalesInvoiceDto, Guid, PagedAndSortedResultRequestDto, SalesInvoiceDto>, ISalesInvoiceAppService
     {
         private readonly IFeatureChecker _featureChecker;
         private readonly IUsageService _usageService;
@@ -106,6 +127,88 @@ namespace ERPPlatform.Modules.Inventory.Application
                 PendingAmount = list.Where(i => i.Status != "Paid").Sum(i => i.TotalAmount),
                 PaidAmount = list.Where(i => i.Status == "Paid").Sum(i => i.TotalAmount)
             };
+        }
+
+        public async Task<PagedResultDto<SalesInvoiceDto>> GetListFilteredAsync(SalesInvoiceGetListInput input)
+        {
+            var all = await Repository.GetListAsync();
+            var query = all.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(input.Filter))
+            {
+                var filter = input.Filter.ToLowerInvariant();
+                query = query.Where(i =>
+                    (i.InvoiceNumber ?? "").ToLower().Contains(filter) ||
+                    (i.CustomerName ?? "").ToLower().Contains(filter) ||
+                    (i.CustomerEmail ?? "").ToLower().Contains(filter));
+            }
+
+            if (!string.IsNullOrWhiteSpace(input.Status))
+            {
+                query = query.Where(i => i.Status == input.Status);
+            }
+
+            if (!string.IsNullOrWhiteSpace(input.CustomerName))
+            {
+                query = query.Where(i => i.CustomerName == input.CustomerName);
+            }
+
+            if (input.IssueDateFrom.HasValue)
+            {
+                query = query.Where(i => i.IssueDate >= input.IssueDateFrom.Value);
+            }
+
+            if (input.IssueDateTo.HasValue)
+            {
+                query = query.Where(i => i.IssueDate <= input.IssueDateTo.Value);
+            }
+
+            if (input.DueDateFrom.HasValue)
+            {
+                query = query.Where(i => i.DueDate >= input.DueDateFrom.Value);
+            }
+
+            if (input.DueDateTo.HasValue)
+            {
+                query = query.Where(i => i.DueDate <= input.DueDateTo.Value);
+            }
+
+            if (input.MinAmount.HasValue)
+            {
+                query = query.Where(i => i.TotalAmount >= input.MinAmount.Value);
+            }
+
+            if (input.MaxAmount.HasValue)
+            {
+                query = query.Where(i => i.TotalAmount <= input.MaxAmount.Value);
+            }
+
+            query = query.OrderByDescending(i => i.IssueDate);
+
+            var totalCount = query.Count();
+            var items = query
+                .Skip(input.SkipCount)
+                .Take(input.MaxResultCount)
+                .ToList();
+
+            var dtos = items.Select(i => new SalesInvoiceDto
+            {
+                Id = i.Id,
+                InvoiceNumber = i.InvoiceNumber,
+                CustomerName = i.CustomerName,
+                CustomerEmail = i.CustomerEmail,
+                IssueDate = i.IssueDate,
+                DueDate = i.DueDate,
+                Subtotal = i.Subtotal,
+                TaxAmount = i.TaxAmount,
+                Discount = i.Discount,
+                TotalAmount = i.TotalAmount,
+                Status = i.Status,
+                Notes = i.Notes,
+                CreatedBy = i.CreatedBy
+            }).ToList();
+
+            return new PagedResultDto<SalesInvoiceDto>(totalCount, dtos);
         }
     }
 

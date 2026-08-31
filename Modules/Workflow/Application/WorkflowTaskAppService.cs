@@ -17,12 +17,16 @@ namespace ERPPlatform.Modules.Workflow.Application
         public DateTime CreatedDate { get; set; }
         public string Status { get; set; } = "Pending";
         public string Comments { get; set; } = string.Empty;
+        public string SignatureBase64 { get; set; } = string.Empty;
+        public string SignedBy { get; set; } = string.Empty;
+        public DateTime? SignedAt { get; set; }
     }
 
     public interface IWorkflowTaskAppService : ICrudAppService<WorkflowTaskDto, Guid, PagedAndSortedResultRequestDto, WorkflowTaskDto>
     {
         Task ApproveAsync(Guid id, string comments);
         Task RejectAsync(Guid id, string comments);
+        Task CaptureSignatureAsync(Guid id, string signatureBase64, string signedBy);
     }
 
     public class WorkflowTaskAppService : CrudAppService<WorkflowTask, WorkflowTaskDto, Guid, PagedAndSortedResultRequestDto, WorkflowTaskDto>, IWorkflowTaskAppService
@@ -44,6 +48,15 @@ namespace ERPPlatform.Modules.Workflow.Application
             var task = await Repository.GetAsync(id);
             task.Status = "Rejected";
             task.Comments = comments;
+            await Repository.UpdateAsync(task);
+        }
+
+        public async Task CaptureSignatureAsync(Guid id, string signatureBase64, string signedBy)
+        {
+            var task = await Repository.GetAsync(id);
+            task.SignatureBase64 = signatureBase64;
+            task.SignedBy = signedBy;
+            task.SignedAt = DateTime.UtcNow;
             await Repository.UpdateAsync(task);
         }
 
@@ -86,7 +99,10 @@ namespace ERPPlatform.Modules.Workflow.Application
                 Details = entity.Details,
                 CreatedDate = entity.CreatedDate,
                 Status = entity.Status,
-                Comments = entity.Comments
+                Comments = entity.Comments,
+                SignatureBase64 = entity.SignatureBase64,
+                SignedBy = entity.SignedBy,
+                SignedAt = entity.SignedAt
             });
         }
     }

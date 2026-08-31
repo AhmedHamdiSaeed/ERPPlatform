@@ -7,6 +7,7 @@ import { AiWidgetComponent } from '../shared/components/ai-widget/ai-widget.comp
 import { PwaPromptComponent } from '../shared/components/pwa-prompt/pwa-prompt.component';
 import { ToastContainerComponent } from '../shared/components/toast-container/toast-container.component';
 import { ConfirmDialogComponent } from '../shared/components/confirm-dialog/confirm-dialog.component';
+import { FileImportDialogComponent } from '../shared/components/file-import/file-import-dialog.component';
 import { StateService } from '../core/services/state.service';
 
 @Component({
@@ -20,7 +21,8 @@ import { StateService } from '../core/services/state.service';
     AiWidgetComponent,
     PwaPromptComponent,
     ToastContainerComponent,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    FileImportDialogComponent
   ],
   templateUrl: './layout-shell.component.html'
 })

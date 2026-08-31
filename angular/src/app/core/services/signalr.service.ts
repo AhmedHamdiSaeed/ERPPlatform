@@ -22,7 +22,6 @@ export interface ChannelInfo {
   unreadCount: number;
 }
 
-@ComponentChatMockData
 export const INITIAL_CHAT_MESSAGES: ChatMessageItem[] = [
   {
     id: 'msg-1',
@@ -55,8 +54,6 @@ export const INITIAL_CHAT_MESSAGES: ChatMessageItem[] = [
     isRead: true
   }
 ];
-
-function ComponentChatMockData(target: any) {}
 
 @Injectable({
   providedIn: 'root'
