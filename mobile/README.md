@@ -203,3 +203,50 @@ Use the base URL from §3:
    6-month mobile session depends on the refresh token being returned.
 5. Don't commit local connection strings or the `openiddict.pfx` dev certificate.
 
+## 7. Running the mobile app
+
+Prerequisite: the **API must be running** (§6.2) and Flutter must be installed on your machine.
+The app project lives in `mobile/app` (create it first — see §1 if it doesn't exist yet).
+
+```bash
+cd mobile/app
+flutter pub get
+flutter run            # pick a simulator / emulator / device when prompted
+```
+
+Before the first run:
+1. **Copy the design system** (§2): `cp ../design-system/erp_theme.dart lib/theme/erp_theme.dart`.
+2. **Point at the API** (§6.4):
+   - Android emulator → `https://10.0.2.2:44327`
+   - iOS simulator → `https://localhost:44327`
+   - Physical device → `https://<your-machine-LAN-IP>:44327`
+3. **Android self-signed cert**: add a `network_security_config.xml` that trusts the dev
+   certificate (§3 / §6.4), otherwise HTTPS calls fail with a cert error.
+
+Login with a seeded user (default dev admin is `admin` / `1q2w3E*`). The 6-month mobile session,
+refresh-token handling, and `IMPORT_DONE` notifications are all exercised against the running API.
+
+## 8. Full local startup checklist
+
+Bring the whole platform up in this order (one terminal per long-lived process):
+
+| # | What | Command | URL / note |
+|---|------|---------|------------|
+| 1 | **Seed the database** (once, re-run after new migrations) | `dotnet run --project Shared/ERPPlatform.DbMigrator` | creates tables + seeds `admin` & `ERPPlatform_App` |
+| 2 | **API host** (keep running) | `dotnet run --project Host/ERPPlatform.HttpApi.Host` | `https://localhost:44327` |
+| 3 | **Angular web** (optional) | `cd angular && npm install && npm start` | `http://localhost:4200` |
+| 4 | **Mobile app** (optional) | `cd mobile/app && flutter pub get && flutter run` | emulator/simulator/device |
+
+**Verify:**
+- API: open `https://localhost:44327/swagger` — you should see the Swagger UI.
+- Web: log in at `http://localhost:4200` with the seeded user.
+- Mobile: log in with the same user; theImport button (header) starts a resumable upload
+  that the API processes in the background and confirms via a real-time notification.
+
+**Ports at a glance:** API `44327` (HTTPS) · Web `4200` (HTTP) · Mobile emulator `10.0.2.2:44327`.
+A single API instance serves **both** the web app and the mobile app — you don't need two.
+
+> Best practice: always start the API (step 2) first and keep it alive for the whole dev session;
+> the web and mobile apps are just clients talking to it. Re-run the DbMigrator (step 1) whenever
+> you pull changes that include new EF Core migrations.
+
