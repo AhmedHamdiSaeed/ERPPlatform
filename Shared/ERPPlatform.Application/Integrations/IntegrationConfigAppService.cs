@@ -33,15 +33,15 @@ namespace ERPPlatform.Integrations
         public string ConfigJson { get; set; } = "{}";
     }
 
-    public interface IIntegrationAppService : ICrudAppService<IntegrationConfigDto, Guid, PagedAndSortedResultRequestDto, CreateUpdateIntegrationConfigDto>
+    public interface IIntegrationConfigAppService : ICrudAppService<IntegrationConfigDto, Guid, PagedAndSortedResultRequestDto, CreateUpdateIntegrationConfigDto>
     {
         Task<bool> TestConnectionAsync(Guid id);
         Task<List<IntegrationConfigDto>> GetActiveProvidersAsync();
     }
 
-    public class IntegrationAppService : CrudAppService<IntegrationConfig, IntegrationConfigDto, Guid, PagedAndSortedResultRequestDto, CreateUpdateIntegrationConfigDto>, IIntegrationAppService
+    public class IntegrationConfigAppService : CrudAppService<IntegrationConfig, IntegrationConfigDto, Guid, PagedAndSortedResultRequestDto, CreateUpdateIntegrationConfigDto>, IIntegrationConfigAppService
     {
-        public IntegrationAppService(IRepository<IntegrationConfig, Guid> repository) : base(repository)
+        public IntegrationConfigAppService(IRepository<IntegrationConfig, Guid> repository) : base(repository)
         {
         }
 

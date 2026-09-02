@@ -95,12 +95,12 @@ public class DocumentController : AbpControllerBase
 
 public class CreateFolderRequest
 {
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
     public Guid? ParentId { get; set; }
 }
 
 public class UploadDocumentDto
 {
-    public IFormFile File { get; set; }
+    public IFormFile? File { get; set; }
     public Guid? FolderId { get; set; }
 }

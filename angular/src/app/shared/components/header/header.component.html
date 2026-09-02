@@ -4,7 +4,7 @@
         <button 
           (click)="state.toggleSidebar()" 
           class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-[var(--text-muted)] transition-colors focus:outline-hidden"
-          title="Toggle Sidebar">
+          title="{{ 'UI:ToggleSidebar' | abpLocalization }}">
           <i class="pi pi-bars text-lg"></i>
         </button>
 
@@ -26,7 +26,7 @@
           class="w-full flex items-center justify-between px-3.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-500 hover:border-blue-500 transition-colors text-sm cursor-pointer">
           <div class="flex items-center gap-2">
             <i class="pi pi-search text-slate-400"></i>
-            <span>Search employees, products, workflows, orders...</span>
+            <span>{{ 'UI:SearchPlaceholder' | abpLocalization }}</span>
           </div>
           <kbd class="px-2 py-0.5 text-[11px] font-mono font-semibold bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-slate-500 shadow-2xs">Ctrl K</kbd>
         </button>
@@ -47,7 +47,7 @@
           class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 text-white font-medium text-xs shadow-xs hover:bg-blue-700 transition-colors cursor-pointer"
           title="Import a file (resumable, runs in the background)">
           <i class="pi pi-upload"></i>
-          <span class="hidden sm:inline">Import</span>
+          <span class="hidden sm:inline">{{ 'UI:Import' | abpLocalization }}</span>
         </button>
 
         <!-- AI Assistant Button -->
@@ -55,14 +55,14 @@
           (click)="state.toggleAiWidget()"
           class="relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-indigo-500 to-blue-600 text-white font-medium text-xs shadow-xs hover:opacity-95 transition-opacity cursor-pointer">
           <i class="pi pi-sparkles"></i>
-          <span class="hidden sm:inline">AI Assistant</span>
+          <span class="hidden sm:inline">{{ 'UI:AIAssistant' | abpLocalization }}</span>
         </button>
 
         <!-- Light/Dark Theme Toggle -->
         <button 
           (click)="state.toggleTheme()" 
           class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-[var(--text-muted)] transition-colors"
-          [title]="'Switch to ' + (state.theme() === 'light' ? 'Dark' : 'Light') + ' mode'">
+          [title]="'UI:ToggleTheme' | abpLocalization">
           <i [class]="state.theme() === 'light' ? 'pi pi-moon' : 'pi pi-sun'" class="text-lg"></i>
         </button>
 
@@ -88,8 +88,8 @@
           @if (showNotifDropdown) {
             <div class="absolute right-0 mt-2 w-80 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl shadow-lg z-50 overflow-hidden animate-fade-in">
               <div class="p-3 border-b border-[var(--border-color)] flex items-center justify-between">
-                <h4 class="font-semibold text-sm">Notifications</h4>
-                <button (click)="state.markAllNotificationsAsRead()" class="text-xs text-blue-600 hover:underline">Mark all read</button>
+                <h4 class="font-semibold text-sm">{{ 'UI:Notifications' | abpLocalization }}</h4>
+                <button (click)="state.markAllNotificationsAsRead()" class="text-xs text-blue-600 hover:underline">{{ 'UI:MarkAllRead' | abpLocalization }}</button>
               </div>
               <div class="max-h-72 overflow-y-auto divide-y divide-[var(--border-color)]">
                 @for (n of state.notifications(); track n.id) {
@@ -107,12 +107,12 @@
                   </div>
                 } @empty {
                   <div class="p-6 text-center text-xs text-[var(--text-muted)]">
-                    No notifications right now.
+                    {{ 'UI:NoNotifications' | abpLocalization }}
                   </div>
                 }
               </div>
               <div class="p-2 border-t border-[var(--border-color)] text-center bg-slate-50 dark:bg-slate-900/50">
-                <a routerLink="/notifications" (click)="showNotifDropdown = false" class="text-xs text-blue-600 font-medium hover:underline">View Notification Center</a>
+                <a routerLink="/notifications" (click)="showNotifDropdown = false" class="text-xs text-blue-600 font-medium hover:underline">{{ 'UI:ViewNotificationCenter' | abpLocalization }}</a>
               </div>
             </div>
           }
@@ -136,14 +136,14 @@
                 <p class="text-[11px] text-[var(--text-muted)] truncate">{{ state.currentUser().email }}</p>
               </div>
               <a routerLink="/settings" (click)="showUserMenu = false" class="flex items-center gap-2.5 px-3 py-2 text-xs rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-[var(--text-main)]">
-                <i class="pi pi-user text-slate-400"></i> My Profile & Settings
+                <i class="pi pi-user text-slate-400"></i> {{ 'UI:MyProfileSettings' | abpLocalization }}
               </a>
               <a routerLink="/workflow/tasks" (click)="showUserMenu = false" class="flex items-center gap-2.5 px-3 py-2 text-xs rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-[var(--text-main)]">
-                <i class="pi pi-check-square text-slate-400"></i> My Tasks Inbox
+                <i class="pi pi-check-square text-slate-400"></i> {{ 'UI:MyTasksInbox' | abpLocalization }}
               </a>
               <div class="border-t border-[var(--border-color)] my-1"></div>
               <a routerLink="/auth/login" (click)="showUserMenu = false" class="flex items-center gap-2.5 px-3 py-2 text-xs rounded-md hover:bg-red-50 text-red-600">
-                <i class="pi pi-sign-out"></i> Log Out
+                <i class="pi pi-sign-out"></i> {{ 'UI:Logout' | abpLocalization }}
               </a>
             </div>
           }

@@ -33,8 +33,9 @@ export class ChangePasswordComponent {
     const apiUrl = environment.apis.default.url;
 
     try {
+      // POST /api/account/my-profile/change-password  (there is no /api/account/change-password)
       await firstValueFrom(
-        this.http.post(`${apiUrl}/api/account/change-password`, {
+        this.http.post(`${apiUrl}/api/account/my-profile/change-password`, {
           currentPassword: this.currentPassword(),
           newPassword: this.newPassword()
         })
@@ -43,9 +44,13 @@ export class ChangePasswordComponent {
       this.currentPassword.set('');
       this.newPassword.set('');
       this.confirmPassword.set('');
-    } catch (e) {
-      // Demo fallback
-      this.success.set(true);
+    } catch (e: any) {
+      this.success.set(false);
+      this.errorMsg.set(
+        e?.error?.error?.message ??
+        e?.error?.message ??
+        'Could not change password. Check your current password and try again.'
+      );
     } finally {
       this.loading.set(false);
     }

@@ -2,12 +2,12 @@
       
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">Recruitment & Candidate Pipeline</h1>
-          <p class="text-xs text-[var(--text-muted)] mt-0.5">Kanban hiring board for tracking job applications, screening, technical interviews, and offers.</p>
+          <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">{{ 'HR:RecruitmentCandidatePipeline' | abpLocalization }}</h1>
+          <p class="text-xs text-[var(--text-muted)] mt-0.5">{{ 'HR:RecruitmentCandidatePipelineDesc' | abpLocalization }}</p>
         </div>
 
         <button (click)="addCandidate()" class="btn-primary text-xs cursor-pointer">
-          <i class="pi pi-user-plus"></i> Add Candidate
+          <i class="pi pi-user-plus"></i> {{ 'HR:AddCandidate' | abpLocalization }}
         </button>
       </div>
 
@@ -63,7 +63,7 @@
 
               @if (getCandidatesByStage(stage).length === 0) {
                 <div class="p-4 text-center text-[10px] text-slate-400 border border-dashed border-slate-300 dark:border-slate-700 rounded-xl">
-                  No candidates in {{ stage }}
+                  {{ 'HR:NoCandidatesIn' | abpLocalization }} {{ stage }}
                 </div>
               }
             </div>
@@ -78,7 +78,7 @@
         <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs animate-fade-in">
           <div class="w-full max-w-md max-h-[90vh] bg-[var(--bg-card)] border border-[var(--border-color)] p-6 shadow-2xl overflow-y-auto space-y-6 m-4">
             <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-4">
-              <h3 class="font-extrabold text-base text-[var(--text-main)]">Candidate Profile</h3>
+              <h3 class="font-extrabold text-base text-[var(--text-main)]">{{ 'HR:CandidateProfile' | abpLocalization }}</h3>
               <button (click)="selectedCandidate.set(null)" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times text-lg"></i></button>
             </div>
 
@@ -93,22 +93,22 @@
               </div>
 
               <div class="space-y-2">
-                <div><span class="text-slate-400 block">Email:</span> <span class="font-bold">{{ selectedCandidate()?.email }}</span></div>
-                <div><span class="text-slate-400 block">Phone:</span> <span class="font-bold">{{ selectedCandidate()?.phone }}</span></div>
-                <div><span class="text-slate-400 block">Experience:</span> <span class="font-bold">{{ selectedCandidate()?.experienceYears }} Years</span></div>
-                <div><span class="text-slate-400 block">Interviewer Rating:</span> <span class="font-bold text-amber-500">★ {{ selectedCandidate()?.rating }} / 5.0</span></div>
+                <div><span class="text-slate-400 block">{{ 'HR:Email' | abpLocalization }}:</span> <span class="font-bold">{{ selectedCandidate()?.email }}</span></div>
+                <div><span class="text-slate-400 block">{{ 'HR:Phone' | abpLocalization }}:</span> <span class="font-bold">{{ selectedCandidate()?.phone }}</span></div>
+                <div><span class="text-slate-400 block">{{ 'HR:Experience' | abpLocalization }}:</span> <span class="font-bold">{{ selectedCandidate()?.experienceYears }} Years</span></div>
+                <div><span class="text-slate-400 block">{{ 'HR:InterviewerRating' | abpLocalization }}:</span> <span class="font-bold text-amber-500">★ {{ selectedCandidate()?.rating }} / 5.0</span></div>
               </div>
 
               @if (selectedCandidate()?.notes) {
                 <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
-                  <span class="font-bold text-slate-700 dark:text-slate-300 block mb-1">Interview Notes:</span>
+                  <span class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:InterviewNotes' | abpLocalization }}:</span>
                   <p class="text-slate-600 dark:text-slate-300 leading-relaxed">{{ selectedCandidate()?.notes }}</p>
                 </div>
               }
 
               <div class="pt-4 border-t border-[var(--border-color)] space-y-2">
-                <button (click)="moveStage(selectedCandidate()!, 1)" class="w-full btn-primary text-xs justify-center py-2.5">Advance Candidate Stage</button>
-                <button (click)="selectedCandidate.set(null)" class="w-full btn-outline text-xs justify-center py-2.5">Close Profile</button>
+                <button (click)="moveStage(selectedCandidate()!, 1)" class="w-full btn-primary text-xs justify-center py-2.5">{{ 'HR:AdvanceCandidateStage' | abpLocalization }}</button>
+                <button (click)="selectedCandidate.set(null)" class="w-full btn-outline text-xs justify-center py-2.5">{{ 'HR:CloseProfile' | abpLocalization }}</button>
               </div>
             </div>
           </div>

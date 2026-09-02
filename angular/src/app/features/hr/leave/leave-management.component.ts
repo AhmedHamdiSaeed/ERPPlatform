@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { LocalizationPipe } from '@abp/ng.core';
 import { FormsModule } from '@angular/forms';
 import { LeaveRequest } from '../../../core/models/erp-models';
 import { HrApiService } from '../../../core/services/api/hr-api.service';
@@ -7,7 +8,7 @@ import { ToastService } from '../../../core/services/toast.service';
 @Component({
   selector: 'app-leave-management',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, LocalizationPipe],
   templateUrl: './leave-management.component.html'
 })
 export class LeaveManagementComponent {

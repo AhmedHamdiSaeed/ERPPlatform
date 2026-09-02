@@ -18,8 +18,8 @@ export class GlobalSearchModalComponent {
   query = '';
   results = signal<SearchResultGroup[]>([]);
 
-  onSearchChange(val: string) {
-    this.results.set(this.searchService.search(val));
+  async onSearchChange(val: string) {
+    this.results.set(await this.searchService.search(val));
   }
 
   navigateTo(link: string) {

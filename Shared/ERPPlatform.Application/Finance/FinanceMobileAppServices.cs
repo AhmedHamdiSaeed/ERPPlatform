@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ERPPlatform.Domain.Entities;
+using EntityNotFoundException = global::Volo.Abp.Domain.Entities.EntityNotFoundException;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
@@ -202,7 +203,7 @@ namespace ERPPlatform.Finance
         public async Task<BankReconciliationDto> ReconcileAsync(Guid id)
         {
             var rec = _reconciliations.FirstOrDefault(r => r.Id == id);
-            if (rec == null) throw new ArgumentException("Reconciliation not found");
+            if (rec == null) throw new EntityNotFoundException("Reconciliation not found");
 
             var journals = await _journalRepo.GetListAsync();
             var totalCredit = journals.Sum(j => j.TotalCredit);

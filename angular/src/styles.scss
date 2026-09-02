@@ -1,5 +1,5 @@
 /* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Cairo:wght@300;400;500;600;700;800&display=swap');
 
 /* Core Design System Variables */
 :root {
@@ -199,4 +199,49 @@ main > :not(router-outlet) > * {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+/* ============================================================
+   RTL (Arabic) Baseline
+   ------------------------------------------------------------
+   Setting <html dir="rtl"> — done by StateService when lang='ar'
+   — natively reverses inline text direction, flips default
+   text-align, and reverses the visual order of flex/grid `row`
+   containers. The rules below mirror the explicit PHYSICAL
+   left/right and margin/padding declarations that the native
+   flip does NOT handle, so layouts stay correct in Arabic.
+   For new code prefer CSS logical properties
+   (margin-inline-start, padding-inline-start, inset-inline-start)
+   which flip automatically with direction.
+   ============================================================ */
+
+[dir="rtl"] body {
+  font-family: 'Cairo', 'Tajawal', 'Inter', system-ui, -apple-system, sans-serif;
+  text-align: right;
+}
+
+/* Alignment utilities that hard-code a physical side */
+[dir="rtl"] .text-left  { text-align: right !important; }
+[dir="rtl"] .text-right { text-align: left !important; }
+
+/* Explicit positioning sides (Tailwind-style utilities) */
+[dir="rtl"] .left-0  { left: auto !important;  right: 0 !important; }
+[dir="rtl"] .right-0 { right: auto !important; left: 0 !important; }
+
+/* Auto-margin push helpers */
+[dir="rtl"] .ml-auto { margin-left: 0 !important;  margin-right: auto !important; }
+[dir="rtl"] .mr-auto { margin-right: 0 !important; margin-left: auto !important; }
+[dir="rtl"] .ms-auto { margin-inline-start: auto !important; }
+[dir="rtl"] .me-auto { margin-inline-end: auto !important; }
+
+/* Directional accent borders (dividers, left/right rule lines) */
+[dir="rtl"] .border-l { border-left: 0 !important;  border-right: 1px solid var(--border-color) !important; }
+[dir="rtl"] .border-r { border-right: 0 !important; border-left: 1px solid var(--border-color) !important; }
+
+/* Keep LTR content (codes, IDs, amounts) correctly oriented inside RTL */
+[dir="rtl"] .ltr,
+[dir="rtl"] .keep-ltr {
+  direction: ltr;
+  unicode-bidi: embed;
+  display: inline-block;
 }

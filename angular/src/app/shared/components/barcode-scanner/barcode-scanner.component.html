@@ -34,10 +34,20 @@
 
       <button 
         (click)="startScanner()"
-        [disabled]="isScanning()"
-        class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium text-sm transition-all shadow hover:shadow-indigo-500/25 flex items-center justify-center gap-2">
-        <i class="pi pi-play"></i> {{ isScanning() ? 'Scanning...' : 'Activate Camera Scanner' }}
+        [disabled]="isScanning() || !canScan()"
+        class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium text-sm transition-all shadow hover:shadow-indigo-500/25 flex items-center justify-center gap-2 disabled:opacity-60">
+        <i class="pi pi-play"></i>
+        {{ isScanning() ? 'Scanning...' : (loadingProducts() ? 'Loading Products...' : 'Activate Camera Scanner') }}
       </button>
+      @if (loadError()) {
+        <div class="text-xs text-rose-600 flex items-center justify-between gap-2">
+          <span>{{ loadError() }}</span>
+          <button (click)="loadProducts()" class="btn-outline text-xs">Retry</button>
+        </div>
+      }
+      @if (!loadingProducts() && !loadError() && products().length === 0) {
+        <p class="text-xs text-amber-600">No products available to scan right now.</p>
+      }
     </div>
 
     <!-- Manual Lookup & Scanned Output -->
@@ -50,11 +60,13 @@
         <input 
           type="text" 
           [(ngModel)]="manualCode"
+          [disabled]="loadingProducts() || !!loadError()"
           placeholder="e.g. PRD-2026-001"
-          class="flex-1 px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm">
+          class="flex-1 px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm disabled:opacity-60">
         <button 
           (click)="lookupManual()"
-          class="px-4 py-2 bg-slate-800 dark:bg-slate-700 text-white rounded-lg text-sm font-medium hover:bg-slate-700">
+          [disabled]="loadingProducts() || !!loadError()"
+          class="px-4 py-2 bg-slate-800 dark:bg-slate-700 text-white rounded-lg text-sm font-medium hover:bg-slate-700 disabled:opacity-60">
           Lookup
         </button>
       </div>

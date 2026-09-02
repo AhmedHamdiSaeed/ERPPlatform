@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { LocalizationPipe } from '@abp/ng.core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ToastService } from '../../../core/services/toast.service';
@@ -16,7 +17,7 @@ export interface JobPosition {
 @Component({
   selector: 'app-positions',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LocalizationPipe],
   templateUrl: './positions.component.html'
 })
 export class PositionsComponent {

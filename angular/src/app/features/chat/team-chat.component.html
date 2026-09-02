@@ -1,112 +1,493 @@
 <div class="h-[calc(100vh-6rem)] p-4 flex gap-4">
-  <!-- Left Sidebar: Channels & Online Users -->
+
+  <!-- ================= LEFT: conversations ================= -->
   <div class="w-80 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col overflow-hidden">
-    <!-- Header -->
+
     <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
       <h2 class="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
-        <i class="pi pi-comments text-indigo-600 dark:text-indigo-400"></i> SignalR Team Chat
+        <i class="pi pi-comments text-indigo-600 dark:text-indigo-400"></i> Team Chat
+        @if (totalUnread() > 0) {
+          <span class="px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-rose-500 text-white">{{ totalUnread() }}</span>
+        }
       </h2>
-      <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 flex items-center gap-1">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span> Live Hub
-      </span>
+      <button (click)="openNewGroup()"
+        class="px-2 py-1 text-xs font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition flex items-center gap-1"
+        title="Create a group with multiple members">
+        <i class="pi pi-plus text-[10px]"></i> New Group
+      </button>
     </div>
 
-    <!-- Channels List -->
-    <div class="p-3 space-y-1 border-b border-slate-200 dark:border-slate-700">
-      <p class="text-xs font-semibold uppercase tracking-wider text-slate-400 px-2 mb-2">Team Channels</p>
-      @for (ch of signalr.channels(); track ch.name) {
-        <button 
-          (click)="selectChannel(ch.name)"
-          [class.bg-indigo-50]="activeChannel() === ch.name"
-          [class.dark:bg-indigo-950/60]="activeChannel() === ch.name"
-          [class.text-indigo-600]="activeChannel() === ch.name"
-          [class.dark:text-indigo-300]="activeChannel() === ch.name"
-          class="w-full px-3 py-2 rounded-lg text-left text-sm font-medium flex items-center justify-between hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all text-slate-700 dark:text-slate-200">
-          <span class="flex items-center gap-2">
-            <i class="pi {{ ch.icon }}"></i> #{{ ch.name }}
-          </span>
-          @if (ch.unreadCount > 0) {
-            <span class="px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-rose-500 text-white">{{ ch.unreadCount }}</span>
-          }
-        </button>
-      }
+    <div class="px-3 pt-3">
+      <div class="relative">
+        <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+        <input type="text" [(ngModel)]="conversationFilter" placeholder="Search conversations..."
+          class="w-full pl-8 pr-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none">
+      </div>
     </div>
 
-    <!-- Direct Messages / Online Presence -->
     <div class="p-3 flex-1 overflow-y-auto space-y-1">
-      <p class="text-xs font-semibold uppercase tracking-wider text-slate-400 px-2 mb-2">Direct Messages</p>
-      @for (usr of signalr.onlineUsers(); track usr.id) {
-        <div class="px-3 py-2 rounded-lg flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700/40 cursor-pointer">
-          <div class="flex items-center gap-2">
-            <div class="relative">
-              <img [src]="usr.avatar" [alt]="usr.name" class="w-8 h-8 rounded-full object-cover">
-              <span [class.bg-emerald-500]="usr.status === 'online'" [class.bg-slate-400]="usr.status === 'offline'" class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-slate-800"></span>
-            </div>
-            <span class="text-sm font-medium text-slate-900 dark:text-white">{{ usr.name }}</span>
-          </div>
-          <span class="text-[10px] text-slate-400 uppercase font-semibold">{{ usr.status }}</span>
+      @if (loadingConversations()) {
+        <div class="space-y-2 p-1">
+          @for (i of [1,2,3]; track i) {
+            <div class="h-14 rounded-lg bg-slate-100 dark:bg-slate-700/50 animate-pulse"></div>
+          }
         </div>
+      } @else if (filteredConversations().length === 0) {
+        <div class="text-center py-10 px-4">
+          <i class="pi pi-comments text-3xl text-slate-300 dark:text-slate-600"></i>
+          <p class="mt-3 text-sm text-slate-500 dark:text-slate-400">No conversations yet.</p>
+          <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Create a group to get started.</p>
+        </div>
+      } @else {
+        @for (c of filteredConversations(); track c.id) {
+          <button (click)="selectConversation(c.id)"
+            [ngClass]="{ 'bg-indigo-50': activeId() === c.id, 'dark:bg-indigo-950/60': activeId() === c.id }"
+            class="w-full px-3 py-2.5 rounded-lg text-left flex items-start gap-3 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition">
+
+            <!-- Only phrasing content inside <button>; block elements would make the
+                 HTML parser implicitly close the button and break the markup. -->
+            <span class="relative shrink-0">
+              <span class="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
+                {{ initials(c) }}
+              </span>
+              @if (c.type !== 1) {
+                <span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-slate-800 bg-emerald-500"></span>
+              }
+            </span>
+
+            <span class="flex-1 min-w-0">
+              <span class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold truncate"
+                  [class.text-indigo-700]="activeId() === c.id"
+                  [class.dark:text-indigo-300]="activeId() === c.id"
+                  [class.text-slate-900]="activeId() !== c.id"
+                  [class.dark:text-white]="activeId() !== c.id">
+                  {{ conversationTitle(c) }}
+                </span>
+                @if (c.unreadCount > 0) {
+                  <span class="shrink-0 px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-rose-500 text-white">{{ c.unreadCount }}</span>
+                } @else if (c.isMuted) {
+                  <i class="pi pi-bell-slash text-[10px] text-slate-400"></i>
+                }
+              </span>
+              <span class="block text-xs text-slate-500 dark:text-slate-400 truncate">{{ preview(c) }}</span>
+            </span>
+          </button>
+        }
       }
+    </div>
+
+    <div class="px-4 py-2 border-t border-slate-200 dark:border-slate-700 flex items-center gap-2 text-[11px]">
+      <span class="w-1.5 h-1.5 rounded-full" [class.bg-emerald-500]="isConnected()" [class.bg-slate-400]="!isConnected()"></span>
+      <span class="text-slate-500 dark:text-slate-400">{{ isConnected() ? 'Live (SignalR)' : 'Offline - reconnecting' }}</span>
     </div>
   </div>
 
-  <!-- Right Panel: Active Chat Room -->
+  <!-- ================= RIGHT: conversation ================= -->
   <div class="flex-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col overflow-hidden">
-    <!-- Active Channel Banner -->
-    <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/80">
-      <div>
-        <h3 class="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
-          <i class="pi pi-hashtag text-indigo-600"></i> #{{ activeChannel() }}
-        </h3>
-        <p class="text-xs text-slate-500 dark:text-slate-400">Real-Time SignalR Broadcast Room</p>
-      </div>
-      <div class="flex items-center gap-2">
-        <span class="text-xs text-slate-500 font-mono"><i class="pi pi-users"></i> 3 members online</span>
-      </div>
-    </div>
 
-    <!-- Messages Log View -->
-    <div class="flex-1 p-4 overflow-y-auto space-y-4">
-      @for (msg of currentMessages(); track msg.id) {
-        <div class="flex gap-3 items-start" [class.flex-row-reverse]="msg.senderId === 'usr-001'">
-          <img [src]="msg.senderAvatar" [alt]="msg.senderName" class="w-9 h-9 rounded-full object-cover mt-0.5">
-          
-          <div class="max-w-[70%]" [class.text-right]="msg.senderId === 'usr-001'">
-            <div class="flex items-center gap-2 mb-1" [class.justify-end]="msg.senderId === 'usr-001'">
-              <span class="font-bold text-xs text-slate-900 dark:text-white">{{ msg.senderName }}</span>
-              <span class="text-[10px] text-slate-400">{{ msg.timestamp }}</span>
-            </div>
+    @if (!activeConversation()) {
+      <div class="flex-1 flex flex-col items-center justify-center text-center p-8">
+        <div class="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 flex items-center justify-center mb-4">
+          <i class="pi pi-comments text-2xl text-indigo-500"></i>
+        </div>
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Select a conversation</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm">
+          Pick a thread on the left, or create a group and add several teammates to it.
+        </p>
+        <button (click)="openNewGroup()" class="mt-5 px-4 py-2 text-sm font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition">
+          <i class="pi pi-plus text-xs mr-1"></i> Create a group
+        </button>
+      </div>
+    } @else {
 
-            <div 
-              [class.bg-indigo-600]="msg.senderId === 'usr-001'"
-              [class.text-white]="msg.senderId === 'usr-001'"
-              [class.bg-slate-100]="msg.senderId !== 'usr-001'"
-              [class.dark:bg-slate-700]="msg.senderId !== 'usr-001'"
-              [class.text-slate-800]="msg.senderId !== 'usr-001'"
-              [class.dark:text-slate-200]="msg.senderId !== 'usr-001'"
-              class="p-3 rounded-2xl text-sm shadow-sm inline-block leading-relaxed">
-              {{ msg.text }}
-            </div>
+      <!-- header -->
+      <div class="px-5 py-3 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white text-sm font-bold shrink-0">
+            {{ initials(activeConversation()!) }}
           </div>
+          <div class="min-w-0">
+            <h3 class="font-semibold text-slate-900 dark:text-white truncate">{{ conversationTitle(activeConversation()!) }}</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">
+              {{ conversationSubtitle(activeConversation()!) }}
+              @if (activeConversation()!.type === 1) { &middot; {{ activeConversation()!.description || 'Group conversation' }} }
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-1">
+          <button (click)="toggleMembersPanel()" class="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="Members">
+            <i class="pi pi-users"></i>
+          </button>
+          <button (click)="toggleMute()" class="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+            [title]="activeConversation()!.isMuted ? 'Unmute' : 'Mute'">
+            <i class="pi" [class.pi-bell-slash]="activeConversation()!.isMuted" [class.pi-bell]="!activeConversation()!.isMuted"></i>
+          </button>
+          @if (activeConversation()!.type === 1) {
+            <button (click)="leaveConversation()" class="p-2 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition" title="Leave group">
+              <i class="pi pi-sign-out"></i>
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- message search -->
+      <div class="px-4 py-2 border-b border-slate-200 dark:border-slate-700 flex items-center gap-2">
+        <div class="relative flex-1">
+          <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+          <input type="text" [(ngModel)]="messageSearchTerm" (ngModelChange)="runMessageSearch()"
+            placeholder="Search messages..."
+            class="w-full pl-8 pr-8 py-1.5 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none">
+          @if (messageSearchTerm) {
+            <button (click)="clearMessageSearch()" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+              <i class="pi pi-times text-xs"></i>
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- messages -->
+      <div class="flex-1 overflow-y-auto p-5 space-y-3 bg-slate-50/50 dark:bg-slate-900/40">
+
+        @if (loadingMessages()) {
+          <div class="space-y-3">
+            @for (i of [1,2,3,4]; track i) {
+              <div class="h-10 rounded-2xl bg-slate-100 dark:bg-slate-700/50 animate-pulse" [style.width.%]="i % 2 ? 45 : 60"></div>
+            }
+          </div>
+        } @else if (messageSearchResults()) {
+          <!-- search results -->
+          <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            {{ messageSearchResults()!.length }} result(s)
+          </p>
+          @if (messageSearchResults()!.length === 0) {
+            <p class="text-sm text-slate-500 dark:text-slate-400 text-center py-8">No messages match your search.</p>
+          }
+          @for (m of messageSearchResults()!; track m.id) {
+            <div class="p-3 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-semibold text-slate-700 dark:text-slate-200">{{ m.senderName }}</span>
+                <span class="text-[10px] text-slate-400">{{ formatTime(m.timestamp) }}</span>
+              </div>
+              <p class="text-sm text-slate-700 dark:text-slate-300">{{ m.text }}</p>
+            </div>
+          }
+        } @else if (messageVms().length === 0) {
+          <div class="text-center py-12">
+            <i class="pi pi-send text-3xl text-slate-300 dark:text-slate-600"></i>
+            <p class="mt-3 text-sm text-slate-500 dark:text-slate-400">No messages yet. Say hi!</p>
+          </div>
+        } @else {
+          @for (m of messageVms(); track m.id) {
+
+            @if (m.showDay) {
+              <div class="flex items-center gap-3 py-1">
+                <div class="flex-1 h-px bg-slate-200 dark:bg-slate-700"></div>
+                <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">{{ formatDay(m.timestamp) }}</span>
+                <div class="flex-1 h-px bg-slate-200 dark:bg-slate-700"></div>
+              </div>
+            }
+
+            <div class="flex group" [class.justify-end]="m.isMine" [class.justify-start]="!m.isMine">
+
+              @if (!m.isMine) {
+                <div class="w-7 h-7 rounded-full bg-slate-300 dark:bg-slate-600 flex items-center justify-center text-[10px] font-bold text-slate-700 dark:text-slate-200 mr-2 mt-auto shrink-0">
+                  {{ senderInitials(m.senderName) }}
+                </div>
+              }
+
+              <div class="max-w-[65%]">
+
+                @if (!m.isMine) {
+                  <div class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-0.5 ml-1">{{ m.senderName }}</div>
+                }
+
+                <!-- hover actions -->
+                <div class="flex items-center gap-1 mb-1 opacity-0 group-hover:opacity-100 transition h-5"
+                  [class.justify-end]="m.isMine">
+                  <button (click)="setReply(m)" class="p-1 rounded text-slate-400 hover:text-indigo-600" title="Reply"><i class="pi pi-reply text-xs"></i></button>
+                  <button (click)="toggleEmojiPicker(m.id)" class="p-1 rounded text-slate-400 hover:text-amber-500" title="React"><i class="pi pi-face-smile text-xs"></i></button>
+                  @if (m.isMine && !m.isDeletedBySender) {
+                    <button (click)="startEdit(m)" class="p-1 rounded text-slate-400 hover:text-indigo-600" title="Edit"><i class="pi pi-pencil text-xs"></i></button>
+                    <button (click)="deleteMessage(m)" class="p-1 rounded text-slate-400 hover:text-rose-600" title="Delete"><i class="pi pi-trash text-xs"></i></button>
+                  }
+                </div>
+
+                <!-- emoji picker -->
+                @if (emojiPickerFor() === m.id) {
+                  <div class="flex gap-1 p-2 mb-1 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 shadow-lg"
+                    [class.justify-end]="m.isMine">
+                    @for (e of quickEmojis; track e) {
+                      <button (click)="toggleReaction(m, e)" class="text-lg hover:scale-125 transition">{{ e }}</button>
+                    }
+                  </div>
+                }
+
+                <!-- reply context -->
+                @if (m.replyToMessageId) {
+                  <div class="mb-1 px-2.5 py-1 rounded-lg border-l-2 border-indigo-400 bg-slate-100 dark:bg-slate-700/60 text-[11px] text-slate-500 dark:text-slate-400">
+                    <span class="font-semibold">{{ m.replyToSenderName }}</span> {{ m.replyToPreview }}
+                  </div>
+                }
+
+                @if (editingId() === m.id) {
+                  <!-- edit mode -->
+                  <div class="rounded-2xl px-3 py-2 bg-white dark:bg-slate-700 border border-indigo-400">
+                    <textarea [(ngModel)]="editText" rows="2"
+                      class="w-full text-sm bg-transparent text-slate-900 dark:text-white outline-none resize-none"></textarea>
+                    <div class="flex justify-end gap-2 mt-1">
+                      <button (click)="cancelEdit()" class="px-2 py-0.5 text-xs rounded bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200">Cancel</button>
+                      <button (click)="saveEdit()" class="px-2 py-0.5 text-xs rounded bg-indigo-600 text-white">Save</button>
+                    </div>
+                  </div>
+                } @else if (m.isDeletedBySender) {
+                  <div class="px-4 py-2 rounded-2xl text-sm italic text-slate-400 dark:bg-slate-700/40 bg-slate-100">
+                    <i class="pi pi-trash text-xs mr-1"></i> Message deleted
+                  </div>
+                } @else {
+                  <div class="px-4 py-2.5 rounded-2xl shadow-sm text-sm whitespace-pre-wrap break-words"
+                    [class.bg-indigo-600]="m.isMine"
+                    [class.text-white]="m.isMine"
+                    [class.rounded-br-none]="m.isMine"
+                    [class.bg-white]="!m.isMine"
+                    [class.dark:bg-slate-700]="!m.isMine"
+                    [class.text-slate-800]="!m.isMine"
+                    [class.dark:text-slate-100]="!m.isMine"
+                    [class.rounded-bl-none]="!m.isMine"
+                    [class.ring-2]="m.mentionsMe && !m.isMine"
+                    [class.ring-amber-400]="m.mentionsMe && !m.isMine">
+
+                    @if (m.isMine) {
+                      <span>{{ m.text }}</span>
+                    } @else {
+                      @for (seg of m.segments; track $index) {
+                        @if (seg.isMention) {
+                          <span class="font-semibold text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 rounded px-1">{{ seg.text }}</span>
+                        } @else {
+                          <span>{{ seg.text }}</span>
+                        }
+                      }
+                    }
+
+                    <!-- attachment -->
+                    @if (m.attachmentName) {
+                      @if (isImage(m)) {
+                        <img [src]="m.attachmentUrl" [alt]="m.attachmentName" class="mt-2 max-w-xs rounded-lg border border-white/20">
+                      } @else {
+                        <a [href]="m.attachmentUrl" target="_blank" rel="noopener"
+                          class="mt-2 flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 transition">
+                          <i class="pi pi-paperclip text-xs"></i>
+                          <span class="text-xs font-medium truncate">{{ m.attachmentName }}</span>
+                          @if (m.attachmentSizeBytes) {
+                            <span class="text-[10px] opacity-70">{{ formatBytes(m.attachmentSizeBytes) }}</span>
+                          }
+                        </a>
+                      }
+                    }
+                  </div>
+                }
+
+                <!-- reactions -->
+                @if (m.grouped.length > 0) {
+                  <div class="flex flex-wrap gap-1 mt-1" [class.justify-end]="m.isMine">
+                    @for (r of m.grouped; track r.emoji) {
+                      <button (click)="toggleReaction(m, r.emoji)"
+                        [title]="r.users.join(', ')"
+                        [class.ring-1]="r.mine"
+                        [class.ring-indigo-500]="r.mine"
+                        class="px-1.5 py-0.5 text-xs rounded-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 transition">
+                        {{ r.emoji }} <span class="font-semibold text-slate-500 dark:text-slate-300">{{ r.count }}</span>
+                      </button>
+                    }
+                  </div>
+                }
+
+                <div class="text-[10px] text-slate-400 mt-0.5 flex items-center gap-1" [class.justify-end]="m.isMine">
+                  <span>{{ formatTime(m.timestamp) }}</span>
+                  @if (m.isEdited) { <span class="italic">&middot; edited</span> }
+                  @if (m.isMine && isReadByOthers(m)) { <i class="pi pi-check-circle text-indigo-500" title="Read"></i> }
+                </div>
+              </div>
+            </div>
+          }
+        }
+
+        <!-- typing indicator -->
+        @if (activeTypingNames().length > 0) {
+          <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 pl-9">
+            <span class="flex gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce" style="animation-delay:0.15s"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce" style="animation-delay:0.3s"></span>
+            </span>
+            {{ activeTypingNames().join(', ') }} {{ activeTypingNames().length === 1 ? 'is' : 'are' }} typing...
+          </div>
+        }
+      </div>
+
+      <!-- composer -->
+      <div class="p-3 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+
+        @if (replyTo()) {
+          <div class="mb-2 flex items-center justify-between px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 border-l-2 border-indigo-500">
+            <div class="text-xs text-slate-600 dark:text-slate-300 truncate">
+              Replying to <span class="font-semibold">{{ replyTo()!.senderName }}</span> &middot; {{ replyTo()!.text }}
+            </div>
+            <button (click)="cancelReply()" class="ml-2 text-slate-400 hover:text-slate-600"><i class="pi pi-times text-xs"></i></button>
+          </div>
+        }
+
+        @if (pendingFile()) {
+          <div class="mb-2 flex items-center justify-between px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700">
+            <div class="text-xs text-slate-600 dark:text-slate-300 flex items-center gap-2 truncate">
+              <i class="pi pi-paperclip"></i> {{ pendingFile()!.name }}
+              @if (uploading()) { <span class="text-indigo-500">uploading...</span> }
+            </div>
+            @if (!uploading()) {
+              <button (click)="cancelAttachment()" class="ml-2 text-slate-400 hover:text-slate-600"><i class="pi pi-times text-xs"></i></button>
+            }
+          </div>
+        }
+
+        <div class="flex items-end gap-2">
+          <label class="p-2.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer transition" title="Attach a file">
+            <i class="pi pi-paperclip"></i>
+            <input type="file" class="hidden" (change)="onFileSelected($event)">
+          </label>
+
+          <textarea [(ngModel)]="messageText" (ngModelChange)="onComposerInput()"
+            (keydown.enter)="$event.preventDefault(); sendMessage()"
+            rows="1" placeholder="Write a message... use @name to mention"
+            class="flex-1 px-3 py-2.5 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none resize-none"></textarea>
+
+          <button (click)="sendMessage()" [disabled]="!messageText.trim() || sending()"
+            class="p-2.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition" title="Send">
+            <i class="pi pi-send"></i>
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- ================= members panel ================= -->
+  @if (showMembers() && activeConversation()) {
+    <div class="w-72 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col overflow-hidden">
+      <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+        <h3 class="font-bold text-sm text-slate-900 dark:text-white">Members ({{ participants().length }})</h3>
+        <button (click)="toggleMembersPanel()" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times text-xs"></i></button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-3 space-y-1">
+        @for (p of participants(); track p.id) {
+          <div class="flex items-center justify-between px-2 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50">
+            <div class="flex items-center gap-2 min-w-0">
+              <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white text-[10px] font-bold shrink-0">
+                {{ senderInitials(p.displayName || p.userName) }}
+              </div>
+              <div class="min-w-0">
+                <p class="text-sm font-medium text-slate-900 dark:text-white truncate">
+                  {{ p.displayName || p.userName }} @if (isMe(p)) { <span class="text-xs text-slate-400">(you)</span> }
+                </p>
+                <p class="text-[11px] text-slate-400 truncate">{{ p.isAdmin ? 'Admin' : 'Member' }}</p>
+              </div>
+            </div>
+
+            @if (activeConversation()!.type === 1 && activeConversation()!.isAdmin && !isMe(p)) {
+              <button (click)="removeMember(p)" class="p-1 rounded text-slate-400 hover:text-rose-600" title="Remove">
+                <i class="pi pi-user-minus text-xs"></i>
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      @if (activeConversation()!.type === 1 && activeConversation()!.isAdmin) {
+        <div class="p-3 border-t border-slate-200 dark:border-slate-700">
+          <button (click)="openNewGroup()" class="w-full px-3 py-2 text-xs font-semibold rounded-lg border border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition">
+            <i class="pi pi-user-plus text-[10px] mr-1"></i> Manage members
+          </button>
         </div>
       }
     </div>
+  }
+</div>
 
-    <!-- Message Input Bar -->
-    <div class="p-3 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80">
-      <form (ngSubmit)="sendMessage()" class="flex items-center gap-2">
-        <input 
-          type="text" 
-          [(ngModel)]="messageInput"
-          name="chatMsg"
-          placeholder="Message #{{ activeChannel() }} (press Enter to send live via SignalR)..."
-          class="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-        <button 
-          type="submit"
-          class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium text-sm transition-all shadow hover:shadow-indigo-500/25 flex items-center gap-2">
-          <i class="pi pi-send"></i> Send
+<!-- ================= new group dialog ================= -->
+@if (showNewGroup()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" (click)="closeNewGroup()">
+    <div class="w-full max-w-lg bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden" (click)="$event.stopPropagation()">
+
+      <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+        <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+          {{ activeConversation() && activeConversation()!.type === 1 ? 'Add members to group' : 'Create a group' }}
+        </h3>
+        <button (click)="closeNewGroup()" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times"></i></button>
+      </div>
+
+      <div class="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
+        @if (!activeConversation() || activeConversation()!.type !== 1) {
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Group name *</label>
+            <input type="text" [(ngModel)]="newGroupName" placeholder="e.g. Warehouse Team"
+              class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Description</label>
+            <input type="text" [(ngModel)]="newGroupDescription" placeholder="What is this group about?"
+              class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none">
+          </div>
+        }
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Add members</label>
+
+          @if (selectedMembers().length > 0) {
+            <div class="flex flex-wrap gap-1.5 mb-2">
+              @for (u of selectedMembers(); track u.id) {
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">
+                  {{ u.displayName || u.userName }}
+                  <button (click)="removeSelected(u)" class="hover:text-rose-600"><i class="pi pi-times text-[9px]"></i></button>
+                </span>
+              }
+            </div>
+          }
+
+          <div class="relative">
+            <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+            <input type="text" [(ngModel)]="memberQuery" (ngModelChange)="searchUsers()" placeholder="Search users by name or email..."
+              class="w-full pl-8 pr-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none">
+          </div>
+
+          <div class="mt-2 border border-slate-200 dark:border-slate-700 rounded-lg max-h-56 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700">
+            @if (memberResults().length === 0) {
+              <p class="p-4 text-center text-xs text-slate-400">No users found.</p>
+            }
+            @for (u of memberResults(); track u.id) {
+              <button (click)="toggleMember(u)"
+                [ngClass]="{ 'bg-indigo-50': isSelected(u), 'dark:bg-indigo-950/50': isSelected(u) }"
+                class="w-full px-3 py-2 flex items-center gap-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
+                <span class="w-7 h-7 rounded-full bg-slate-300 dark:bg-slate-600 flex items-center justify-center text-[10px] font-bold text-slate-700 dark:text-slate-200 shrink-0">
+                  {{ senderInitials(u.displayName || u.userName) }}
+                </span>
+                <span class="min-w-0 flex-1">
+                  <span class="block text-sm font-medium text-slate-900 dark:text-white truncate">{{ u.displayName || u.userName }}</span>
+                  <span class="block text-[11px] text-slate-400 truncate">{{ u.email }}</span>
+                </span>
+                <i class="pi text-xs" [class.pi-check-circle]="isSelected(u)" [class.text-indigo-600]="isSelected(u)" [class.pi-plus]="!isSelected(u)" [class.text-slate-300]="!isSelected(u)"></i>
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="px-5 py-3 border-t border-slate-200 dark:border-slate-700 flex justify-end gap-2">
+        <button (click)="closeNewGroup()" class="px-4 py-2 text-sm rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 transition">Cancel</button>
+        <button (click)="confirmGroupDialog()" class="px-4 py-2 text-sm font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition">
+          {{ isAddMemberMode() ? 'Add members' : 'Create group' }}
         </button>
-      </form>
+      </div>
     </div>
   </div>
-</div>
+}

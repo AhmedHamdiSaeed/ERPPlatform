@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ERPPlatform.Domain.Entities;
+using EntityNotFoundException = global::Volo.Abp.Domain.Entities.EntityNotFoundException;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
@@ -80,7 +81,7 @@ namespace ERPPlatform.Modules.HR.Application.LeavePolicies
 
             if (policy == null)
             {
-                throw new ArgumentException($"No active leave policy found for leave type '{leaveType}'.");
+                throw new EntityNotFoundException($"No active leave policy found for leave type '{leaveType}'.");
             }
 
             return await MapToGetOutputDtoAsync(policy);
@@ -92,7 +93,7 @@ namespace ERPPlatform.Modules.HR.Application.LeavePolicies
             var employee = employees.FirstOrDefault(e => e.Id == employeeId);
             if (employee == null)
             {
-                throw new ArgumentException($"Employee with ID '{employeeId}' not found.");
+                throw new EntityNotFoundException($"Employee with ID '{employeeId}' not found.");
             }
 
             var leaveRequests = await _leaveRequestRepository.GetListAsync();
@@ -141,7 +142,7 @@ namespace ERPPlatform.Modules.HR.Application.LeavePolicies
             var employee = employees.FirstOrDefault(e => e.Id == employeeId);
             if (employee == null)
             {
-                throw new ArgumentException($"Employee with ID '{employeeId}' not found.");
+                throw new EntityNotFoundException($"Employee with ID '{employeeId}' not found.");
             }
 
             var policies = await Repository.GetListAsync();
@@ -150,7 +151,7 @@ namespace ERPPlatform.Modules.HR.Application.LeavePolicies
 
             if (policy == null)
             {
-                throw new ArgumentException($"No active leave policy found for leave type '{leaveType}'.");
+                throw new EntityNotFoundException($"No active leave policy found for leave type '{leaveType}'.");
             }
 
             // Check probation period
@@ -177,7 +178,7 @@ namespace ERPPlatform.Modules.HR.Application.LeavePolicies
             var employee = employees.FirstOrDefault(e => e.Id == employeeId);
             if (employee == null)
             {
-                throw new ArgumentException($"Employee with ID '{employeeId}' not found.");
+                throw new EntityNotFoundException($"Employee with ID '{employeeId}' not found.");
             }
 
             var policies = await Repository.GetListAsync();
@@ -186,7 +187,7 @@ namespace ERPPlatform.Modules.HR.Application.LeavePolicies
 
             if (policy == null)
             {
-                throw new ArgumentException($"No active leave policy found for leave type '{leaveType}'.");
+                throw new EntityNotFoundException($"No active leave policy found for leave type '{leaveType}'.");
             }
 
             if (leaveType == "Annual")

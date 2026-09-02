@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { WorkflowTask } from '../../../core/models/erp-models';
 import { WorkflowApiService } from '../../../core/services/api/workflow-api.service';
@@ -7,7 +8,7 @@ import { ToastService } from '../../../core/services/toast.service';
 @Component({
   selector: 'app-my-tasks',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, RouterModule],
   templateUrl: './my-tasks.component.html'
 })
 export class MyTasksComponent {

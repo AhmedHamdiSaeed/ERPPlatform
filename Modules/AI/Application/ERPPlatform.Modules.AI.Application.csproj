@@ -13,4 +13,9 @@
     <ProjectReference Include="..\..\..\Shared\ERPPlatform.Application\ERPPlatform.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.4" />
+  </ItemGroup>
+
 </Project>

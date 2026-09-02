@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { ErpApiService, toDateString, AbpEntity } from './erp-api.service';
-import { Employee, Department, LeaveRequest } from '../../models/erp-models';
+import { Employee, Department, LeaveRequest, AttendanceRecord } from '../../models/erp-models';
 import { environment } from '../../../../environments/environment';
+
+const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
 
 interface EmployeeDto extends AbpEntity {
   employeeCode: string; name: string; email: string; phone: string; position: string;
@@ -20,6 +22,31 @@ interface LeaveRequestDto extends AbpEntity {
   reason: string; status: string; appliedDate: string;
 }
 
+interface AttendanceRecordDto extends AbpEntity {
+  employeeId: string; employeeName: string; departmentName: string;
+  date: string; checkIn: string; checkOut: string;
+  workingHours: number; overtimeHours: number; status: AttendanceRecord['status'];
+}
+
+function mapEmployee(e: EmployeeDto): Employee {
+  return {
+    id: e.id,
+    employeeCode: e.employeeCode,
+    name: e.name,
+    email: e.email,
+    phone: e.phone,
+    position: e.position,
+    departmentId: '',
+    departmentName: e.departmentName,
+    salary: e.salary,
+    joiningDate: toDateString(e.joiningDate),
+    status: e.status as Employee['status'],
+    avatar: e.avatar || DEFAULT_AVATAR,
+    managerName: e.managerName,
+    location: e.location
+  };
+}
+
 @Injectable({ providedIn: 'root' })
 export class HrApiService extends ErpApiService {
   protected override apiPrefix(): string {
@@ -27,24 +54,11 @@ export class HrApiService extends ErpApiService {
   }
 
   getEmployees(): Promise<Employee[]> {
-    return this.getList<EmployeeDto>('employee').then(items =>
-      items.map(e => ({
-        id: e.id,
-        employeeCode: e.employeeCode,
-        name: e.name,
-        email: e.email,
-        phone: e.phone,
-        position: e.position,
-        departmentId: '',
-        departmentName: e.departmentName,
-        salary: e.salary,
-        joiningDate: toDateString(e.joiningDate),
-        status: e.status,
-        avatar: e.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-        managerName: e.managerName,
-        location: e.location
-      })) as Employee[]
-    );
+    return this.getList<EmployeeDto>('employee').then(items => items.map(mapEmployee));
+  }
+
+  getEmployee(id: string): Promise<Employee> {
+    return this.get<EmployeeDto>(`employee/${id}`).then(mapEmployee);
   }
 
   createEmployee(emp: Partial<Employee>): Promise<Employee> {
@@ -122,5 +136,38 @@ export class HrApiService extends ErpApiService {
 
   deleteLeaveRequest(id: string): Promise<void> {
     return this.delete(`leave-request/${id}`);
+  }
+
+  getAttendance(employeeId?: string): Promise<AttendanceRecord[]> {
+    const route = employeeId ? `attendance?employeeId=${encodeURIComponent(employeeId)}` : 'attendance';
+    return this.getList<AttendanceRecordDto>(route).then(items =>
+      items.map(a => ({
+        id: a.id,
+        employeeId: a.employeeId,
+        employeeName: a.employeeName,
+        avatar: DEFAULT_AVATAR,
+        departmentName: a.departmentName,
+        date: toDateString(a.date),
+        checkIn: a.checkIn || '-',
+        checkOut: a.checkOut || '-',
+        workingHours: a.workingHours,
+        overtimeHours: a.overtimeHours,
+        status: a.status
+      })) as AttendanceRecord[]
+    );
+  }
+
+  // POST /api/hr/attendance/check-in/{employeeId}?employeeName=&departmentName=
+  checkIn(employeeId: string, employeeName: string, departmentName: string): Promise<void> {
+    const params = new URLSearchParams({
+      employeeName,
+      departmentName
+    });
+    return this.post(`attendance/check-in/${encodeURIComponent(employeeId)}?${params.toString()}`, {});
+  }
+
+  // POST /api/hr/attendance/check-out/{attendanceId}
+  checkOut(id: string): Promise<void> {
+    return this.post(`attendance/check-out/${encodeURIComponent(id)}`, {});
   }
 }

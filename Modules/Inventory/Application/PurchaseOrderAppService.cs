@@ -6,6 +6,7 @@ using ERPPlatform.Domain.Entities;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.Validation;
 
 namespace ERPPlatform.Modules.Inventory.Application
 {
@@ -51,7 +52,10 @@ namespace ERPPlatform.Modules.Inventory.Application
         {
             if (Array.IndexOf(AllowedStatuses, newStatus) < 0)
             {
-                throw new ArgumentException($"Invalid purchase order status: {newStatus}", nameof(newStatus));
+                throw new AbpValidationException(
+                    $"Invalid purchase order status: {newStatus}. Allowed values: {string.Join(", ", AllowedStatuses)}.",
+                    new[] { new System.ComponentModel.DataAnnotations.ValidationResult(
+                        $"Invalid purchase order status: {newStatus}", new[] { nameof(newStatus) }) });
             }
 
             var order = await Repository.GetAsync(id);

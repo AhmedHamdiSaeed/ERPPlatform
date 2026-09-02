@@ -95,6 +95,14 @@ public class ERPPlatformHttpApiHostModule : AbpModule
         ConfigureBundles();
         ConfigureUrls(configuration);
         ConfigureConventionalControllers(context);
+
+        // ABP does not automatically register the OpenIddict ASP.NET Core
+        // assembly as an MVC application part in this host, so the /connect/*
+        // endpoints (token, authorize, logout, userinfo) are never mapped and
+        // password-grant logins fail with 405. Register the assembly explicitly.
+        context.Services.AddControllers()
+            .AddApplicationPart(typeof(Volo.Abp.OpenIddict.AbpOpenIddictAspNetCoreModule).Assembly);
+
         ConfigureVirtualFileSystem(context);
         ConfigureCors(context, configuration);
         ConfigureSwaggerServices(context, configuration);

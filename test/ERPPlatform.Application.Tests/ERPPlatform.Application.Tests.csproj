@@ -11,6 +11,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Shared\ERPPlatform.Application\ERPPlatform.Application.csproj" />
     <ProjectReference Include="..\ERPPlatform.Domain.Tests\ERPPlatform.Domain.Tests.csproj" />
+    <ProjectReference Include="..\..\Modules\AI\Application\ERPPlatform.Modules.AI.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -72,8 +72,8 @@ export class SalesApiService extends ErpApiService {
   }
 
   convertToInvoice(quotationId: string): Promise<void> {
-    // ABP binds Guid parameters from query string by convention
-    return this.post(`sales-quotation/convert-to-invoice?quotationId=${quotationId}`, {});
+    // POST /api/inventory/sales-quotation/convert-to-invoice/{quotationId}
+    return this.post(`sales-quotation/convert-to-invoice/${encodeURIComponent(quotationId)}`, {});
   }
 
   getSalesStats(): Promise<SalesDashboardStats> {

@@ -7,6 +7,6 @@ namespace ERPPlatform.Documents;
 public class Folder : FullAuditedAggregateRoot<Guid>, IMultiTenant
 {
     public Guid? TenantId { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
     public Guid? ParentId { get; set; }
 }

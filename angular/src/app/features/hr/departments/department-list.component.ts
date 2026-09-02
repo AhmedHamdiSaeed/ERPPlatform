@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { LocalizationPipe } from '@abp/ng.core';
 import { CommonModule } from '@angular/common'; // Needed for pipes (number, date, etc.)
 import { FormsModule } from '@angular/forms';
 import { Department } from '../../../core/models/erp-models';
@@ -8,7 +9,7 @@ import { ToastService } from '../../../core/services/toast.service';
 @Component({
   selector: 'app-department-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LocalizationPipe],
   templateUrl: './department-list.component.html'
 })
 export class DepartmentListComponent {

@@ -4,6 +4,7 @@ using ERPPlatform.Domain.Entities;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.Validation;
 
 namespace ERPPlatform.Modules.Inventory.Application
 {
@@ -36,7 +37,10 @@ namespace ERPPlatform.Modules.Inventory.Application
         {
             if (Array.IndexOf(AllowedStatuses, newStatus) < 0)
             {
-                throw new ArgumentException($"Invalid stock transfer status: {newStatus}", nameof(newStatus));
+                throw new AbpValidationException(
+                    $"Invalid stock transfer status: {newStatus}. Allowed values: {string.Join(", ", AllowedStatuses)}.",
+                    new[] { new System.ComponentModel.DataAnnotations.ValidationResult(
+                        $"Invalid stock transfer status: {newStatus}", new[] { nameof(newStatus) }) });
             }
 
             var transfer = await Repository.GetAsync(id);

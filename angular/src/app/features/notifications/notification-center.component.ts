@@ -1,7 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { NotificationItem } from '../../core/models/erp-models';
-import { MOCK_NOTIFICATIONS } from '../../core/mock/mock-data';
+import { StateService } from '../../core/services/state.service';
 
 @Component({
   selector: 'app-notification-center',
@@ -10,7 +10,10 @@ import { MOCK_NOTIFICATIONS } from '../../core/mock/mock-data';
   templateUrl: './notification-center.component.html'
 })
 export class NotificationCenterComponent {
-  notifications = signal<NotificationItem[]>(MOCK_NOTIFICATIONS);
+  private state = inject(StateService);
+
+  /** Re-exposes the global notifications signal so the header bell count stays in sync. */
+  notifications = this.state.notifications;
 
   getIcon(type: string): string {
     const map: Record<string, string> = {
@@ -25,14 +28,14 @@ export class NotificationCenterComponent {
   }
 
   markRead(id: string) {
-    this.notifications.update(list => list.map(n => n.id === id ? { ...n, read: true } : n));
+    this.state.markNotificationAsRead(id);
   }
 
   markAllRead() {
-    this.notifications.update(list => list.map(n => ({ ...n, read: true })));
+    this.state.markAllNotificationsAsRead();
   }
 
   dismiss(id: string) {
-    this.notifications.update(list => list.filter(n => n.id !== id));
+    this.state.dismissNotification(id);
   }
 }

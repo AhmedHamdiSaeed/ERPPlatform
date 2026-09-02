@@ -12,10 +12,10 @@ namespace ERPPlatform.Application.Documents;
 public class DocumentDto
 {
     public Guid Id { get; set; }
-    public string Title { get; set; }
-    public string Extension { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string Extension { get; set; } = string.Empty;
     public long SizeBytes { get; set; }
-    public string ContentType { get; set; }
+    public string ContentType { get; set; } = string.Empty;
     public Guid? FolderId { get; set; }
 }
 

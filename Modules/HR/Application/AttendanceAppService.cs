@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using ERPPlatform.Domain.Entities;
 using Volo.Abp.Application.Dtos;
@@ -7,6 +8,15 @@ using Volo.Abp.Domain.Repositories;
 
 namespace ERPPlatform.Modules.HR.Application
 {
+    /// <summary>
+    /// Get-list input for attendance. <see cref="EmployeeId"/> is optional: when supplied the list is
+    /// restricted to a single employee (used by the employee detail page).
+    /// </summary>
+    public class AttendanceGetListInput : PagedAndSortedResultRequestDto
+    {
+        public Guid? EmployeeId { get; set; }
+    }
+
     public class AttendanceDto : EntityDto<Guid>
     {
         public Guid EmployeeId { get; set; }
@@ -24,9 +34,21 @@ namespace ERPPlatform.Modules.HR.Application
         public double? CheckOutLongitude { get; set; }
     }
 
-    public class AttendanceAppService : CrudAppService<Attendance, AttendanceDto, Guid, PagedAndSortedResultRequestDto, AttendanceDto>
+    public class AttendanceAppService : CrudAppService<Attendance, AttendanceDto, Guid, AttendanceGetListInput, AttendanceDto>
     {
         public AttendanceAppService(IRepository<Attendance, Guid> repository) : base(repository) { }
+
+        protected override async Task<IQueryable<Attendance>> CreateFilteredQueryAsync(AttendanceGetListInput input)
+        {
+            var query = await base.CreateFilteredQueryAsync(input);
+
+            if (input.EmployeeId.HasValue)
+            {
+                query = query.Where(a => a.EmployeeId == input.EmployeeId.Value);
+            }
+
+            return query;
+        }
 
         public async Task<AttendanceDto> CheckInAsync(Guid employeeId, string employeeName, string departmentName, double? latitude = null, double? longitude = null)
         {

@@ -5,7 +5,7 @@
       
       <!-- Navigation Menu List -->
       <div class="p-3 space-y-1 flex-1">
-        @for (group of menu; track group.label) {
+        @for (group of menu; track group.key) {
           @if (isGroupVisible(group)) {
             <!-- Single Link Item -->
             @if (!group.items && isItemVisible(group.permission)) {
@@ -15,7 +15,7 @@
                 class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs text-[var(--text-main)] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group">
                 <i [class]="'pi ' + group.icon + ' text-base shrink-0 group-hover:text-blue-600'"></i>
                 @if (state.sidebarExpanded()) {
-                  <span class="truncate">{{ group.label }}</span>
+                  <span class="truncate">{{ group.key | abpLocalization }}</span>
                 }
               </a>
             }
@@ -29,7 +29,7 @@
                   <div class="flex items-center gap-3 min-w-0">
                     <i [class]="'pi ' + group.icon + ' text-base shrink-0 group-hover:text-blue-600'"></i>
                     @if (state.sidebarExpanded()) {
-                      <span class="truncate font-medium">{{ group.label }}</span>
+                      <span class="truncate font-medium">{{ group.key | abpLocalization }}</span>
                     }
                   </div>
                   @if (state.sidebarExpanded()) {
@@ -40,13 +40,13 @@
                 <!-- Submenu Items -->
                 @if (group.expanded && state.sidebarExpanded()) {
                   <div class="ml-4 pl-3 border-l border-slate-200 dark:border-slate-700 mt-1 space-y-1">
-                    @for (sub of group.items; track sub.label) {
+                    @for (sub of group.items; track sub.key) {
                       @if (isItemVisible(sub.permission)) {
                         <a 
                           [routerLink]="sub.link" 
                           routerLinkActive="text-blue-600 dark:text-blue-400 font-semibold"
                           class="flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                          <span class="truncate">{{ sub.label }}</span>
+                          <span class="truncate">{{ sub.key | abpLocalization }}</span>
                           @if (sub.badge) {
                             <span class="px-1.5 py-0.5 text-[9px] font-bold bg-blue-100 text-blue-700 rounded-full">{{ sub.badge }}</span>
                           }
@@ -66,8 +66,8 @@
         <div class="p-3 border-t border-[var(--border-color)] bg-slate-50/50 dark:bg-slate-900/50">
           <div class="card-panel !p-3 text-center bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-800/60 border-blue-100 dark:border-slate-700">
             <i class="pi pi-shield text-blue-600 text-xl mb-1 block"></i>
-            <p class="text-xs font-bold text-slate-800 dark:text-slate-200">ERP SaaS v9.3</p>
-            <p class="text-[10px] text-slate-500 mt-0.5">Connected to ABP Backend</p>
+            <p class="text-xs font-bold text-slate-800 dark:text-slate-200">{{ 'UI:ProductTagline' | abpLocalization }}</p>
+            <p class="text-[10px] text-slate-500 mt-0.5">{{ 'UI:ConnectedToBackend' | abpLocalization }}</p>
           </div>
         </div>
       }

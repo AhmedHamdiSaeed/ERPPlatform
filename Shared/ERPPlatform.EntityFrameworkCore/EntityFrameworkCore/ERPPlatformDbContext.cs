@@ -115,6 +115,11 @@ public class ERPPlatformDbContext :
     public DbSet<ChatMessage> ChatMessages { get; set; }
     public DbSet<SystemNotification> SystemNotifications { get; set; }
 
+    // Group Chat DbSets
+    public DbSet<ChatConversation> ChatConversations { get; set; }
+    public DbSet<ChatParticipant> ChatParticipants { get; set; }
+    public DbSet<ChatMessageReaction> ChatMessageReactions { get; set; }
+
     // Document Management System (DMS)
     public DbSet<Document> Documents { get; set; }
     public DbSet<Folder> Folders { get; set; }
@@ -137,6 +142,12 @@ public class ERPPlatformDbContext :
 
     // Leave Policy DbSets
     public DbSet<LeavePolicy> LeavePolicies { get; set; }
+
+    // Recruitment, Execution History & Report Catalog DbSets
+    public DbSet<Candidate> Candidates { get; set; }
+    public DbSet<WorkflowExecutionLog> WorkflowExecutionLogs { get; set; }
+    public DbSet<WorkflowExecutionStep> WorkflowExecutionSteps { get; set; }
+    public DbSet<ReportDefinition> ReportDefinitions { get; set; }
 
     public ERPPlatformDbContext(DbContextOptions<ERPPlatformDbContext> options)
         : base(options)
@@ -245,6 +256,60 @@ public class ERPPlatformDbContext :
         builder.Entity<LeavePolicy>(b =>
         {
             b.HasIndex(x => x.LeaveType);
+        });
+
+        // Recruitment Indexes
+        builder.Entity<Candidate>(b =>
+        {
+            b.HasIndex(x => x.Stage);
+            b.HasIndex(x => x.AppliedPosition);
+        });
+
+        // Workflow Execution History Indexes
+        builder.Entity<WorkflowExecutionLog>(b =>
+        {
+            b.HasIndex(x => x.WorkflowDefinitionId);
+            b.HasIndex(x => x.Status);
+        });
+
+        builder.Entity<WorkflowExecutionStep>(b =>
+        {
+            b.HasIndex(x => x.WorkflowExecutionLogId);
+        });
+
+        // Report Catalog Index
+        builder.Entity<ReportDefinition>(b =>
+        {
+            b.HasIndex(x => x.Category);
+        });
+
+        // Group Chat Indexes
+        builder.Entity<ChatConversation>(b =>
+        {
+            b.HasIndex(x => x.Type);
+            b.HasIndex(x => x.LastMessageAt);
+            b.HasIndex(x => x.CreatorUserId);
+        });
+
+        builder.Entity<ChatParticipant>(b =>
+        {
+            b.HasIndex(x => x.ConversationId);
+            b.HasIndex(x => x.UserId);
+            b.HasIndex(x => new { x.ConversationId, x.UserId });
+        });
+
+        builder.Entity<ChatMessage>(b =>
+        {
+            b.HasIndex(x => x.ConversationId);
+            b.HasIndex(x => x.ChannelName);
+            b.HasIndex(x => x.SenderId);
+            b.HasIndex(x => new { x.ConversationId, x.Timestamp });
+        });
+
+        builder.Entity<ChatMessageReaction>(b =>
+        {
+            b.HasIndex(x => x.MessageId);
+            b.HasIndex(x => new { x.MessageId, x.UserId, x.Emoji });
         });
     }
 }

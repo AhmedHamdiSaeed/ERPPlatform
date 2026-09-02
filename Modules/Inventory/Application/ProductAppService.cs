@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using ERPPlatform.Domain.Entities;
+using EntityNotFoundException = global::Volo.Abp.Domain.Entities.EntityNotFoundException;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
@@ -76,7 +77,7 @@ namespace ERPPlatform.Modules.Inventory.Application
             var product = products.FirstOrDefault(p => p.Barcode == barcode);
             if (product == null)
             {
-                throw new ArgumentException($"Product with barcode '{barcode}' not found.");
+                throw new EntityNotFoundException($"Product with barcode '{barcode}' not found.");
             }
             return await MapToGetOutputDtoAsync(product);
         }

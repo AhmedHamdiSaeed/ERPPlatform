@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { LocalizationPipe } from '@abp/ng.core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PayrollRun, Payslip } from '../../../core/models/erp-models';
@@ -8,7 +9,7 @@ import { ToastService } from '../../../core/services/toast.service';
 @Component({
   selector: 'app-payroll-management',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LocalizationPipe],
   templateUrl: './payroll-management.component.html'
 })
 export class PayrollManagementComponent {

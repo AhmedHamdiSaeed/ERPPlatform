@@ -1,8 +1,8 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MOCK_PRODUCTS } from '../../../core/mock/mock-data';
 import { Product } from '../../../core/models/erp-models';
+import { InventoryApiService } from '../../../core/services/api/inventory-api.service';
 import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
@@ -12,19 +12,49 @@ import { ToastService } from '../../../core/services/toast.service';
   templateUrl: './barcode-scanner.component.html'
 })
 export class BarcodeScannerComponent {
+  private inventoryApi = inject(InventoryApiService);
   private toast = inject(ToastService);
 
   isScanning = signal(false);
   scannedResult = signal<Product | null>(null);
+  products = signal<Product[]>([]);
+  loadingProducts = signal(false);
+  loadError = signal<string | null>(null);
   manualCode = '';
 
+  canScan() {
+    return !this.loadingProducts() && !this.loadError() && this.products().length > 0;
+  }
+
+  constructor() {
+    this.loadProducts();
+  }
+
+  async loadProducts() {
+    this.loadingProducts.set(true);
+    this.loadError.set(null);
+    try {
+      this.products.set(await this.inventoryApi.getProducts());
+    } catch (e) {
+      console.error('Failed to load products for scanner', e);
+      this.loadError.set('Could not load product catalog for scanner.');
+      this.toast.error('Could not load product catalog for scanner.');
+    } finally {
+      this.loadingProducts.set(false);
+    }
+  }
+
   startScanner() {
+    if (this.products().length === 0) {
+      this.toast.warning('No products available to scan.');
+      return;
+    }
+
     this.isScanning.set(true);
     this.scannedResult.set(null);
 
-    // Simulate scanning after 1.5 seconds
     setTimeout(() => {
-      const sample = MOCK_PRODUCTS[0];
+      const sample = this.products()[0];
       this.scannedResult.set(sample);
       this.isScanning.set(false);
       this.toast.success(`Barcode Scanned: ${sample.sku} - ${sample.name}`);
@@ -32,14 +62,22 @@ export class BarcodeScannerComponent {
   }
 
   lookupManual() {
-    if (!this.manualCode) {
+    const input = this.manualCode.trim().toLowerCase();
+    if (this.loadingProducts()) {
+      this.toast.info('Product catalog is still loading. Please wait.');
+      return;
+    }
+    if (this.products().length === 0) {
+      this.toast.warning('No product catalog available for lookup.');
+      return;
+    }
+    if (!input) {
       this.toast.warning('Please enter SKU or Barcode.');
       return;
     }
 
-    const found = MOCK_PRODUCTS.find(p =>
-      p.sku.toLowerCase() === this.manualCode.trim().toLowerCase() ||
-      p.name.toLowerCase().includes(this.manualCode.trim().toLowerCase())
+    const found = this.products().find(p =>
+      p.sku.toLowerCase() === input || p.name.toLowerCase().includes(input)
     );
 
     if (found) {

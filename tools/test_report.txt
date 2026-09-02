@@ -1,0 +1,526 @@
+!! Dashboard                            3/  6  /dashboard
+!! HR - Employees                       4/  7  /hr/employees
+!! HR - Departments                     3/  5  /hr/departments
+!! HR - Attendance                      4/  7  /hr/attendance
+!! HR - Leave                           7/ 17  /hr/leave
+!! HR - Payroll                         1/  3  /hr/payroll
+!! HR - Recruitment                     4/  6  /hr/recruitment
+!! HR - Field Visits                    3/  8  /hr/field-visit
+!! HR - Expenses                        3/  6  /finance/expenses
+!! Inventory - Products                 4/  8  /inventory/products
+!! Inventory - Warehouses               3/  5  /inventory/warehouses
+!! Inventory - Transfers                3/  6  /inventory/transfers
+!! Inventory - Stock Ops                3/  9  /inventory/stock-operations
+!! Inventory - PickList                 3/ 10  /inventory/stock-operations
+!! Inventory - PackList                 3/  9  /inventory/stock-operations
+!! Inventory - Purchase Orders          3/  6  /inventory/purchase-orders
+!! Inventory - Purchase Requests        3/  6  /inventory/purchase-requests
+!! Inventory - Goods Receipts           3/  6  /inventory/goods-receipts
+!! Inventory - Suppliers                6/ 10  /inventory/suppliers
+!! Sales - Customers                    5/  9  /sales/customers
+!! Sales - Dashboard                    3/  6  /sales/dashboard
+!! Sales - Quotations                   4/  6  /sales/quotations
+!! Sales - Invoices                     5/  9  /sales/invoices
+!! Sales - Delivery Notes               3/  7  /sales/delivery-notes
+!! Sales - Leads                        3/  6  /sales/crm/leads
+!! Finance - Dashboard                 10/ 16  /finance/dashboard
+!! Finance - Payments                   1/  5  /finance/dashboard
+OK Finance - AR/AP                      3/  3  /finance/dashboard
+!! Finance - Bank Recon                 1/  3  /finance/dashboard
+!! Projects                             3/  5  /projects
+!! Manufacturing                        3/  6  /manufacturing
+!! Assets                               6/ 10  /assets
+!! Workflow - Designer                  3/  5  /workflow/designer
+!! Workflow - Tasks                     3/  8  /workflow/tasks
+!! Workflow - Approvals                 1/  2  /workflow/approvals
+!! Workflow - History                   3/  6  /workflow/history
+!! AI Assistant                         2/  5  /ai-assistant
+!! Reports                              4/  6  /reports
+!! Notifications                        2/  4  /notifications
+!! Chat                                 0/  3  /chat
+!! Documents                            2/  7  /documents
+!! SaaS - Subscription                  5/  6  /saas/subscription
+!! SaaS - Usage                         0/  5  /saas/usage
+!! SaaS - Plans                         4/  8  /saas/plans
+!! Settings - Company                   6/ 10  /settings/company
+!! Settings - Currency                  6/ 10  /settings/currency-tax
+!! Settings - PayTerms                  3/  5  /settings/payment-terms
+!! Settings - Users                     7/ 14  /settings/users
+!! Settings - Roles                     0/  6  /settings/roles
+OK Settings - Audit                     2/  2  /settings/audit-trail
+!! Settings - Integrations              4/  7  /settings/integrations
+OK Settings - Branding                  1/  1  /settings
+!! Devices                              1/  4  /profile
+!! Search                               0/  1  /dashboard
+
+TOTAL: 175/356 actions returned 2xx
+(waited out the rate limiter 0 time(s))
+(created 0 temp entities, 11 resources could not be created)
+
+==============================================================================
+PAGES WITH FAILURES
+==============================================================================
+
+### Dashboard  (/dashboard)
+   GET    400  /api/app/dashboard-config/my-dashboard
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The dashboardName field is r...
+   POST   400  /api/app/dashboard-config/reset-dashboard
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The dashboardName field is r...
+   POST   415  /api/app/dashboard-config/save-dashboard
+          
+
+### HR - Employees  (/hr/employees)
+   POST   415  /api/hr/employee
+          
+   GET    404  /api/hr/employee/{id}
+          {"error":{"code":null,"message":"There is no entity Employee with id = 6a96e78e-da47-487c-0636-3a236eb8216a!","details":null,"data":null,"validationErrors":null...
+   GET    404  /api/hr/employee/{id}/leave-balance
+          {"error":{"code":null,"message":"There is no entity Employee with id = 6a96e78e-da47-487c-0636-3a236eb8216a!","details":null,"data":null,"validationErrors":null...
+
+### HR - Departments  (/hr/departments)
+   POST   415  /api/hr/department
+          
+   GET    404  /api/hr/department/{id}
+          {"error":{"code":null,"message":"There is no entity Department with id = 0ea621ea-de40-d766-0e87-3a236eb82211!","details":null,"data":null,"validationErrors":nu...
+
+### HR - Attendance  (/hr/attendance)
+   POST   415  /api/hr/attendance
+          
+   POST   400  /api/hr/attendance/check-in/{employeeId}
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The employeeName field is re...
+   GET    404  /api/hr/attendance/{id}
+          {"error":{"code":null,"message":"There is no entity Attendance with id = a5f62f9d-d138-5dfc-5e8f-3a236eb82279!","details":null,"data":null,"validationErrors":nu...
+
+### HR - Leave  (/hr/leave)
+   POST   415  /api/hr/leave-request
+          
+   GET    404  /api/hr/leave-request/{id}
+          {"error":{"code":null,"message":"There is no entity LeaveRequest with id = c6a17e70-60d4-4395-51b1-3a236eb82402!","details":null,"data":null,"validationErrors":...
+   POST   404  /api/hr/leave-request/{id}/approve
+          {"error":{"code":null,"message":"There is no entity LeaveRequest with id = c6a17e70-60d4-4395-51b1-3a236eb82402!","details":null,"data":null,"validationErrors":...
+   POST   404  /api/hr/leave-request/{id}/reject
+          {"error":{"code":null,"message":"There is no entity LeaveRequest with id = c6a17e70-60d4-4395-51b1-3a236eb82402!","details":null,"data":null,"validationErrors":...
+   POST   415  /api/hr/leave-policy
+          
+   POST   400  /api/hr/leave-policy/accrue-leave/{employeeId}
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The leaveType field is requi...
+   GET    400  /api/hr/leave-policy/by-leave-type
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The leaveType field is requi...
+   POST   400  /api/hr/leave-policy/carry-forward/{employeeId}
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The leaveType field is requi...
+   GET    404  /api/hr/leave-policy/leave-balances/{employeeId}
+          {"error":{"code":null,"message":"Employee with ID '6a96e78e-da47-487c-0636-3a236eb8216a' not found.","details":null,"data":null,"validationErrors":null}}
+   GET    404  /api/hr/leave-policy/{id}
+          {"error":{"code":null,"message":"There is no entity LeavePolicy with id = 42fc33b9-a05d-3dec-8144-3a236eb82333!","details":null,"data":null,"validationErrors":n...
+
+### HR - Payroll  (/hr/payroll)
+   GET    400  /api/app/payroll/payslips
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The period field is required...
+   POST   400  /api/app/payroll/process-payroll-run
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The period field is required...
+
+### HR - Recruitment  (/hr/recruitment)
+   POST   415  /api/app/candidate
+          
+   PUT    400  /api/app/candidate/{id}/stage
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The newStage field is requir...
+
+### HR - Field Visits  (/hr/field-visit)
+   POST   415  /api/hr/field-visit
+          
+   PUT    500  /api/hr/field-visit/{id}
+          {"error":{"code":null,"message":"An internal error occurred during your request!","details":null,"data":null,"validationErrors":null}}
+   GET    404  /api/hr/field-visit/{id}
+          {"error":{"code":null,"message":"There is no entity FieldVisit with id = d8337732-aa7a-5c86-a221-3a236eb825bf!","details":null,"data":null,"validationErrors":nu...
+   POST   404  /api/hr/field-visit/{id}/check-in
+          {"error":{"code":null,"message":"There is no entity FieldVisit with id = d8337732-aa7a-5c86-a221-3a236eb825bf!","details":null,"data":null,"validationErrors":nu...
+   POST   400  /api/hr/field-visit/{id}/check-out
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The notes field is required....
+
+### HR - Expenses  (/finance/expenses)
+   POST   415  /api/hr/expense
+          
+   GET    404  /api/hr/expense/{id}
+          {"error":{"code":null,"message":"There is no entity ExpenseRequest with id = 686cf1ea-c663-5302-3331-3a236eb8268b!","details":null,"data":null,"validationErrors...
+   POST   404  /api/hr/expense/{id}/approve
+          {"error":{"code":null,"message":"There is no entity ExpenseRequest with id = 686cf1ea-c663-5302-3331-3a236eb8268b!","details":null,"data":null,"validationErrors...
+
+### Inventory - Products  (/inventory/products)
+   POST   415  /api/inventory/product
+          
+   GET    400  /api/inventory/product/by-barcode
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The barcode field is require...
+   GET    404  /api/inventory/product/{id}
+          {"error":{"code":null,"message":"There is no entity Product with id = fd35795e-8081-d2f3-d473-3a236eb82714!","details":null,"data":null,"validationErrors":null}...
+   POST   404  /api/inventory/product/{id}/adjust-stock
+          {"error":{"code":null,"message":"There is no entity Product with id = fd35795e-8081-d2f3-d473-3a236eb82714!","details":null,"data":null,"validationErrors":null}...
+
+### Inventory - Warehouses  (/inventory/warehouses)
+   POST   415  /api/inventory/warehouse
+          
+   GET    404  /api/inventory/warehouse/{id}
+          {"error":{"code":null,"message":"There is no entity Warehouse with id = c550ceef-7b86-a3ad-bd14-3a236eb827c1!","details":null,"data":null,"validationErrors":nul...
+
+### Inventory - Transfers  (/inventory/transfers)
+   POST   415  /api/inventory/stock-transfer
+          
+   GET    404  /api/inventory/stock-transfer/{id}
+          {"error":{"code":null,"message":"There is no entity StockTransfer with id = 813409ba-583c-70eb-68a1-3a236eb82829!","details":null,"data":null,"validationErrors"...
+   PUT    400  /api/inventory/stock-transfer/{id}/status
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The newStatus field is requi...
+
+### Inventory - Stock Ops  (/inventory/stock-operations)
+   POST   415  /api/inventory/stock-count
+          
+   POST   415  /api/inventory/stock-count/item
+          
+   PUT    500  /api/inventory/stock-count/{id}
+          {"error":{"code":null,"message":"An internal error occurred during your request!","details":null,"data":null,"validationErrors":null}}
+   GET    404  /api/inventory/stock-count/{id}
+          {"error":{"code":null,"message":"There is no entity StockCount with id = c6a10595-f075-c678-876e-3a236eb828c4!","details":null,"data":null,"validationErrors":nu...
+   POST   404  /api/inventory/stock-count/{id}/approve
+          {"error":{"code":null,"message":"There is no entity StockCount with id = c6a10595-f075-c678-876e-3a236eb828c4!","details":null,"data":null,"validationErrors":nu...
+   POST   404  /api/inventory/stock-count/{id}/submit
+          {"error":{"code":null,"message":"There is no entity StockCount with id = c6a10595-f075-c678-876e-3a236eb828c4!","details":null,"data":null,"validationErrors":nu...
+
+### Inventory - PickList  (/inventory/stock-operations)
+   POST   415  /api/inventory/pick-list
+          
+   GET    400  /api/inventory/pick-list/assigned
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The assignedTo field is requ...
+   POST   415  /api/inventory/pick-list/item
+          
+   PUT    500  /api/inventory/pick-list/{id}
+          {"error":{"code":null,"message":"An internal error occurred during your request!","details":null,"data":null,"validationErrors":null}}
+   GET    404  /api/inventory/pick-list/{id}
+          {"error":{"code":null,"message":"There is no entity PickList with id = bbd65b77-c730-e205-f301-3a236eb829a4!","details":null,"data":null,"validationErrors":null...
+   POST   400  /api/inventory/pick-list/{id}/assign
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The assignedTo field is requ...
+   POST   404  /api/inventory/pick-list/{id}/complete-pick
+          {"error":{"code":null,"message":"There is no entity PickList with id = bbd65b77-c730-e205-f301-3a236eb829a4!","details":null,"data":null,"validationErrors":null...
+
+### Inventory - PackList  (/inventory/stock-operations)
+   POST   415  /api/inventory/pack-list
+          
+   POST   415  /api/inventory/pack-list/item
+          
+   PUT    500  /api/inventory/pack-list/{id}
+          {"error":{"code":null,"message":"An internal error occurred during your request!","details":null,"data":null,"validationErrors":null}}
+   GET    404  /api/inventory/pack-list/{id}
+          {"error":{"code":null,"message":"There is no entity PackList with id = 5dbb4127-9b18-2849-f0c0-3a236eb82ab3!","details":null,"data":null,"validationErrors":null...
+   POST   404  /api/inventory/pack-list/{id}/complete-pack
+          {"error":{"code":null,"message":"There is no entity PackList with id = 5dbb4127-9b18-2849-f0c0-3a236eb82ab3!","details":null,"data":null,"validationErrors":null...
+   POST   400  /api/inventory/pack-list/{id}/generate-shipping-label
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The carrier field is require...
+
+### Inventory - Purchase Orders  (/inventory/purchase-orders)
+   POST   415  /api/inventory/purchase-order
+          
+   GET    404  /api/inventory/purchase-order/{id}
+          {"error":{"code":null,"message":"There is no entity PurchaseOrder with id = 178cbae3-99e8-058b-0d3d-3a236eb82bb5!","details":null,"data":null,"validationErrors"...
+   PUT    400  /api/inventory/purchase-order/{id}/status
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The newStatus field is requi...
+
+### Inventory - Purchase Requests  (/inventory/purchase-requests)
+   POST   415  /api/hr/purchase-request
+          
+   GET    404  /api/hr/purchase-request/{id}
+          {"error":{"code":null,"message":"There is no entity PurchaseRequest with id = 1d9ca73f-6951-137a-2f8e-3a236eb82c88!","details":null,"data":null,"validationError...
+   POST   404  /api/hr/purchase-request/{id}/approve
+          {"error":{"code":null,"message":"There is no entity PurchaseRequest with id = 1d9ca73f-6951-137a-2f8e-3a236eb82c88!","details":null,"data":null,"validationError...
+
+### Inventory - Goods Receipts  (/inventory/goods-receipts)
+   POST   415  /api/hr/goods-receipt
+          
+   GET    404  /api/hr/goods-receipt/{id}
+          {"error":{"code":null,"message":"There is no entity GoodsReceipt with id = 4797b3da-c254-921a-2e67-3a236eb82d4b!","details":null,"data":null,"validationErrors":...
+   POST   404  /api/hr/goods-receipt/{id}/pass-quality-check
+          {"error":{"code":null,"message":"There is no entity GoodsReceipt with id = 4797b3da-c254-921a-2e67-3a236eb82d4b!","details":null,"data":null,"validationErrors":...
+
+### Inventory - Suppliers  (/inventory/suppliers)
+   POST   415  /api/hr/supplier
+          
+   GET    404  /api/hr/supplier/{id}
+          {"error":{"code":null,"message":"There is no entity Supplier with id = a085053b-7508-430f-d6d8-3a236eb82e85!","details":null,"data":null,"validationErrors":null...
+   POST   415  /api/hr/rfq
+          
+   GET    404  /api/hr/rfq/{id}
+          {"error":{"code":null,"message":"There is no entity Rfq with id = a95e571a-22dd-ab7a-404f-3a236eb82de3!","details":null,"data":null,"validationErrors":null}}
+
+### Sales - Customers  (/sales/customers)
+   POST   415  /api/hr/customer
+          
+   GET    404  /api/hr/customer/{id}
+          {"error":{"code":null,"message":"There is no entity Customer with id = 7ee669fe-0430-175c-8a41-3a236eb830ba!","details":null,"data":null,"validationErrors":null...
+   POST   415  /api/app/crm/deal
+          
+   PUT    400  /api/app/crm/{id}/deal-stage  [unresolved id placeholder]
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The value '{id}' is not vali...
+
+### Sales - Dashboard  (/sales/dashboard)
+   POST   415  /api/hr/sales-order
+          
+   GET    404  /api/hr/sales-order/{id}
+          {"error":{"code":null,"message":"There is no entity SalesOrder with id = 190b5a0f-96ce-df2f-6a5a-3a236eb83141!","details":null,"data":null,"validationErrors":nu...
+   POST   404  /api/hr/sales-order/{id}/approve
+          {"error":{"code":null,"message":"There is no entity SalesOrder with id = 190b5a0f-96ce-df2f-6a5a-3a236eb83141!","details":null,"data":null,"validationErrors":nu...
+
+### Sales - Quotations  (/sales/quotations)
+   POST   415  /api/inventory/sales-quotation
+          
+   GET    404  /api/inventory/sales-quotation/{id}
+          {"error":{"code":null,"message":"There is no entity SalesQuotation with id = 207433f0-75c9-32c3-b0ad-3a236eb831d8!","details":null,"data":null,"validationErrors...
+
+### Sales - Invoices  (/sales/invoices)
+   POST   415  /api/inventory/sales-invoice
+          
+   GET    404  /api/inventory/sales-invoice/{id}
+          {"error":{"code":null,"message":"There is no entity SalesInvoice with id = c1937e1a-12ff-9e34-0882-3a236ed4470b!","details":null,"data":null,"validationErrors":...
+   POST   404  /api/inventory/sales-invoice/{id}/mark-as-paid
+          {"error":{"code":null,"message":"There is no entity SalesInvoice with id = c1937e1a-12ff-9e34-0882-3a236ed4470b!","details":null,"data":null,"validationErrors":...
+   POST   404  /api/inventory/sales-invoice/{id}/send-invoice
+          {"error":{"code":null,"message":"There is no entity SalesInvoice with id = c1937e1a-12ff-9e34-0882-3a236ed4470b!","details":null,"data":null,"validationErrors":...
+
+### Sales - Delivery Notes  (/sales/delivery-notes)
+   POST   415  /api/hr/delivery-note
+          
+   GET    404  /api/hr/delivery-note/{id}
+          {"error":{"code":null,"message":"There is no entity DeliveryNote with id = bc17785a-c2e1-cc48-a43b-3a236eb8333d!","details":null,"data":null,"validationErrors":...
+   POST   400  /api/hr/delivery-note/{id}/capture-signature
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The signedBy field is requir...
+   PUT    400  /api/hr/delivery-note/{id}/tracking
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The trackingNumber field is ...
+
+### Sales - Leads  (/sales/crm/leads)
+   POST   415  /api/hr/lead
+          
+   GET    404  /api/hr/lead/{id}
+          {"error":{"code":null,"message":"There is no entity Lead with id = 98c9e7cc-6101-f504-5267-3a236eb833e1!","details":null,"data":null,"validationErrors":null}}
+   POST   404  /api/hr/lead/{id}/convert-to-opportunity
+          {"error":{"code":null,"message":"There is no entity Lead with id = 98c9e7cc-6101-f504-5267-3a236eb833e1!","details":null,"data":null,"validationErrors":null}}
+
+### Finance - Dashboard  (/finance/dashboard)
+   POST   415  /api/app/finance/account
+          
+   POST   415  /api/app/finance/journal-entry
+          
+   POST   415  /api/hr/cost-center
+          
+   GET    404  /api/hr/cost-center/{id}
+          {"error":{"code":null,"message":"There is no entity CostCenter with id = 76c27ebc-f718-78c7-bb1b-3a236eb834e4!","details":null,"data":null,"validationErrors":nu...
+   POST   415  /api/hr/fiscal-year
+          
+   GET    404  /api/hr/fiscal-year/{id}
+          {"error":{"code":null,"message":"There is no entity FiscalYear with id = 1dc4f224-011b-2b21-9392-3a236eb83541!","details":null,"data":null,"validationErrors":nu...
+
+### Finance - Payments  (/finance/dashboard)
+   POST   400  /api/app/payment/capture/{paymentId}  [unresolved id placeholder]
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The value '{paymentId}' is n...
+   POST   415  /api/app/payment/process-payment
+          
+   POST   415  /api/app/payment/refund
+          
+   GET    400  /api/app/payment/{id}  [unresolved id placeholder]
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The value '{id}' is not vali...
+
+### Finance - Bank Recon  (/finance/dashboard)
+   POST   400  /api/app/bank-reconciliation/import-statement
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The statementReference field...
+   POST   400  /api/app/bank-reconciliation/{id}/reconcile  [unresolved id placeholder]
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The value '{id}' is not vali...
+
+### Projects  (/projects)
+   POST   415  /api/hr/project
+          
+   GET    404  /api/hr/project/{id}
+          {"error":{"code":null,"message":"There is no entity Project with id = 2b646fe6-3454-6120-6780-3a236eb92a15!","details":null,"data":null,"validationErrors":null}...
+
+### Manufacturing  (/manufacturing)
+   POST   415  /api/hr/manufacturing
+          
+   GET    404  /api/hr/manufacturing/{id}
+          {"error":{"code":null,"message":"There is no entity ManufacturingOrder with id = c99d2a17-34f2-d11c-fcea-3a236eb92b52!","details":null,"data":null,"validationEr...
+   POST   404  /api/hr/manufacturing/{id}/complete-order
+          {"error":{"code":null,"message":"There is no entity ManufacturingOrder with id = c99d2a17-34f2-d11c-fcea-3a236eb92b52!","details":null,"data":null,"validationEr...
+
+### Assets  (/assets)
+   POST   415  /api/hr/asset
+          
+   GET    404  /api/hr/asset/{id}
+          {"error":{"code":null,"message":"There is no entity FixedAsset with id = 3c444ca3-33ea-1358-6324-3a236eb92cb5!","details":null,"data":null,"validationErrors":nu...
+   POST   415  /api/hr/maintenance
+          
+   GET    404  /api/hr/maintenance/{id}
+          {"error":{"code":null,"message":"There is no entity MaintenanceRequest with id = 11450e6c-4612-c386-a8b8-3a236eb92de9!","details":null,"data":null,"validationEr...
+
+### Workflow - Designer  (/workflow/designer)
+   POST   415  /api/workflow/workflow-definition
+          
+   GET    404  /api/workflow/workflow-definition/{id}
+          {"error":{"code":null,"message":"There is no entity WorkflowDefinition with id = 89aa6b5b-c400-f9d2-ed40-3a236eb92f22!","details":null,"data":null,"validationEr...
+
+### Workflow - Tasks  (/workflow/tasks)
+   POST   415  /api/workflow/workflow-task
+          
+   GET    404  /api/workflow/workflow-task/{id}
+          {"error":{"code":null,"message":"There is no entity WorkflowTask with id = 64cc253a-d9c2-1054-b2cc-3a236eb9304e!","details":null,"data":null,"validationErrors":...
+   POST   400  /api/workflow/workflow-task/{id}/approve
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The comments field is requir...
+   POST   400  /api/workflow/workflow-task/{id}/capture-signature
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The signedBy field is requir...
+   POST   400  /api/workflow/workflow-task/{id}/reject
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The comments field is requir...
+
+### Workflow - Approvals  (/workflow/approvals)
+   POST   415  /api/app/approval-center/batch-approve
+          
+
+### Workflow - History  (/workflow/history)
+   POST   415  /api/app/workflow-execution-log/start
+          
+   POST   415  /api/app/workflow-execution-log/{id}/append-step
+          
+   POST   404  /api/app/workflow-execution-log/{id}/complete
+          {"error":{"code":null,"message":"There is no entity WorkflowExecutionLog with id = 403661e2-2fac-da7a-f31f-3a236eb93293!","details":null,"data":null,"validation...
+
+### AI Assistant  (/ai-assistant)
+   POST   415  /api/ai/ai-assistant/ask
+          
+   GET    400  /api/ai/ai-assistant/{id}/session  [unresolved id placeholder]
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The value '{id}' is not vali...
+   DELETE 400  /api/ai/ai-assistant/{id}/session  [unresolved id placeholder]
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The value '{id}' is not vali...
+
+### Reports  (/reports)
+   POST   415  /api/app/report-definition
+          
+   POST   404  /api/app/report-definition/{id}/run
+          {"error":{"code":null,"message":"There is no entity ReportDefinition with id = ef694e23-d5d3-b28b-6ce7-3a236dc997c7!","details":null,"data":null,"validationErro...
+
+### Notifications  (/notifications)
+   POST   415  /api/app/notification/send-notification
+          
+   POST   400  /api/app/notification/{id}/mark-as-read  [unresolved id placeholder]
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The value '{id}' is not vali...
+
+### Chat  (/chat)
+   GET    400  /api/app/chat/channel-messages
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The channelName field is req...
+   GET    400  /api/app/chat/direct-messages
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The userId field is required...
+   POST   415  /api/app/chat/send-message
+          
+
+### Documents  (/documents)
+   POST   415  /api/app/document/upload/{folderId}  [unresolved id placeholder]
+          
+   DELETE 400  /api/app/document/{id}  [unresolved id placeholder]
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The value '{id}' is not vali...
+   POST   400  /api/app/document/{id}/download  [unresolved id placeholder]
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The value '{id}' is not vali...
+   POST   400  /api/app/folder
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The name field is required.\...
+   DELETE 400  /api/app/folder/{id}  [unresolved id placeholder]
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The value '{id}' is not vali...
+
+### SaaS - Subscription  (/saas/subscription)
+   POST   400  /api/app/subscription/change-plan/{newPlanId}  [unresolved id placeholder]
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The value '{newPlanId}' is n...
+
+### SaaS - Usage  (/saas/usage)
+   POST   400  /api/app/usage/decrement/{tenantId}  [unresolved id placeholder]
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The value '{tenantId}' is no...
+   POST   400  /api/app/usage/increment/{tenantId}  [unresolved id placeholder]
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The value '{tenantId}' is no...
+   POST   400  /api/app/usage/rebuild-cache/{tenantId}  [unresolved id placeholder]
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The value '{tenantId}' is no...
+   POST   400  /api/app/usage/reset/{tenantId}  [unresolved id placeholder]
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The value '{tenantId}' is no...
+   GET    400  /api/app/usage/usage/{tenantId}  [unresolved id placeholder]
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The value '{tenantId}' is no...
+
+### SaaS - Plans  (/saas/plans)
+   POST   415  /api/app/plan
+          
+   PUT    400  /api/app/plan/features/{planId}
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The JSON value could not be ...
+   GET    404  /api/app/plan/{id}
+          {"error":{"code":null,"message":"There is no entity Plan with id = 3fc32480-2278-c1f5-f359-3a236eb93e48!","details":null,"data":null,"validationErrors":null}}
+   POST   404  /api/app/plan/{id}/set-active
+          {"error":{"code":null,"message":"There is no entity Plan with id = 3fc32480-2278-c1f5-f359-3a236eb93e48!","details":null,"data":null,"validationErrors":null}}
+
+### Settings - Company  (/settings/company)
+   POST   415  /api/hr/company
+          
+   GET    404  /api/hr/company/{id}
+          {"error":{"code":null,"message":"There is no entity Company with id = 9c9d7621-204b-aac3-cd41-3a236eb940d5!","details":null,"data":null,"validationErrors":null}...
+   POST   415  /api/hr/branch
+          
+   GET    404  /api/hr/branch/{id}
+          {"error":{"code":null,"message":"There is no entity Branch with id = 9e923cb6-e2d9-a7c7-d68d-3a236eb93f94!","details":null,"data":null,"validationErrors":null}}
+
+### Settings - Currency  (/settings/currency-tax)
+   POST   415  /api/hr/currency
+          
+   GET    404  /api/hr/currency/{id}
+          {"error":{"code":null,"message":"There is no entity Currency with id = bf78d5e8-bbf2-6dfc-0422-3a236eb94234!","details":null,"data":null,"validationErrors":null...
+   POST   415  /api/hr/tax-config
+          
+   GET    404  /api/hr/tax-config/{id}
+          {"error":{"code":null,"message":"There is no entity TaxConfig with id = 5fcc9495-2183-6d0c-3a11-3a236eb94366!","details":null,"data":null,"validationErrors":nul...
+
+### Settings - PayTerms  (/settings/payment-terms)
+   POST   415  /api/hr/payment-term
+          
+   GET    404  /api/hr/payment-term/{id}
+          {"error":{"code":null,"message":"There is no entity PaymentTerm with id = 91ca1647-d3f1-5153-3cbe-3a236eb944aa!","details":null,"data":null,"validationErrors":n...
+
+### Settings - Users  (/settings/users)
+   POST   403  /api/identity/users
+          {"error":{"code":"Volo.Abp.Identity:InvalidUserName","message":"Username 'Test userName' is invalid.","details":null,"data":{"0":"Test userName"},"validationErr...
+   GET    403  /api/identity/users/lookup/by-username/{userName}
+          
+   GET    403  /api/identity/users/lookup/count
+          
+   GET    403  /api/identity/users/lookup/search
+          
+   GET    403  /api/identity/users/lookup/{id}
+          
+   PUT    403  /api/identity/users/{id}
+          {"error":{"code":"Volo.Abp.Identity:InvalidUserName","message":"Username 'Test userName' is invalid.","details":null,"data":{"0":"Test userName"},"validationErr...
+   DELETE   0  /api/identity/users/{id}
+          skipped (protected resource)
+
+### Settings - Roles  (/settings/roles)
+   GET    403  /api/identity/roles
+          
+   POST   403  /api/identity/roles
+          
+   GET    403  /api/identity/roles/all
+          
+   GET    400  /api/identity/roles/{id}  [unresolved id placeholder]
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The value '{id}' is not vali...
+   PUT    400  /api/identity/roles/{id}  [unresolved id placeholder]
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The value '{id}' is not vali...
+   DELETE   0  /api/identity/roles/{id}  [unresolved id placeholder]
+          skipped (protected resource)
+
+### Settings - Integrations  (/settings/integrations)
+   POST   415  /api/app/integration-config
+          
+   GET    404  /api/app/integration-config/{id}
+          {"error":{"code":null,"message":"There is no entity IntegrationConfig with id = 93cf3d99-c702-aeb0-3d19-3a236eb94c66!","details":null,"data":null,"validationErr...
+   POST   404  /api/app/integration-config/{id}/test-connection
+          {"error":{"code":null,"message":"There is no entity IntegrationConfig with id = 93cf3d99-c702-aeb0-3d19-3a236eb94c66!","details":null,"data":null,"validationErr...
+
+### Devices  (/profile)
+   POST   415  /api/app/device-registration/register
+          
+   PUT    400  /api/app/device-registration/{id}/token  [unresolved id placeholder]
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The value '{id}' is not vali...
+   POST   400  /api/app/device-registration/{id}/unregister  [unresolved id placeholder]
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The value '{id}' is not vali...
+
+### Search  (/dashboard)
+   GET    400  /api/app/search
+          {"error":{"code":null,"message":"Your request is not valid!","details":"The following errors were detected during validation.\r\n - The query field is required....

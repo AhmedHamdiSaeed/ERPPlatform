@@ -75,6 +75,8 @@ export class DashboardComponent {
     { user: 'Omar Farouk', action: 'initiated stock transfer', detail: 'TRF-2026-002 from Central Hub to Main WH', time: '3 hours ago', icon: 'pi-sync', bg: 'bg-indigo-100 text-indigo-600' }
   ];
 
+  approvalCenterLink = '/workflow/approvals';
+
   openAiAnalysis() {
     this.showAiModal.set(true);
     this.aiLoading.set(true);

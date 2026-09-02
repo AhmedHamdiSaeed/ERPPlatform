@@ -4,16 +4,16 @@
     <div>
       <h1 class="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
         <i class="pi pi-dollar text-emerald-600 dark:text-emerald-400"></i>
-        Payroll & Remuneration Processing
+        {{ 'HR:PayrollRemuneration' | abpLocalization }}
       </h1>
       <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-        Monthly Payroll Executions, Tax & Statutory Deductions, and Employee Payslips
+        {{ 'HR:PayrollRemunerationDesc' | abpLocalization }}
       </p>
     </div>
     <button 
       (click)="openProcessModal()"
       class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium text-sm transition-all shadow hover:shadow-emerald-500/25 flex items-center gap-2">
-      <i class="pi pi-play"></i> Process New Payroll Run
+      <i class="pi pi-play"></i> {{ 'HR:ProcessNewPayrollRun' | abpLocalization }}
     </button>
   </div>
 
@@ -25,15 +25,15 @@
     <div class="overflow-x-auto">
       <table class="w-full text-left text-sm border-collapse">
         <thead>
-          <tr class="border-b border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-500 uppercase">
-            <th class="py-3 px-2">Pay Period</th>
-            <th class="py-3 px-2">Employees</th>
-            <th class="py-3 px-2 text-right">Gross Total</th>
-            <th class="py-3 px-2 text-right">Taxes & Deductions</th>
-            <th class="py-3 px-2 text-right">Net Salary Paid</th>
-            <th class="py-3 px-2 text-center">Status</th>
-            <th class="py-3 px-2">Processed Date</th>
-          </tr>
+            <tr class="border-b border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-500 uppercase">
+              <th class="py-3 px-2">{{ 'HR:PayPeriod' | abpLocalization }}</th>
+              <th class="py-3 px-2">Employees</th>
+              <th class="py-3 px-2 text-right">{{ 'HR:GrossTotal' | abpLocalization }}</th>
+              <th class="py-3 px-2 text-right">{{ 'HR:TaxesDeductions' | abpLocalization }}</th>
+              <th class="py-3 px-2 text-right">{{ 'HR:NetSalaryPaid' | abpLocalization }}</th>
+              <th class="py-3 px-2 text-center">{{ 'HR:Status' | abpLocalization }}</th>
+              <th class="py-3 px-2">{{ 'HR:ProcessedDate' | abpLocalization }}</th>
+            </tr>
         </thead>
         <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
           @for (run of payrollRuns(); track run.id) {
@@ -85,10 +85,10 @@
 
           <div class="flex gap-2 pt-2">
             <button (click)="viewPayslip(ps)" class="flex-1 py-1.5 border border-slate-300 dark:border-slate-600 rounded text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100">
-              View Slip
+              {{ 'HR:ViewSlip' | abpLocalization }}
             </button>
             <button (click)="downloadPayslipPdf(ps.employeeName)" class="flex-1 py-1.5 bg-emerald-600 text-white rounded text-xs font-medium hover:bg-emerald-700">
-              Download PDF
+              {{ 'HR:DownloadPdf' | abpLocalization }}
             </button>
           </div>
         </div>
@@ -100,7 +100,7 @@
   @if (showProcessModal()) {
     <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl max-w-md w-full p-6 space-y-4">
-        <h3 class="text-lg font-bold text-slate-900 dark:text-white">Process Monthly Payroll</h3>
+        <h3 class="text-lg font-bold text-slate-900 dark:text-white">{{ 'HR:ProcessMonthlyPayroll' | abpLocalization }}</h3>
         <p class="text-sm text-slate-500 dark:text-slate-400">Calculate gross salaries, statutory deductions (15%), and net payouts for 245 active headcount.</p>
 
         <div>
@@ -109,8 +109,8 @@
         </div>
 
         <div class="flex justify-end gap-2 pt-2">
-          <button (click)="showProcessModal.set(false)" class="px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg text-sm">Cancel</button>
-          <button (click)="runPayroll()" class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700">Execute Payroll Run</button>
+          <button (click)="showProcessModal.set(false)" class="px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg text-sm">{{ 'UI:Close' | abpLocalization }}</button>
+          <button (click)="runPayroll()" class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700">{{ 'HR:ExecutePayrollRun' | abpLocalization }}</button>
         </div>
       </div>
     </div>
@@ -122,24 +122,24 @@
       <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl max-w-md w-full p-6 space-y-4">
         <div class="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-slate-700">
           <div>
-            <h3 class="text-lg font-bold text-slate-900 dark:text-white">Official Payslip Statement</h3>
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">{{ 'HR:OfficialPayslipStatement' | abpLocalization }}</h3>
             <p class="text-xs text-slate-500">{{ currentPayslip.period }} • {{ currentPayslip.employeeName }}</p>
           </div>
           <button (click)="showPayslipModal.set(false)" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times"></i></button>
         </div>
 
         <div class="space-y-2 text-sm text-slate-700 dark:text-slate-300">
-          <div class="flex justify-between"><span>Base Monthly Salary:</span><span class="font-semibold">${{ currentPayslip.baseSalary | number }}</span></div>
-          <div class="flex justify-between"><span>Housing & Transport Allowance:</span><span class="font-semibold text-emerald-600">+${{ currentPayslip.allowances | number }}</span></div>
-          <div class="flex justify-between"><span>Income Tax & Social Deductions:</span><span class="font-semibold text-rose-600">-${{ currentPayslip.deductions | number }}</span></div>
+          <div class="flex justify-between"><span>{{ 'HR:BaseMonthlySalary' | abpLocalization }}:</span><span class="font-semibold">${{ currentPayslip.baseSalary | number }}</span></div>
+          <div class="flex justify-between"><span>{{ 'HR:HousingTransportAllowance' | abpLocalization }}:</span><span class="font-semibold text-emerald-600">+${{ currentPayslip.allowances | number }}</span></div>
+          <div class="flex justify-between"><span>{{ 'HR:IncomeTaxDeductions' | abpLocalization }}:</span><span class="font-semibold text-rose-600">-${{ currentPayslip.deductions | number }}</span></div>
           <div class="flex justify-between text-base font-extrabold text-slate-900 dark:text-white pt-2 border-t border-slate-200 dark:border-slate-700">
-            <span>Total Net Transfer:</span><span class="text-emerald-600 dark:text-emerald-400">${{ currentPayslip.netSalary | number }}</span>
+            <span>{{ 'HR:TotalNetTransfer' | abpLocalization }}:</span><span class="text-emerald-600 dark:text-emerald-400">${{ currentPayslip.netSalary | number }}</span>
           </div>
         </div>
 
         <div class="flex justify-end gap-2 pt-2">
-          <button (click)="showPayslipModal.set(false)" class="px-4 py-2 border border-slate-300 text-slate-700 dark:text-slate-300 rounded-lg text-sm">Close</button>
-          <button (click)="downloadPayslipPdf(currentPayslip.employeeName)" class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium">Download PDF</button>
+          <button (click)="showPayslipModal.set(false)" class="px-4 py-2 border border-slate-300 text-slate-700 dark:text-slate-300 rounded-lg text-sm">{{ 'UI:Close' | abpLocalization }}</button>
+          <button (click)="downloadPayslipPdf(currentPayslip.employeeName)" class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium">{{ 'HR:DownloadPdf' | abpLocalization }}</button>
         </div>
       </div>
     </div>

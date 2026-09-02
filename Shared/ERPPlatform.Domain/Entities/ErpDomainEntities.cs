@@ -611,6 +611,44 @@ namespace ERPPlatform.Domain.Entities
     }
 
     // Real-Time Chat & Notification Entities
+    public enum ChatConversationType
+    {
+        Direct = 0,
+        Group = 1,
+        Channel = 2
+    }
+
+    // A conversation is either a direct (1:1) thread, a group (multiple named members)
+    // or an open channel. Direct conversations reuse the Name field to store a
+    // deterministic "dm:<sortedUserIdA>:<sortedUserIdB>" key so a 1:1 thread is never duplicated.
+    public class ChatConversation : FullAuditedAggregateRoot<Guid>
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string AvatarUrl { get; set; } = string.Empty;
+        public ChatConversationType Type { get; set; } = ChatConversationType.Group;
+        public string CreatorUserId { get; set; } = string.Empty;
+        public DateTime? LastMessageAt { get; set; }
+        public string LastMessageSenderName { get; set; } = string.Empty;
+        public string LastMessagePreview { get; set; } = string.Empty;
+        public bool IsArchived { get; set; }
+    }
+
+    // Membership of a user in a conversation. Also carries per-user read state
+    // (LastReadAt) which drives unread badges, and mute state for notifications.
+    public class ChatParticipant : FullAuditedAggregateRoot<Guid>
+    {
+        public Guid ConversationId { get; set; }
+        public string UserId { get; set; } = string.Empty;
+        public string UserName { get; set; } = string.Empty;
+        public string UserAvatar { get; set; } = string.Empty;
+        public bool IsAdmin { get; set; }
+        public DateTime JoinedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? LastReadAt { get; set; }
+        public bool IsMuted { get; set; }
+        public DateTime? LeftAt { get; set; }
+    }
+
     public class ChatMessage : FullAuditedAggregateRoot<Guid>
     {
         public string SenderId { get; set; } = string.Empty;
@@ -621,6 +659,37 @@ namespace ERPPlatform.Domain.Entities
         public string Text { get; set; } = string.Empty;
         public DateTime Timestamp { get; set; } = DateTime.UtcNow;
         public bool IsRead { get; set; } = false;
+
+        // --- Group chat extensions ---
+        public Guid? ConversationId { get; set; }
+        public Guid? ReplyToMessageId { get; set; }
+        public bool IsEdited { get; set; }
+        public DateTime? EditedAt { get; set; }
+
+        // NOTE: deliberately NOT named "IsDeleted" - that name is taken by ABP's
+        // ISoftDelete on FullAuditedAggregateRoot, and setting it would hide the
+        // row from every query via the soft-delete data filter. Soft-deleting a
+        // chat message would remove it from history instead of showing a
+        // "message deleted" placeholder, so we track the flag separately.
+        public bool IsDeletedBySender { get; set; }
+        public DateTime? DeletedAt { get; set; }
+
+        // Comma separated list of mentioned user ids, e.g. "<id1>,<id2>"
+        public string MentionedUserIds { get; set; } = string.Empty;
+
+        // Optional single attachment (BLOB stored)
+        public string AttachmentName { get; set; } = string.Empty;
+        public string AttachmentBlobName { get; set; } = string.Empty;
+        public string AttachmentContentType { get; set; } = string.Empty;
+        public long AttachmentSizeBytes { get; set; }
+    }
+
+    public class ChatMessageReaction : FullAuditedAggregateRoot<Guid>
+    {
+        public Guid MessageId { get; set; }
+        public string UserId { get; set; } = string.Empty;
+        public string UserName { get; set; } = string.Empty;
+        public string Emoji { get; set; } = string.Empty;
     }
 
     public class SystemNotification : FullAuditedAggregateRoot<Guid>
@@ -807,6 +876,56 @@ namespace ERPPlatform.Domain.Entities
         public string DashboardName { get; set; } = "Default"; // Default, Executive, Sales, HR, etc.
         public string LayoutJson { get; set; } = "[]"; // JSON array of {widgetCode, x, y, w, h, order}
         public bool IsDefault { get; set; } = false;
+    }
+
+    // Recruitment / Applicant Tracking Entity
+    public class Candidate : FullAuditedAggregateRoot<Guid>
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
+        public string AppliedPosition { get; set; } = string.Empty;
+        public decimal ExperienceYears { get; set; }
+        public string Stage { get; set; } = "Applied"; // Applied, Screening, Interview, Technical, Offer, Hired
+        public decimal Rating { get; set; }
+        public string SkillsJson { get; set; } = "[]"; // JSON string array of skill names
+        public DateTime AppliedDate { get; set; } = DateTime.UtcNow;
+        public string Notes { get; set; } = string.Empty;
+    }
+
+    // Workflow Execution History Entities
+    public class WorkflowExecutionLog : FullAuditedAggregateRoot<Guid>
+    {
+        public string ExecutionCode { get; set; } = string.Empty;
+        public string WorkflowName { get; set; } = string.Empty;
+        public Guid? WorkflowDefinitionId { get; set; }
+        public string TriggeredBy { get; set; } = string.Empty;
+        public DateTime StartTime { get; set; } = DateTime.UtcNow;
+        public DateTime? EndTime { get; set; }
+        public string Duration { get; set; } = string.Empty; // Display string, e.g. "4m 12s"
+        public string Status { get; set; } = "Running"; // Running, Completed, Failed
+    }
+
+    public class WorkflowExecutionStep : FullAuditedAggregateRoot<Guid>
+    {
+        public Guid WorkflowExecutionLogId { get; set; }
+        public string StepName { get; set; } = string.Empty;
+        public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+        public string Status { get; set; } = "Passed"; // Passed, Failed, Running, Skipped
+        public string Details { get; set; } = string.Empty;
+        public int Order { get; set; }
+    }
+
+    // Report Catalog Entity
+    public class ReportDefinition : FullAuditedAggregateRoot<Guid>
+    {
+        public string Title { get; set; } = string.Empty;
+        public string Category { get; set; } = "General"; // HR, Inventory, Workflow, Financial
+        public string Description { get; set; } = string.Empty;
+        public DateTime? LastGenerated { get; set; }
+        public int RecordCount { get; set; }
+        public string DataSourceCode { get; set; } = string.Empty; // Key the report runner resolves
+        public bool IsEnabled { get; set; } = true;
     }
 
     // Leave Policy Entity (accrual rules per leave type)

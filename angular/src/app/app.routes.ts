@@ -208,6 +208,10 @@ export const appRoutes: Routes = [
         loadComponent: () => import('./features/workflow/tasks/my-tasks.component').then(m => m.MyTasksComponent)
       },
       {
+        path: 'workflow/approvals',
+        loadComponent: () => import('./features/workflow/approval-center/approval-center.component').then(m => m.ApprovalCenterComponent)
+      },
+      {
         path: 'workflow/history',
         loadComponent: () => import('./features/workflow/history/execution-history.component').then(m => m.ExecutionHistoryComponent)
       },
@@ -231,9 +235,12 @@ export const appRoutes: Routes = [
       },
 
       // ─── Chat ───
+      // Uses TeamChatComponent: group conversations with multiple members, mentions,
+      // reactions, attachments, edit/delete, search and typing indicators.
+      // (features/chat/chat.component is the legacy broadcast-only demo and is no longer routed.)
       {
         path: 'chat',
-        loadComponent: () => import('./features/chat/chat.component').then(m => m.ChatComponent)
+        loadComponent: () => import('./features/chat/team-chat.component').then(m => m.TeamChatComponent)
       },
 
       // ─── Settings, Security & Org ───
