@@ -7,6 +7,11 @@ import { StateService } from './state.service';
 import { SessionTimeoutService } from './session-timeout.service';
 import { REFRESH_TOKEN_KEY, TOKEN_KEY } from '../constants/session.constants';
 
+export interface LoginResult {
+  success: boolean;
+  error?: string;
+}
+
 interface TokenResponse {
   access_token?: string;
   refresh_token?: string;
@@ -24,7 +29,7 @@ export class AuthService {
   private readonly tokenKey = TOKEN_KEY;
   private refreshInFlight?: Promise<boolean>;
 
-  async login(email: string, password: string): Promise<boolean> {
+  async login(email: string, password: string): Promise<LoginResult> {
     const url = `${environment.apis.default.url}/connect/token`;
     const body = new URLSearchParams({
       grant_type: 'password',
@@ -42,14 +47,21 @@ export class AuthService {
       );
       if (response && response.access_token) {
         await this.completeLogin(response);
-        return true;
+        return { success: true };
       }
-      return false;
-    } catch (error) {
+      return { success: false, error: 'Invalid authentication response received.' };
+    } catch (error: any) {
       console.error('Login failed', error);
-      // Fallback for demo when backend endpoint is unavailable or returns 400
-      await this.completeLogin({ access_token: 'demo_token_' + Date.now() });
-      return true;
+      if (error.status === 0) {
+        return {
+          success: false,
+          error: 'Unable to connect to backend server. Please verify HttpApi.Host is running.'
+        };
+      }
+      if (error.error?.error_description) {
+        return { success: false, error: error.error.error_description };
+      }
+      return { success: false, error: 'Invalid email or password. Please try again.' };
     }
   }
 
@@ -117,7 +129,14 @@ export class AuthService {
     this.storeTokens(response);
     // Starts the session clock: 3h on desktop, 6 months on phones/tablets.
     this.session.start();
-    await this.state.loadAppConfig();
+    try {
+      await Promise.race([
+        this.state.loadAppConfig(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout loading app configuration')), 8000))
+      ]);
+    } catch (err) {
+      console.warn('App config load warning during login:', err);
+    }
   }
 
   private storeTokens(response: TokenResponse): void {

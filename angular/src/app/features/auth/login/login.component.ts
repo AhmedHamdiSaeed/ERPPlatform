@@ -55,24 +55,53 @@ export class LoginComponent implements OnInit {
     const email = this.loginForm.value.email!;
     const password = this.loginForm.value.password!;
 
-    const success = await this.authService.login(email, password);
-    this.loading.set(false);
+    try {
+      const result = await this.authService.login(email, password);
 
-    if (success) {
-      // A fresh 3h session starts here; go back to the page the user wanted.
-      const target = this.returnUrl || '/dashboard';
-      this.returnUrl = '';
-      this.sessionNotice.set('');
-      this.router.navigateByUrl(target, { replaceUrl: true });
-    } else {
-      this.errorMessage.set('Invalid email or password. Please try again.');
+      if (result.success) {
+        // A fresh 3h session starts here; go back to the page the user wanted.
+        const target = this.returnUrl || '/dashboard';
+        this.returnUrl = '';
+        this.sessionNotice.set('');
+        this.router.navigateByUrl(target, { replaceUrl: true });
+      } else {
+        this.errorMessage.set(result.error || 'Invalid email or password. Please try again.');
+      }
+    } catch (err: any) {
+      console.error('Unexpected login error', err);
+      this.errorMessage.set('An unexpected error occurred during login. Please try again.');
+    } finally {
+      this.loading.set(false);
     }
   }
+
+  /**
+   * Map of demo emails to their seeded passwords. These are created idempotently
+   * by `DemoUsersDataSeedContributor` in the Domain layer, so they exist in any
+   * environment that has been initialized through `DbMigrator`.
+   */
+  private readonly demoCredentials: Record<string, string> = {
+    'ahmed.hamdi@erpplatform.com': 'Admin123!',
+    'sara.mansour@erpplatform.com': 'Manager123!',
+    'omar.khaled@erpplatform.com': 'Employee123!',
+    'lina.nasser@erpplatform.com': 'Staff123!',
+    'admin@abp.io': '1q2w3E*'
+  };
 
   fillDemo(email: string) {
     this.loginForm.patchValue({
       email: email,
-      password: 'DemoPassword123!'
+      password: this.demoCredentials[email] ?? this.loginForm.value.password ?? ''
     });
+  }
+
+  /**
+   * "Quick Demo Sign In" buttons: fill the form with the demo account's credentials
+   * and immediately submit. Just autofilling would leave the user staring at the
+   * form wondering why nothing happened.
+   */
+  async loginAs(email: string) {
+    this.fillDemo(email);
+    await this.onSubmit();
   }
 }

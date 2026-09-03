@@ -425,7 +425,7 @@ public class ChatConversationAppService : ApplicationService
     }
 
     /// <summary>User picker for the "add members" dialog. Excludes the caller and existing members when id is given.</summary>
-    public virtual async Task<ListResultDto<UserLookupDto>> GetAvailableUsersAsync(Guid? conversationId, string filter, int maxResultCount = 20)
+    public virtual async Task<ListResultDto<UserLookupDto>> GetAvailableUsersAsync(Guid? conversationId, string? filter = "", int maxResultCount = 20)
     {
         var userId = GetCurrentUserId();
         var term = (filter ?? string.Empty).Trim().ToLowerInvariant();
@@ -474,7 +474,7 @@ public class ChatConversationAppService : ApplicationService
     /// at a separate route because <see cref="GetAvailableUsersAsync"/> requires a conversation
     /// id in the path, which doesn't exist during group creation.
     /// </summary>
-    public virtual async Task<ListResultDto<UserLookupDto>> GetAvailableUsersForNewGroupAsync(string filter, int maxResultCount = 20)
+    public virtual async Task<ListResultDto<UserLookupDto>> GetAvailableUsersForNewGroupAsync(string? filter = "", int maxResultCount = 20)
     {
         var userId = GetCurrentUserId();
         var term = (filter ?? string.Empty).Trim().ToLowerInvariant();

@@ -86,6 +86,8 @@ namespace ERPPlatform.Domain.Entities
         public string Position { get; set; } = string.Empty;
         public Guid? DepartmentId { get; set; }
         public string DepartmentName { get; set; } = string.Empty;
+        public Guid? BranchId { get; set; }
+        public string BranchName { get; set; } = string.Empty;
         public decimal Salary { get; set; }
         public DateTime JoiningDate { get; set; }
         public string Status { get; set; } = "Active";

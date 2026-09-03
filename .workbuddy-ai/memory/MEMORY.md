@@ -32,6 +32,21 @@
   `netstat -ano | grep 44327` → `Stop-Process -Id <pid> -Force`.
 - `wmic.exe` is blocked by the sandbox — use `netstat`/`tasklist` or PowerShell instead.
 
+## IIS Express port-squat on 44327 (silent login hangs)
+
+- **`iisexpress.exe` left over from a Visual Studio debug session can hold port 44327.**
+  Symptom: `dotnet run` succeeds but Kestrel silently fails to bind (look for it in the background
+  task — no "Now listening on https://localhost:44327" line). Angular keeps hitting whatever is
+  on the port (IIS Express), not Kestrel.
+- User-visible symptom: `token` and `application-configuration` return 200 through the IIS proxy,
+  but the protected `/api/app/notification/notifications` (and other API routes) hang forever as
+  "pending" in DevTools → Network → the SPA is stuck on "Authenticating…" / "session expired".
+- Fix: `tasklist | findstr iis` → `taskkill /PID <iisexpress_pid> /F` (and tray), then
+  `cd Host/ERPPlatform.HttpApi.Host && dotnet run`. Confirm Kestrel with
+  `curl -skI https://localhost:44327/swagger/v1/swagger.json` — must show `Server: Kestrel`.
+- Detect quickly: if port 44327 is held but `tasklist` shows no `ERPPlatform.HttpApi.Host`,
+  something else (IIS Express, ServiceHub, debugger proxy) owns it.
+
 ## Database / migrations
 
 - `dotnet-ef` refuses to run because `ERPPlatform.HttpApi.Host` does not reference

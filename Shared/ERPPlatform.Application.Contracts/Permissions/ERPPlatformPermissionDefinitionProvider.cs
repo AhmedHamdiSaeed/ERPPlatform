@@ -4,36 +4,70 @@ using Volo.Abp.Localization;
 
 namespace ERPPlatform.Permissions;
 
+/// <summary>
+/// Defines one parent permission per page (the 'View' right) plus Create / Edit / Delete
+/// children. Page keys match the Angular permission-catalog so the Roles & Permissions UI
+/// can toggle them 1:1. Data scoping is handled separately by RolePageScope.
+/// </summary>
 public class ERPPlatformPermissionDefinitionProvider : PermissionDefinitionProvider
 {
     public override void Define(IPermissionDefinitionContext context)
     {
         var myGroup = context.AddGroup(ERPPlatformPermissions.GroupName, L("Permission:GroupName"));
 
-        var dashboard = myGroup.AddPermission(ERPPlatformPermissions.Dashboard.Default, L("Permission:Dashboard"));
-        dashboard.AddChild(ERPPlatformPermissions.Dashboard.View, L("Permission:Dashboard:View"));
+        DefinePage(myGroup, "ERPPlatform.Employees");
+        DefinePage(myGroup, "ERPPlatform.Attendance");
+        DefinePage(myGroup, "ERPPlatform.LeaveRequests");
+        DefinePage(myGroup, "ERPPlatform.Payroll");
+        DefinePage(myGroup, "ERPPlatform.Payslips");
+        DefinePage(myGroup, "ERPPlatform.Departments");
+        DefinePage(myGroup, "ERPPlatform.Positions");
+        DefinePage(myGroup, "ERPPlatform.Contracts");
+        DefinePage(myGroup, "ERPPlatform.Recruitment");
+        DefinePage(myGroup, "ERPPlatform.Customers");
+        DefinePage(myGroup, "ERPPlatform.Leads");
+        DefinePage(myGroup, "ERPPlatform.Deals");
+        DefinePage(myGroup, "ERPPlatform.SalesOrders");
+        DefinePage(myGroup, "ERPPlatform.SalesQuotations");
+        DefinePage(myGroup, "ERPPlatform.Invoices");
+        DefinePage(myGroup, "ERPPlatform.DeliveryNotes");
+        DefinePage(myGroup, "ERPPlatform.Payments");
+        DefinePage(myGroup, "ERPPlatform.Products");
+        DefinePage(myGroup, "ERPPlatform.Warehouses");
+        DefinePage(myGroup, "ERPPlatform.StockTransfers");
+        DefinePage(myGroup, "ERPPlatform.PurchaseOrders");
+        DefinePage(myGroup, "ERPPlatform.PurchaseRequests");
+        DefinePage(myGroup, "ERPPlatform.GoodsReceipts");
+        DefinePage(myGroup, "ERPPlatform.Suppliers");
+        DefinePage(myGroup, "ERPPlatform.Accounts");
+        DefinePage(myGroup, "ERPPlatform.JournalEntries");
+        DefinePage(myGroup, "ERPPlatform.ExpenseRequests");
+        DefinePage(myGroup, "ERPPlatform.Projects");
+        DefinePage(myGroup, "ERPPlatform.ManufacturingOrders");
+        DefinePage(myGroup, "ERPPlatform.FixedAssets");
+        DefinePage(myGroup, "ERPPlatform.MaintenanceRequests");
+        DefinePage(myGroup, "ERPPlatform.WorkflowDefinitions");
+        DefinePage(myGroup, "ERPPlatform.WorkflowTasks");
+        DefinePage(myGroup, "ERPPlatform.ApprovalCenter");
+        DefinePage(myGroup, "ERPPlatform.ReportDefinitions");
+        DefinePage(myGroup, "ERPPlatform.Documents");
+        DefinePage(myGroup, "ERPPlatform.Dashboard");
+        DefinePage(myGroup, "ERPPlatform.Users");
+        DefinePage(myGroup, "ERPPlatform.Roles");
+        DefinePage(myGroup, "ERPPlatform.Companies");
+        DefinePage(myGroup, "ERPPlatform.Branches");
+        DefinePage(myGroup, "ERPPlatform.Currencies");
+        DefinePage(myGroup, "ERPPlatform.IntegrationConfigs");
+        DefinePage(myGroup, "ERPPlatform.Settings");
+    }
 
-        var users = myGroup.AddPermission(ERPPlatformPermissions.Users.Default, L("Permission:Users"));
-        users.AddChild(ERPPlatformPermissions.Users.Create, L("Permission:Users:Create"));
-        users.AddChild(ERPPlatformPermissions.Users.Edit, L("Permission:Users:Edit"));
-        users.AddChild(ERPPlatformPermissions.Users.Delete, L("Permission:Users:Delete"));
-
-        var roles = myGroup.AddPermission(ERPPlatformPermissions.Roles.Default, L("Permission:Roles"));
-        roles.AddChild(ERPPlatformPermissions.Roles.Create, L("Permission:Roles:Create"));
-        roles.AddChild(ERPPlatformPermissions.Roles.Edit, L("Permission:Roles:Edit"));
-        roles.AddChild(ERPPlatformPermissions.Roles.Delete, L("Permission:Roles:Delete"));
-
-        var customers = myGroup.AddPermission(ERPPlatformPermissions.Customers.Default, L("Permission:Customers"));
-        customers.AddChild(ERPPlatformPermissions.Customers.Create, L("Permission:Customers:Create"));
-        customers.AddChild(ERPPlatformPermissions.Customers.Edit, L("Permission:Customers:Edit"));
-        customers.AddChild(ERPPlatformPermissions.Customers.Delete, L("Permission:Customers:Delete"));
-
-        var invoices = myGroup.AddPermission(ERPPlatformPermissions.Invoices.Default, L("Permission:Invoices"));
-        invoices.AddChild(ERPPlatformPermissions.Invoices.Create, L("Permission:Invoices:Create"));
-        invoices.AddChild(ERPPlatformPermissions.Invoices.Edit, L("Permission:Invoices:Edit"));
-        invoices.AddChild(ERPPlatformPermissions.Invoices.Delete, L("Permission:Invoices:Delete"));
-
-        myGroup.AddPermission(ERPPlatformPermissions.Settings.Default, L("Permission:Settings"));
+    private static void DefinePage(PermissionGroupDefinition group, string key)
+    {
+        var baseKey = "Permission:" + key["ERPPlatform.".Length..];
+        var page = group.AddPermission(key, L(baseKey));
+        page.AddChild(key + ".Create", L(baseKey + ":Create"));
+        page.AddChild(key + ".Edit", L(baseKey + ":Edit"));
+        page.AddChild(key + ".Delete", L(baseKey + ":Delete"));
     }
 
     private static LocalizableString L(string name)

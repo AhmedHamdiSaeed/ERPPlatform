@@ -149,6 +149,9 @@ public class ERPPlatformDbContext :
     public DbSet<WorkflowExecutionStep> WorkflowExecutionSteps { get; set; }
     public DbSet<ReportDefinition> ReportDefinitions { get; set; }
 
+    // Role Data Scope DbSets (per-role, per-page row-level scoping)
+    public DbSet<RolePageScope> RolePageScopes { get; set; }
+
     public ERPPlatformDbContext(DbContextOptions<ERPPlatformDbContext> options)
         : base(options)
     {
@@ -310,6 +313,13 @@ public class ERPPlatformDbContext :
         {
             b.HasIndex(x => x.MessageId);
             b.HasIndex(x => new { x.MessageId, x.UserId, x.Emoji });
+        });
+
+        // Role Data Scope: one scope row per role per page.
+        builder.Entity<RolePageScope>(b =>
+        {
+            b.HasIndex(x => new { x.RoleName, x.PageKey });
+            b.HasIndex(x => x.PageKey);
         });
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ERPPlatform.Application.RoleScopes;
 using ERPPlatform.Domain.Entities;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
@@ -58,8 +59,11 @@ namespace ERPPlatform.Modules.HR.Application
 
     public class EmployeeAppService : CrudAppService<Employee, EmployeeDto, Guid, PagedAndSortedResultRequestDto, CreateUpdateEmployeeDto>, IEmployeeAppService
     {
-        public EmployeeAppService(IRepository<Employee, Guid> repository) : base(repository)
+        private readonly IDataScopeService _dataScopeService;
+
+        public EmployeeAppService(IRepository<Employee, Guid> repository, IDataScopeService dataScopeService) : base(repository)
         {
+            _dataScopeService = dataScopeService;
         }
 
         public async Task<decimal> GetLeaveBalanceAsync(Guid id)
@@ -106,6 +110,16 @@ namespace ERPPlatform.Modules.HR.Application
             if (input.JoiningDateTo.HasValue)
             {
                 query = query.Where(e => e.JoiningDate <= input.JoiningDateTo.Value);
+            }
+
+            // Row-level scoping: keep only employees visible under this user's role scopes.
+            var scope = await _dataScopeService.GetFilterAsync(DataScopePageKeys.Employees);
+            if (scope.IsRestricted)
+            {
+                query = query.Where(e =>
+                    (scope.EmployeeIds.Count > 0 && scope.EmployeeIds.Contains(e.Id)) ||
+                    (scope.DepartmentIds.Count > 0 && e.DepartmentId.HasValue && scope.DepartmentIds.Contains(e.DepartmentId.Value)) ||
+                    (scope.BranchIds.Count > 0 && e.BranchId.HasValue && scope.BranchIds.Contains(e.BranchId.Value)));
             }
 
             // Apply sorting
