@@ -4,11 +4,13 @@ import { firstValueFrom } from 'rxjs';
 import { UserProfile, NotificationItem } from '../models/erp-models';
 import { NotificationApiService } from './api/notification-api.service';
 import { environment } from '../../../environments/environment';
+import { TOKEN_KEY } from '../constants/session.constants';
 
 export type ThemeMode = 'light' | 'dark';
 export type LanguageMode = 'en' | 'ar';
 
 const LANG_STORAGE_KEY = 'erp_lang';
+const USER_PROFILE_STORAGE_KEY = 'erp_user_profile';
 
 export const GUEST_USER: UserProfile = {
   id: '',
@@ -48,6 +50,7 @@ export class StateService {
 
   constructor() {
     this.initLanguage();
+    this.initUser();
     this.initKeyboardShortcuts();
     this.loadAppConfig();
   }
@@ -64,38 +67,97 @@ export class StateService {
     this.setLanguage(initial);
   }
 
+  /** Restores the saved user profile on startup. */
+  private initUser() {
+    try {
+      const saved = typeof localStorage !== 'undefined' ? localStorage.getItem(USER_PROFILE_STORAGE_KEY) : null;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.id) {
+          this.currentUser.set(parsed);
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+
+  setCurrentUser(user: UserProfile) {
+    this.currentUser.set(user);
+    try {
+      if (typeof localStorage !== 'undefined') {
+        if (user && user.id) {
+          localStorage.setItem(USER_PROFILE_STORAGE_KEY, JSON.stringify(user));
+        } else {
+          localStorage.removeItem(USER_PROFILE_STORAGE_KEY);
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+
   async loadAppConfig() {
     try {
       const config = await firstValueFrom(
         this.http.get<any>(`${environment.apis.default.url}/api/abp/application-configuration`)
       );
       if (config && config.currentUser && config.currentUser.isAuthenticated) {
-        const userRoles = config.currentUser.roles || [];
+        const userRoles: string[] = config.currentUser.roles || [];
         const policies = config.auth?.policies || {};
-        const grantedPermissions = Object.keys(policies).filter(key => policies[key] === true);
+        const grantedPolicies = config.auth?.grantedPolicies || {};
+        const mergedPolicies = { ...policies, ...grantedPolicies };
+        let grantedPermissions = Object.keys(mergedPolicies).filter(key => mergedPolicies[key] === true);
 
-        this.currentUser.set({
+        const isAdmin = userRoles.some(r => r.toLowerCase() === 'admin') ||
+          config.currentUser.userName === 'admin' ||
+          config.currentUser.email === 'admin@erpplatform.com' ||
+          config.currentUser.email === 'ahmed.hamdi@erpplatform.com';
+
+        if (isAdmin) {
+          grantedPermissions = ['*', ...grantedPermissions];
+        }
+
+        const validRoles: Array<UserProfile['role']> = ['Admin', 'HR Manager', 'Inventory Manager', 'Employee'];
+        const matchedRole = validRoles.find(r => userRoles.includes(r));
+        const resolvedRole: UserProfile['role'] = isAdmin ? 'Admin' : (matchedRole || 'Employee');
+
+        this.setCurrentUser({
           id: config.currentUser.id,
           name: config.currentUser.userName || config.currentUser.name || 'User',
           email: config.currentUser.email || '',
-          role: userRoles.includes('Admin') ? 'Admin' : (userRoles[0] || 'Employee'),
+          role: resolvedRole,
           avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
           permissions: grantedPermissions
         });
 
         await this.loadNotifications();
       } else {
-        this.setGuestUser();
+        // Do NOT reset to guest if there is an active session token and user
+        const token = typeof localStorage !== 'undefined' ? localStorage.getItem(TOKEN_KEY) : null;
+        if (!token) {
+          this.setGuestUser();
+        }
       }
     } catch (err) {
-      console.error('Failed to load application configuration', err);
-      this.setGuestUser();
+      console.warn('App config load warning:', err);
+      const token = typeof localStorage !== 'undefined' ? localStorage.getItem(TOKEN_KEY) : null;
+      if (!token) {
+        this.setGuestUser();
+      }
     }
   }
 
-  private setGuestUser() {
+  setGuestUser() {
     this.currentUser.set(GUEST_USER);
     this.notifications.set([]);
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem(USER_PROFILE_STORAGE_KEY);
+      }
+    } catch {
+      /* ignore */
+    }
   }
 
   /** Pulls the current user's notifications from the server. */
@@ -118,8 +180,8 @@ export class StateService {
 
   hasPermission(permission: string): boolean {
     const user = this.currentUser();
-    if (!user) return false;
-    if (user.permissions.includes('*')) return true;
+    if (!user || !user.id) return false;
+    if (user.role === 'Admin' || user.permissions.includes('*')) return true;
     return user.permissions.includes(permission);
   }
 

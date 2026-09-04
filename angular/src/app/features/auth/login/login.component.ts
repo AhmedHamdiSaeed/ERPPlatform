@@ -3,11 +3,12 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { SessionTimeoutService } from '../../../core/services/session-timeout.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterModule],
+  imports: [ReactiveFormsModule, RouterModule, TranslatePipe],
   templateUrl: './login.component.html'
 })
 export class LoginComponent implements OnInit {
@@ -20,14 +21,16 @@ export class LoginComponent implements OnInit {
   loading = signal(false);
   errorMessage = signal('');
   sessionNotice = signal('');
+  tenantName = signal('');
 
   /** Page the user was heading to before the session ended. */
   private returnUrl = '';
   hasReturnUrl = signal(false);
 
   loginForm = this.fb.group({
-    email: ['ahmed.hamdi@erpplatform.com', [Validators.required, Validators.email]],
+    email: ['admin@erpplatform.com', [Validators.required]],
     password: ['Admin123!', [Validators.required]],
+    tenant: [''],
     rememberMe: [true]
   });
 
@@ -40,6 +43,14 @@ export class LoginComponent implements OnInit {
       this.sessionNotice.set(
         'Your session has expired for security reasons. Sign in again to go back to where you were.'
       );
+    }
+
+    // Extract tenant from URL query or subdomain or local storage
+    const detectedTenant = queryParams.get('tenant') || queryParams.get('__tenant') || queryParams.get('tenantName') || this.authService.getTenant() || '';
+    if (detectedTenant) {
+      this.tenantName.set(detectedTenant);
+      this.loginForm.patchValue({ tenant: detectedTenant });
+      this.authService.setTenant(detectedTenant);
     }
   }
 
@@ -54,18 +65,18 @@ export class LoginComponent implements OnInit {
 
     const email = this.loginForm.value.email!;
     const password = this.loginForm.value.password!;
+    const tenant = this.loginForm.value.tenant || this.tenantName() || undefined;
 
     try {
-      const result = await this.authService.login(email, password);
+      const result = await this.authService.login(email, password, tenant);
 
       if (result.success) {
-        // A fresh 3h session starts here; go back to the page the user wanted.
         const target = this.returnUrl || '/dashboard';
         this.returnUrl = '';
         this.sessionNotice.set('');
         this.router.navigateByUrl(target, { replaceUrl: true });
       } else {
-        this.errorMessage.set(result.error || 'Invalid email or password. Please try again.');
+        this.errorMessage.set(result.error || 'Invalid credentials. Please try again.');
       }
     } catch (err: any) {
       console.error('Unexpected login error', err);
@@ -75,13 +86,12 @@ export class LoginComponent implements OnInit {
     }
   }
 
-  /**
-   * Map of demo emails to their seeded passwords. These are created idempotently
-   * by `DemoUsersDataSeedContributor` in the Domain layer, so they exist in any
-   * environment that has been initialized through `DbMigrator`.
-   */
   private readonly demoCredentials: Record<string, string> = {
+    'admin@erpplatform.com': 'Admin123!',
     'ahmed.hamdi@erpplatform.com': 'Admin123!',
+    'admin': 'Admin123!',
+    '+201000000000': 'Admin123!',
+    '01000000000': 'Admin123!',
     'sara.mansour@erpplatform.com': 'Manager123!',
     'omar.khaled@erpplatform.com': 'Employee123!',
     'lina.nasser@erpplatform.com': 'Staff123!',
@@ -95,11 +105,6 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  /**
-   * "Quick Demo Sign In" buttons: fill the form with the demo account's credentials
-   * and immediately submit. Just autofilling would leave the user staring at the
-   * form wondering why nothing happened.
-   */
   async loginAs(email: string) {
     this.fillDemo(email);
     await this.onSubmit();

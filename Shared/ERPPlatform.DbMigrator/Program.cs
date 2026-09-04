@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
@@ -32,6 +33,10 @@ class Program
 
     public static IHostBuilder CreateHostBuilder(string[] args) =>
         Host.CreateDefaultBuilder(args)
+            // Pin the content root to the app folder so appsettings.json is always
+            // found, regardless of the directory the migrator is launched from
+            // (e.g. "dotnet run --project" from the solution root).
+            .UseContentRoot(AppContext.BaseDirectory)
             .AddAppSettingsSecretsJson()
             .ConfigureLogging((context, logging) => logging.ClearProviders())
             .ConfigureServices((hostContext, services) =>

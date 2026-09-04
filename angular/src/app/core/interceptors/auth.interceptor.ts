@@ -1,7 +1,7 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { Injector, inject } from '@angular/core';
 import { catchError, from, switchMap, throwError } from 'rxjs';
-import { AuthService } from '../services/auth.service';
+import { AuthService, TENANT_KEY } from '../services/auth.service';
 import { SessionTimeoutService } from '../services/session-timeout.service';
 import { REFRESH_TOKEN_KEY, TOKEN_KEY } from '../constants/session.constants';
 
@@ -10,16 +10,17 @@ const RETRY_HEADER = 'X-Auth-Retry';
 
 export const authInterceptorFn: HttpInterceptorFn = (req, next) => {
   const session = inject(SessionTimeoutService);
-  // Resolved lazily: AuthService needs HttpClient, which is still being built here.
   const injector = inject(Injector);
-  const token = localStorage.getItem(TOKEN_KEY);
+  const token = typeof localStorage !== 'undefined' ? localStorage.getItem(TOKEN_KEY) : null;
+  const tenant = typeof localStorage !== 'undefined' ? localStorage.getItem(TENANT_KEY) : null;
 
-  // Never gate the token / revocation endpoints themselves.
-  const isAuthRequest = req.url.includes('/connect/token') || req.url.includes('/connect/revocation');
+  // Never gate the login / token / refresh endpoints themselves.
+  const isAuthEndpoint = req.url.includes('/api/auth/login') ||
+                         req.url.includes('/api/auth/refresh') ||
+                         req.url.includes('/connect/token') ||
+                         req.url.includes('/connect/revocation');
 
-  // Any other request fired after the session lifetime is over is stopped here
-  // and the user is bounced to the login page (keeping the current page as returnUrl).
-  if (!isAuthRequest && session.isExpired()) {
+  if (!isAuthEndpoint && session.isExpired()) {
     session.expire('timeout');
     return throwError(
       () =>
@@ -31,30 +32,34 @@ export const authInterceptorFn: HttpInterceptorFn = (req, next) => {
     );
   }
 
-  let authReq = req;
+  let headersConfig: Record<string, string> = {};
+
   if (token) {
-    authReq = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    headersConfig['Authorization'] = `Bearer ${token}`;
   }
+
+  if (tenant) {
+    headersConfig['X-Tenant-Name'] = tenant;
+    headersConfig['__tenant'] = tenant;
+  }
+
+  const authReq = req.clone({
+    setHeaders: headersConfig
+  });
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status !== 401 || isAuthRequest) {
+      if (error.status !== 401 || isAuthEndpoint) {
         return throwError(() => error);
       }
 
-      const canRefresh = !!localStorage.getItem(REFRESH_TOKEN_KEY) && !req.headers.has(RETRY_HEADER);
+      const canRefresh = !!(typeof localStorage !== 'undefined' && localStorage.getItem(REFRESH_TOKEN_KEY)) && !req.headers.has(RETRY_HEADER);
       if (!canRefresh) {
-        // No refresh token (demo mode) or already retried once -> session really is over.
         session.expire('unauthorized');
         return throwError(() => error);
       }
 
-      // The server access token is short lived; renew it and replay the request once.
-      // This is what keeps a mobile session usable for the full 6 months.
+      // Replay the request with a fresh access token using refresh token
       return from(injector.get(AuthService).refreshSession()).pipe(
         switchMap(refreshed => {
           if (!refreshed) {
@@ -63,12 +68,20 @@ export const authInterceptorFn: HttpInterceptorFn = (req, next) => {
           }
 
           const freshToken = localStorage.getItem(TOKEN_KEY);
+          let retryHeaders: Record<string, string> = {
+            [RETRY_HEADER]: '1'
+          };
+          if (freshToken) {
+            retryHeaders['Authorization'] = `Bearer ${freshToken}`;
+          }
+          if (tenant) {
+            retryHeaders['X-Tenant-Name'] = tenant;
+            retryHeaders['__tenant'] = tenant;
+          }
+
           return next(
             req.clone({
-              setHeaders: {
-                Authorization: `Bearer ${freshToken}`,
-                [RETRY_HEADER]: '1'
-              }
+              setHeaders: retryHeaders
             })
           );
         })

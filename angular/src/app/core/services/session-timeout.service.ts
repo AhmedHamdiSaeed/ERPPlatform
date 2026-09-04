@@ -232,6 +232,10 @@ export class SessionTimeoutService {
   registerActivity(): boolean {
     this.now.set(Date.now());
 
+    if (this.isAuthRoute(this.currentUrl())) {
+      return true;
+    }
+
     if (!localStorage.getItem(TOKEN_KEY)) {
       this.end('unauthorized', true);
       return false;

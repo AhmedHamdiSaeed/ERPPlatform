@@ -35,10 +35,11 @@ public class DemoUsersDataSeedContributor : IDataSeedContributor, ITransientDepe
 
     private static readonly List<DemoUser> DemoUsers = new()
     {
-        new("ahmed.hamdi@erpplatform.com", "Ahmed", "Hamdi", "Admin123!"),
-        new("sara.mansour@erpplatform.com", "Sara", "Mansour", "Manager123!"),
-        new("omar.khaled@erpplatform.com", "Omar", "Khaled", "Employee123!"),
-        new("lina.nasser@erpplatform.com", "Lina", "Nasser", "Staff123!")
+        new("admin@erpplatform.com", "System", "Admin", "Admin123!", "+201000000000"),
+        new("ahmed.hamdi@erpplatform.com", "Ahmed", "Hamdi", "Admin123!", "+201011111111"),
+        new("sara.mansour@erpplatform.com", "Sara", "Mansour", "Manager123!", "+201022222222"),
+        new("omar.khaled@erpplatform.com", "Omar", "Khaled", "Employee123!", "+201033333333"),
+        new("lina.nasser@erpplatform.com", "Lina", "Nasser", "Staff123!", "+201044444444")
     };
 
     /// <summary>
@@ -48,6 +49,7 @@ public class DemoUsersDataSeedContributor : IDataSeedContributor, ITransientDepe
     /// </summary>
     private static readonly Dictionary<string, string> DemoRoleByEmail = new()
     {
+        ["admin@erpplatform.com"] = "admin",
         ["ahmed.hamdi@erpplatform.com"] = "admin",
         ["sara.mansour@erpplatform.com"] = "HR Manager",
         ["omar.khaled@erpplatform.com"] = "Employee",
@@ -61,9 +63,10 @@ public class DemoUsersDataSeedContributor : IDataSeedContributor, ITransientDepe
 
         foreach (var demo in DemoUsers)
         {
-            if (await _userManager.FindByEmailAsync(demo.Email) == null)
+            var user = await _userManager.FindByEmailAsync(demo.Email);
+            if (user == null)
             {
-                var user = new IdentityUser(Guid.NewGuid(), demo.Email, demo.Email)
+                user = new IdentityUser(Guid.NewGuid(), demo.Email, demo.Email)
                 {
                     Name = demo.FirstName,
                     Surname = demo.LastName
@@ -77,6 +80,13 @@ public class DemoUsersDataSeedContributor : IDataSeedContributor, ITransientDepe
                         $"Failed to seed demo user '{demo.Email}': " +
                         string.Join("; ", result.Errors.Select(e => e.Description)));
                 }
+            }
+
+            if (!string.IsNullOrEmpty(demo.PhoneNumber) && user.PhoneNumber != demo.PhoneNumber)
+            {
+                await _userManager.SetPhoneNumberAsync(user, demo.PhoneNumber);
+                user.SetPhoneNumberConfirmed(true);
+                await _userManager.UpdateAsync(user);
             }
 
             if (DemoRoleByEmail.TryGetValue(demo.Email, out var roleName))
@@ -109,5 +119,5 @@ public class DemoUsersDataSeedContributor : IDataSeedContributor, ITransientDepe
         }
     }
 
-    private sealed record DemoUser(string Email, string FirstName, string LastName, string Password);
+    private sealed record DemoUser(string Email, string FirstName, string LastName, string Password, string PhoneNumber);
 }
