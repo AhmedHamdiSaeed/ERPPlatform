@@ -28,7 +28,7 @@ interface NavGroup {
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [RouterModule, LocalizationPipe],
+  imports: [RouterModule],
   templateUrl: './sidebar.component.html'
 })
 export class SidebarComponent {

@@ -1,6 +1,7 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { CrmApiService, Lead } from '../../../core/services/api/crm-api.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { DialogService } from '../../../core/services/dialog.service';
@@ -8,7 +9,7 @@ import { DialogService } from '../../../core/services/dialog.service';
 @Component({
   selector: 'app-leads',
   standalone: true,
-  imports: [FormsModule, RouterModule],
+  imports: [FormsModule, RouterModule, TranslatePipe],
   templateUrl: './leads.component.html'
 })
 export class LeadsComponent {

@@ -22,10 +22,10 @@
       <!-- Content -->
       <div class="flex-1 min-w-0">
         <div class="flex items-center justify-between gap-2">
-          <h4 class="font-extrabold text-xs text-[var(--text-main)] truncate">{{ toast.title }}</h4>
+          <h4 class="font-extrabold text-xs text-[var(--text-main)] truncate">{{ toast.title | translate }}</h4>
           <span class="text-[10px] text-slate-400 font-mono shrink-0">{{ toast.timestamp }}</span>
         </div>
-        <p class="text-xs text-[var(--text-muted)] mt-0.5 leading-relaxed break-words">{{ toast.message }}</p>
+        <p class="text-xs text-[var(--text-muted)] mt-0.5 leading-relaxed break-words">{{ toast.message | translate }}</p>
       </div>
 
       <!-- Close Button -->

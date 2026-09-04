@@ -235,7 +235,10 @@ export class AuthService {
         email: data.user.email || '',
         role: isAdmin ? 'Admin' : (userRoles[0] as any) || 'Employee',
         avatar: data.user.logoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-        permissions: data.user.permissions?.length ? data.user.permissions : (isAdmin ? ['*'] : [])
+        permissions: data.user.permissions?.length ? data.user.permissions : (isAdmin ? ['*'] : []),
+        tenantId: data.user.tenantId,
+        tenantName: data.user.tenantName || tenantName,
+        tenantLogo: data.user.logoUrl
       });
     }
 

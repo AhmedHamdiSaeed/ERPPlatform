@@ -1,12 +1,13 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { OrgApiService, PaymentTerm } from '../../../core/services/api/org-api.service';
 import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-payment-terms',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, TranslatePipe],
   templateUrl: './payment-terms.component.html'
 })
 export class PaymentTermsComponent {

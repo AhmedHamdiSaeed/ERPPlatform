@@ -5,6 +5,9 @@ export interface UserProfile {
   role: 'Admin' | 'HR Manager' | 'Inventory Manager' | 'Employee';
   avatar: string;
   permissions: string[];
+  tenantId?: string;
+  tenantName?: string;
+  tenantLogo?: string;
 }
 
 export interface Employee {

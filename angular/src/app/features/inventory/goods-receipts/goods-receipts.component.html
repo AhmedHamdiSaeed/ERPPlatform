@@ -1,8 +1,8 @@
 <div class="space-y-6 animate-fade-in pb-8">
   <div class="flex items-center justify-between">
     <div>
-      <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">Goods Receipt Notes (GRN) & Quality Check</h1>
-      <p class="text-xs text-[var(--text-muted)] mt-0.5">Verify inbound vendor shipments, inspect product quality, and post stock arrivals into warehouses.</p>
+      <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">{{ 'Goods Receipt Notes (GRN) & Quality Check' | translate }}</h1>
+      <p class="text-xs text-[var(--text-muted)] mt-0.5">{{ 'Verify inbound vendor shipments, inspect product quality, and post stock arrivals into warehouses.' | translate }}</p>
     </div>
   </div>
 
@@ -10,13 +10,13 @@
     <table class="w-full text-left text-xs">
       <thead class="bg-slate-50 dark:bg-slate-800/50 text-[var(--text-muted)] font-bold text-[10px] uppercase">
         <tr>
-          <th class="p-3">GRN #</th>
-          <th class="p-3">PO Number</th>
-          <th class="p-3">Supplier Name</th>
-          <th class="p-3">Received Date</th>
-          <th class="p-3">Receiving Warehouse</th>
-          <th class="p-3">Quality Check (QC)</th>
-          <th class="p-3">Action</th>
+          <th class="p-3">{{ 'GRN #' | translate }}</th>
+          <th class="p-3">{{ 'PO Number' | translate }}</th>
+          <th class="p-3">{{ 'Supplier Name' | translate }}</th>
+          <th class="p-3">{{ 'Received Date' | translate }}</th>
+          <th class="p-3">{{ 'Receiving Warehouse' | translate }}</th>
+          <th class="p-3">{{ 'Quality Check (QC)' | translate }}</th>
+          <th class="p-3">{{ 'Action' | translate }}</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-[var(--border-color)]">
@@ -24,20 +24,20 @@
           <tr>
             <td class="p-3 font-mono font-bold text-blue-600">{{ g.grnNumber }}</td>
             <td class="p-3 font-mono text-[var(--text-muted)]">{{ g.poNumber }}</td>
-            <td class="p-3 font-bold text-[var(--text-main)]">{{ g.supplierName }}</td>
-            <td class="p-3 text-[var(--text-muted)]">{{ g.receivedDate }}</td>
-            <td class="p-3 text-[var(--text-main)]">{{ g.receivingWarehouse }}</td>
+            <td class="p-3 font-bold text-[var(--text-main)]">{{ g.supplierName | translate }}</td>
+            <td class="p-3 text-[var(--text-muted)]">{{ g.receivedDate | appDate }}</td>
+            <td class="p-3 text-[var(--text-main)]">{{ g.receivingWarehouse | translate }}</td>
             <td class="p-3">
               @if (g.qcStatus === 'Passed') {
-                <span class="px-2.5 py-0.5 bg-emerald-100 text-emerald-800 font-bold rounded-full text-[10px]">Passed QC</span>
+                <span class="px-2.5 py-0.5 bg-emerald-100 text-emerald-800 font-bold rounded-full text-[10px]">{{ 'Passed QC' | translate }}</span>
               } @else {
-                <span class="px-2.5 py-0.5 bg-amber-100 text-amber-800 font-bold rounded-full text-[10px]">Pending QC</span>
+                <span class="px-2.5 py-0.5 bg-amber-100 text-amber-800 font-bold rounded-full text-[10px]">{{ 'Pending QC' | translate }}</span>
               }
             </td>
             <td class="p-3">
               @if (g.qcStatus !== 'Passed') {
                 <button (click)="passQc(g.id)" class="px-2.5 py-1 bg-emerald-50 text-emerald-700 font-bold text-[10px] rounded-lg border border-emerald-200 hover:bg-emerald-100 flex items-center gap-1">
-                  <i class="pi pi-check text-[9px]"></i> Verify & Pass QC
+                  <i class="pi pi-check text-[9px]"></i> {{ 'Verify & Pass QC' | translate }}
                 </button>
               }
             </td>

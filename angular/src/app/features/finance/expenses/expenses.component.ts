@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EnterpriseApiService, ExpenseRequest } from '../../../core/services/api/enterprise-api.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { AppDatePipe } from '../../../shared/pipes/app-date.pipe';
 
 @Component({
   selector: 'app-expenses',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, TranslatePipe, AppDatePipe],
   templateUrl: './expenses.component.html'
 })
 export class ExpensesComponent {

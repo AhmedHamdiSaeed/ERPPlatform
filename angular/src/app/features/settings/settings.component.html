@@ -1,12 +1,78 @@
 <div class="space-y-6 animate-fade-in pb-8">
       
       <div>
-        <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">{{ 'UI:SystemSettings' | abpLocalization }}</h1>
-        <p class="text-xs text-[var(--text-muted)] mt-0.5">{{ 'UI:SystemSettingsDesc' | abpLocalization }}</p>
+        <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">{{ 'UI:SystemSettings' | translate }}</h1>
+        <p class="text-xs text-[var(--text-muted)] mt-0.5">{{ 'UI:SystemSettingsDesc' | translate }}</p>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
+        <!-- Tenant Branding & Logo Card -->
+        <div class="card-panel space-y-5 lg:col-span-2">
+          <div class="flex items-center gap-3 border-b border-[var(--border-color)] pb-3">
+            <div class="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 flex items-center justify-center">
+              <i class="pi pi-image"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-sm text-[var(--text-main)]">{{ 'Tenant Branding & Logo' | translate }}</h3>
+              <p class="text-[11px] text-[var(--text-muted)]">{{ 'Customize your organization logo, branding preview, and visual identity' | translate }}</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+            <!-- Logo Preview -->
+            <div class="flex flex-col items-center justify-center p-4 border border-dashed border-[var(--border-color)] rounded-2xl bg-slate-50 dark:bg-slate-800/40">
+              <span class="text-[11px] font-bold text-[var(--text-muted)] mb-3">{{ 'Current Logo' | translate }} / {{ 'Preview' | translate }}</span>
+              <div class="w-24 h-24 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 flex items-center justify-center overflow-hidden p-2 shadow-sm">
+                @if (previewLogo()) {
+                  <img [src]="previewLogo()" alt="Tenant Logo" class="max-w-full max-h-full object-contain" />
+                } @else {
+                  <i class="pi pi-building text-3xl text-slate-400"></i>
+                }
+              </div>
+              <span class="text-[10px] font-mono text-blue-600 mt-2 font-bold">{{ state.currentUser().tenantName || ('Main Organization' | translate) }}</span>
+            </div>
+
+            <!-- Logo URL Input & File Upload -->
+            <div class="md:col-span-2 space-y-4 text-xs">
+              <div>
+                <label class="font-bold text-[var(--text-main)] block mb-1.5">{{ 'Logo URL or Image' | translate }}</label>
+                <div class="flex gap-2">
+                  <input 
+                    type="text" 
+                    [ngModel]="logoInput()" 
+                    (ngModelChange)="onLogoUrlChange($event)"
+                    [placeholder]="'Enter Logo URL' | translate" 
+                    class="flex-1 px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs" />
+                </div>
+              </div>
+
+              <div>
+                <label class="font-bold text-[var(--text-main)] block mb-1.5">{{ 'Choose Local Image' | translate }}</label>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  (change)="onFileSelected($event)" 
+                  class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer" />
+              </div>
+
+              <div class="flex justify-end pt-2">
+                <button 
+                  (click)="saveTenantLogo()" 
+                  [disabled]="isSavingLogo()"
+                  class="btn-primary flex items-center gap-2 text-xs px-5 py-2.5">
+                  @if (isSavingLogo()) {
+                    <i class="pi pi-spin pi-spinner"></i>
+                  } @else {
+                    <i class="pi pi-check"></i>
+                  }
+                  {{ 'Save Logo' | translate }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Appearance Settings Card -->
         <div class="card-panel space-y-5">
           <div class="flex items-center gap-3 border-b border-[var(--border-color)] pb-3">
@@ -14,16 +80,16 @@
               <i class="pi pi-palette"></i>
             </div>
             <div>
-              <h3 class="font-bold text-sm text-[var(--text-main)]">{{ 'UI:AppearanceTheme' | abpLocalization }}</h3>
-              <p class="text-[11px] text-[var(--text-muted)]">{{ 'UI:AppearanceThemeDesc' | abpLocalization }}</p>
+              <h3 class="font-bold text-sm text-[var(--text-main)]">{{ 'UI:AppearanceTheme' | translate }}</h3>
+              <p class="text-[11px] text-[var(--text-muted)]">{{ 'UI:AppearanceThemeDesc' | translate }}</p>
             </div>
           </div>
 
           <div class="space-y-4 text-xs">
             <div class="flex items-center justify-between">
               <div>
-                <span class="font-bold text-[var(--text-main)] block">{{ 'UI:DarkMode' | abpLocalization }}</span>
-                <span class="text-[11px] text-[var(--text-muted)]">{{ 'UI:DarkModeDesc' | abpLocalization }}</span>
+                <span class="font-bold text-[var(--text-main)] block">{{ 'UI:DarkMode' | translate }}</span>
+                <span class="text-[11px] text-[var(--text-muted)]">{{ 'UI:DarkModeDesc' | translate }}</span>
               </div>
               <button (click)="state.toggleTheme()" class="relative w-11 h-6 rounded-full transition-colors cursor-pointer flex-shrink-0" [class.bg-blue-600]="state.isDark()" [class.bg-slate-300]="!state.isDark()">
                 <span class="absolute top-[3px] left-[3px] w-[18px] h-[18px] bg-white rounded-full shadow-md transition-transform duration-200" [style.transform]="state.isDark() ? 'translateX(20px)' : 'translateX(0)'"></span>
@@ -32,8 +98,8 @@
 
             <div class="flex items-center justify-between">
               <div>
-                <span class="font-bold text-[var(--text-main)] block">{{ 'UI:CompactSidebar' | abpLocalization }}</span>
-                <span class="text-[11px] text-[var(--text-muted)]">{{ 'UI:CompactSidebarDesc' | abpLocalization }}</span>
+                <span class="font-bold text-[var(--text-main)] block">{{ 'UI:CompactSidebar' | translate }}</span>
+                <span class="text-[11px] text-[var(--text-muted)]">{{ 'UI:CompactSidebarDesc' | translate }}</span>
               </div>
               <button (click)="state.toggleSidebar()" class="relative w-11 h-6 rounded-full transition-colors cursor-pointer flex-shrink-0" [class.bg-blue-600]="state.sidebarCollapsed()" [class.bg-slate-300]="!state.sidebarCollapsed()">
                 <span class="absolute top-[3px] left-[3px] w-[18px] h-[18px] bg-white rounded-full shadow-md transition-transform duration-200" [style.transform]="state.sidebarCollapsed() ? 'translateX(20px)' : 'translateX(0)'"></span>
@@ -49,26 +115,26 @@
               <i class="pi pi-globe"></i>
             </div>
             <div>
-              <h3 class="font-bold text-sm text-[var(--text-main)]">{{ 'UI:LocalizationLanguage' | abpLocalization }}</h3>
-              <p class="text-[11px] text-[var(--text-muted)]">{{ 'UI:LocalizationLanguageDesc' | abpLocalization }}</p>
+              <h3 class="font-bold text-sm text-[var(--text-main)]">{{ 'UI:LocalizationLanguage' | translate }}</h3>
+              <p class="text-[11px] text-[var(--text-muted)]">{{ 'UI:LocalizationLanguageDesc' | translate }}</p>
             </div>
           </div>
 
           <div class="space-y-4 text-xs">
             <div>
-              <span class="font-bold text-[var(--text-main)] block mb-1.5">{{ 'UI:DisplayLanguage' | abpLocalization }}</span>
+              <span class="font-bold text-[var(--text-main)] block mb-1.5">{{ 'UI:DisplayLanguage' | translate }}</span>
               <div class="flex gap-2">
-                <button (click)="state.setLanguage('en')" class="flex-1 py-2.5 rounded-xl border text-center font-bold transition-colors" [class.bg-blue-600]="state.language() === 'en'" [class.text-white]="state.language() === 'en'" [class.border-blue-600]="state.language() === 'en'" [class.bg-slate-100]="state.language() !== 'en'" [class.dark:bg-slate-800]="state.language() !== 'en'">
+                <button (click)="state.setLanguage('en')" class="flex-1 py-2.5 rounded-xl border text-center font-bold transition-colors notranslate" data-no-translate="true" translate="no" [class.bg-blue-600]="state.language() === 'en'" [class.text-white]="state.language() === 'en'" [class.border-blue-600]="state.language() === 'en'" [class.bg-slate-100]="state.language() !== 'en'" [class.dark:bg-slate-800]="state.language() !== 'en'">
                   🇺🇸 English
                 </button>
-                <button (click)="state.setLanguage('ar')" class="flex-1 py-2.5 rounded-xl border text-center font-bold transition-colors" [class.bg-blue-600]="state.language() === 'ar'" [class.text-white]="state.language() === 'ar'" [class.border-blue-600]="state.language() === 'ar'" [class.bg-slate-100]="state.language() !== 'ar'" [class.dark:bg-slate-800]="state.language() !== 'ar'">
+                <button (click)="state.setLanguage('ar')" class="flex-1 py-2.5 rounded-xl border text-center font-bold transition-colors notranslate" data-no-translate="true" translate="no" [class.bg-blue-600]="state.language() === 'ar'" [class.text-white]="state.language() === 'ar'" [class.border-blue-600]="state.language() === 'ar'" [class.bg-slate-100]="state.language() !== 'ar'" [class.dark:bg-slate-800]="state.language() !== 'ar'">
                   🇸🇦 العربية
                 </button>
               </div>
             </div>
 
             <div>
-              <span class="font-bold text-[var(--text-main)] block mb-1.5">{{ 'UI:Timezone' | abpLocalization }}</span>
+              <span class="font-bold text-[var(--text-main)] block mb-1.5">{{ 'UI:Timezone' | translate }}</span>
               <select class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl">
                 <option>(UTC+02:00) Cairo</option>
                 <option>(UTC+03:00) Riyadh</option>
@@ -78,7 +144,7 @@
             </div>
 
             <div>
-              <span class="font-bold text-[var(--text-main)] block mb-1.5">{{ 'UI:DateFormat' | abpLocalization }}</span>
+              <span class="font-bold text-[var(--text-main)] block mb-1.5">{{ 'UI:DateFormat' | translate }}</span>
               <select class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl">
                 <option>YYYY-MM-DD</option>
                 <option>DD/MM/YYYY</option>
@@ -95,8 +161,8 @@
               <i class="pi pi-bell"></i>
             </div>
             <div>
-              <h3 class="font-bold text-sm text-[var(--text-main)]">{{ 'UI:NotificationChannels' | abpLocalization }}</h3>
-              <p class="text-[11px] text-[var(--text-muted)]">{{ 'UI:NotificationChannelsDesc' | abpLocalization }}</p>
+              <h3 class="font-bold text-sm text-[var(--text-main)]">{{ 'UI:NotificationChannels' | translate }}</h3>
+              <p class="text-[11px] text-[var(--text-muted)]">{{ 'UI:NotificationChannelsDesc' | translate }}</p>
             </div>
           </div>
 
@@ -104,8 +170,8 @@
             @for (channel of notificationChannels; track channel.key) {
               <div class="flex items-center justify-between py-1.5">
                 <div>
-                  <span class="font-bold text-[var(--text-main)] block">{{ channel.key | abpLocalization }}</span>
-                  <span class="text-[11px] text-[var(--text-muted)]">{{ channel.descKey | abpLocalization }}</span>
+                  <span class="font-bold text-[var(--text-main)] block">{{ channel.key | translate }}</span>
+                  <span class="text-[11px] text-[var(--text-muted)]">{{ channel.descKey | translate }}</span>
                 </div>
                 <button (click)="channel.enabled = !channel.enabled" class="relative w-11 h-6 rounded-full transition-colors cursor-pointer flex-shrink-0" [class.bg-blue-600]="channel.enabled" [class.bg-slate-300]="!channel.enabled">
                   <span class="absolute top-[3px] left-[3px] w-[18px] h-[18px] bg-white rounded-full shadow-md transition-transform duration-200" [style.transform]="channel.enabled ? 'translateX(20px)' : 'translateX(0)'"></span>
@@ -122,22 +188,22 @@
               <i class="pi pi-shield"></i>
             </div>
             <div>
-              <h3 class="font-bold text-sm text-[var(--text-main)]">{{ 'UI:SecurityAuth' | abpLocalization }}</h3>
-              <p class="text-[11px] text-[var(--text-muted)]">{{ 'UI:SecurityAuthDesc' | abpLocalization }}</p>
+              <h3 class="font-bold text-sm text-[var(--text-main)]">{{ 'UI:SecurityAuth' | translate }}</h3>
+              <p class="text-[11px] text-[var(--text-muted)]">{{ 'UI:SecurityAuthDesc' | translate }}</p>
             </div>
           </div>
 
           <div class="space-y-4 text-xs">
             <div class="flex items-center justify-between">
               <div>
-                <span class="font-bold text-[var(--text-main)] block">{{ 'UI:TwoFactor' | abpLocalization }}</span>
-                <span class="text-[11px] text-[var(--text-muted)]">{{ 'UI:TwoFactorDesc' | abpLocalization }}</span>
+                <span class="font-bold text-[var(--text-main)] block">{{ 'UI:TwoFactor' | translate }}</span>
+                <span class="text-[11px] text-[var(--text-muted)]">{{ 'UI:TwoFactorDesc' | translate }}</span>
               </div>
-              <span class="status-badge active">{{ 'UI:Enabled' | abpLocalization }}</span>
+              <span class="status-badge active">{{ 'UI:Enabled' | translate }}</span>
             </div>
 
             <div>
-              <span class="font-bold text-[var(--text-main)] block mb-1.5">{{ 'UI:SessionTimeout' | abpLocalization }}</span>
+              <span class="font-bold text-[var(--text-main)] block mb-1.5">{{ 'UI:SessionTimeout' | translate }}</span>
               <select class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl">
                 <option>30 minutes</option>
                 <option>1 hour</option>
@@ -147,7 +213,7 @@
             </div>
 
             <button class="w-full py-2.5 bg-rose-50 dark:bg-rose-900/20 text-rose-600 font-bold text-xs rounded-xl border border-rose-200 dark:border-rose-800 hover:bg-rose-100 transition-colors">
-              <i class="pi pi-sign-out text-[10px]"></i> {{ 'UI:SignOutAllSessions' | abpLocalization }}
+              <i class="pi pi-sign-out text-[10px]"></i> {{ 'UI:SignOutAllSessions' | translate }}
             </button>
           </div>
         </div>

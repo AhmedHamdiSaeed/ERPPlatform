@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { StateService } from '../../core/services/state.service';
 import { PERMISSIONS } from '../../core/models/permissions';
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+import { AppDatePipe } from '../../shared/pipes/app-date.pipe';
 
 export interface SalesInvoice {
   id: string;
@@ -20,7 +22,7 @@ export interface SalesInvoice {
 @Component({
   selector: 'app-sales-invoices',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, TranslatePipe, AppDatePipe],
   templateUrl: './sales-invoices.component.html'
 })
 export class SalesInvoicesComponent {

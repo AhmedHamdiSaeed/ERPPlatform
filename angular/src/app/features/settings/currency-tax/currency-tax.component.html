@@ -1,7 +1,7 @@
 <div class="space-y-6 animate-fade-in pb-8">
   <div>
-    <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">Currencies & Tax Configurations</h1>
-    <p class="text-xs text-[var(--text-muted)] mt-0.5">Manage exchange rates, base currency, and sales/VAT tax rules.</p>
+    <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">{{ 'Currencies & Tax Configurations' | translate }}</h1>
+    <p class="text-xs text-[var(--text-muted)] mt-0.5">{{ 'Manage exchange rates, base currency, and sales/VAT tax rules.' | translate }}</p>
   </div>
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -9,20 +9,20 @@
     <div class="card-panel space-y-4">
       <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
         <h3 class="font-bold text-sm text-[var(--text-main)] flex items-center gap-2">
-          <i class="pi pi-dollar text-emerald-600"></i> Supported Currencies
+          <i class="pi pi-dollar text-emerald-600"></i> {{ 'Supported Currencies' | translate }}
         </h3>
-        <button (click)="showCurModal.set(true)" class="btn-primary text-xs">+ Add Currency</button>
+        <button (click)="showCurModal.set(true)" class="btn-primary text-xs">+ {{ 'Add Currency' | translate }}</button>
       </div>
 
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs">
           <thead class="bg-slate-50 dark:bg-slate-800/50 text-[var(--text-muted)] font-bold text-[10px]">
             <tr>
-              <th class="p-2.5">Code</th>
-              <th class="p-2.5">Name</th>
-              <th class="p-2.5">Symbol</th>
-              <th class="p-2.5">Rate</th>
-              <th class="p-2.5">Base</th>
+              <th class="p-2.5">{{ 'Code' | translate }}</th>
+              <th class="p-2.5">{{ 'Name' | translate }}</th>
+              <th class="p-2.5">{{ 'Symbol' | translate }}</th>
+              <th class="p-2.5">{{ 'Rate' | translate }}</th>
+              <th class="p-2.5">{{ 'Base' | translate }}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-[var(--border-color)]">
@@ -34,7 +34,7 @@
                 <td class="p-2.5 text-[var(--text-muted)]">{{ c.exchangeRate }}</td>
                 <td class="p-2.5">
                   @if (c.isBase) {
-                    <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[9px] font-bold rounded-full">Base Currency</span>
+                    <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[9px] font-bold rounded-full">{{ 'Base Currency' | translate }}</span>
                   }
                 </td>
               </tr>
@@ -48,19 +48,19 @@
     <div class="card-panel space-y-4">
       <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
         <h3 class="font-bold text-sm text-[var(--text-main)] flex items-center gap-2">
-          <i class="pi pi-percentage text-indigo-600"></i> Tax Rates & Rules
+          <i class="pi pi-percentage text-indigo-600"></i> {{ 'Tax Rates & Rules' | translate }}
         </h3>
-        <button (click)="showTaxModal.set(true)" class="btn-primary text-xs">+ Add Tax Rule</button>
+        <button (click)="showTaxModal.set(true)" class="btn-primary text-xs">+ {{ 'Add Tax Rule' | translate }}</button>
       </div>
 
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs">
           <thead class="bg-slate-50 dark:bg-slate-800/50 text-[var(--text-muted)] font-bold text-[10px]">
             <tr>
-              <th class="p-2.5">Rule Name</th>
-              <th class="p-2.5">Type</th>
-              <th class="p-2.5">Rate %</th>
-              <th class="p-2.5">Default</th>
+              <th class="p-2.5">{{ 'Rule Name' | translate }}</th>
+              <th class="p-2.5">{{ 'Type' | translate }}</th>
+              <th class="p-2.5">{{ 'Rate %' | translate }}</th>
+              <th class="p-2.5">{{ 'Default' | translate }}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-[var(--border-color)]">
@@ -71,7 +71,7 @@
                 <td class="p-2.5 font-bold text-indigo-600">{{ t.rate }}%</td>
                 <td class="p-2.5">
                   @if (t.isDefault) {
-                    <span class="px-2 py-0.5 bg-blue-100 text-blue-800 text-[9px] font-bold rounded-full">Default</span>
+                    <span class="px-2 py-0.5 bg-blue-100 text-blue-800 text-[9px] font-bold rounded-full">{{ 'Default' | translate }}</span>
                   }
                 </td>
               </tr>
@@ -86,13 +86,13 @@
   @if (showCurModal()) {
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60">
       <div class="w-full max-w-sm bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-5 space-y-3 text-xs">
-        <h3 class="font-bold text-sm">Add Currency</h3>
-        <div><label class="block mb-1 font-bold">Code</label><input type="text" [(ngModel)]="newCur.code" class="w-full p-2 border rounded-xl" placeholder="E.g. GBP" /></div>
-        <div><label class="block mb-1 font-bold">Name</label><input type="text" [(ngModel)]="newCur.name" class="w-full p-2 border rounded-xl" placeholder="British Pound" /></div>
-        <div><label class="block mb-1 font-bold">Exchange Rate</label><input type="number" [(ngModel)]="newCur.exchangeRate" class="w-full p-2 border rounded-xl" /></div>
+        <h3 class="font-bold text-sm">{{ 'Add Currency' | translate }}</h3>
+        <div><label class="block mb-1 font-bold">{{ 'Code' | translate }}</label><input type="text" [(ngModel)]="newCur.code" class="w-full p-2 border rounded-xl" [placeholder]="'E.g. GBP' | translate" /></div>
+        <div><label class="block mb-1 font-bold">{{ 'Name' | translate }}</label><input type="text" [(ngModel)]="newCur.name" class="w-full p-2 border rounded-xl" [placeholder]="'British Pound' | translate" /></div>
+        <div><label class="block mb-1 font-bold">{{ 'Exchange Rate' | translate }}</label><input type="number" [(ngModel)]="newCur.exchangeRate" class="w-full p-2 border rounded-xl" /></div>
         <div class="flex justify-end gap-2 pt-2">
-          <button (click)="showCurModal.set(false)" class="btn-outline text-xs">Cancel</button>
-          <button (click)="saveCurrency()" class="btn-primary text-xs">Save</button>
+          <button type="button" (click)="showCurModal.set(false)" class="btn-outline text-xs">{{ 'Cancel' | translate }}</button>
+          <button type="button" (click)="saveCurrency()" class="btn-primary text-xs">{{ 'Save' | translate }}</button>
         </div>
       </div>
     </div>
@@ -102,12 +102,12 @@
   @if (showTaxModal()) {
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60">
       <div class="w-full max-w-sm bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-5 space-y-3 text-xs">
-        <h3 class="font-bold text-sm">Add Tax Configuration</h3>
-        <div><label class="block mb-1 font-bold">Rule Name</label><input type="text" [(ngModel)]="newTax.name" class="w-full p-2 border rounded-xl" placeholder="Sales Tax 10%" /></div>
-        <div><label class="block mb-1 font-bold">Rate (%)</label><input type="number" [(ngModel)]="newTax.rate" class="w-full p-2 border rounded-xl" /></div>
+        <h3 class="font-bold text-sm">{{ 'Add Tax Configuration' | translate }}</h3>
+        <div><label class="block mb-1 font-bold">{{ 'Rule Name' | translate }}</label><input type="text" [(ngModel)]="newTax.name" class="w-full p-2 border rounded-xl" [placeholder]="'Sales Tax 10%' | translate" /></div>
+        <div><label class="block mb-1 font-bold">{{ 'Rate (%)' | translate }}</label><input type="number" [(ngModel)]="newTax.rate" class="w-full p-2 border rounded-xl" /></div>
         <div class="flex justify-end gap-2 pt-2">
-          <button (click)="showTaxModal.set(false)" class="btn-outline text-xs">Cancel</button>
-          <button (click)="saveTax()" class="btn-primary text-xs">Save</button>
+          <button type="button" (click)="showTaxModal.set(false)" class="btn-outline text-xs">{{ 'Cancel' | translate }}</button>
+          <button type="button" (click)="saveTax()" class="btn-primary text-xs">{{ 'Save' | translate }}</button>
         </div>
       </div>
     </div>

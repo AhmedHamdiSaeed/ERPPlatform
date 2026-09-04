@@ -1,8 +1,8 @@
 <div class="space-y-6 animate-fade-in pb-8">
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
     <div>
-      <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">Unified Approval Center</h1>
-      <p class="text-xs text-[var(--text-muted)] mt-0.5">Review and approve pending requests across HR, Finance, Procurement, Sales, and Workflows.</p>
+      <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">{{ 'My Approval Tasks Inbox' | translate }}</h1>
+      <p class="text-xs text-[var(--text-muted)] mt-0.5">{{ 'Review and approve pending requests across HR, Finance, Procurement, Sales, and Workflows.' | translate }}</p>
     </div>
 
     <div class="flex items-center gap-2">
@@ -11,13 +11,13 @@
         (ngModelChange)="typeFilter.set($event)"
         class="px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs"
       >
-        <option value="ALL">All Types</option>
+        <option value="ALL">{{ 'All Types' | translate }}</option>
         @for (t of entityTypes; track t) {
-          <option [value]="t">{{ t }}</option>
+          <option [value]="t">{{ t | translate }}</option>
         }
       </select>
 
-      <button (click)="load()" [disabled]="loading() || approving()" class="btn-outline text-xs disabled:opacity-60">Refresh</button>
+      <button (click)="load()" [disabled]="loading() || approving()" class="btn-outline text-xs disabled:opacity-60">{{ 'Refresh' | translate }}</button>
     </div>
   </div>
 
@@ -25,34 +25,34 @@
     <div class="flex items-center justify-between gap-3 flex-wrap">
       <label class="inline-flex items-center gap-2 text-xs text-[var(--text-muted)]">
         <input type="checkbox" [checked]="allCurrentSelected()" (change)="toggleSelectAllCurrent()" />
-        Select all in current view
+        {{ 'Select all in current view' | translate }}
       </label>
 
-      <div class="text-xs text-[var(--text-muted)]">Selected: <strong>{{ selectedCount() }}</strong></div>
+      <div class="text-xs text-[var(--text-muted)]">{{ 'Selected' | translate }}: <strong>{{ selectedCount() }}</strong></div>
     </div>
 
     <textarea
       [(ngModel)]="comment"
       rows="2"
-      placeholder="Optional approval comment..."
+      placeholder="{{ 'Optional approval comment...' | translate }}"
       class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs"
     ></textarea>
 
     <div class="flex justify-end">
       <button (click)="approveSelected()" [disabled]="approving() || selectedCount() === 0" class="btn-primary text-xs disabled:opacity-60">
-        {{ approving() ? 'Approving...' : 'Approve Selected' }}
+        {{ approving() ? ('Approving...' | translate) : ('Approve Selected' | translate) }}
       </button>
     </div>
   </div>
 
   @if (loading()) {
-    <div class="card-panel text-sm text-[var(--text-muted)]">Loading pending approvals...</div>
+    <div class="card-panel text-sm text-[var(--text-muted)]">{{ 'Loading pending approvals...' | translate }}</div>
   }
 
   @if (loadError() && !loading()) {
     <div class="card-panel text-sm text-rose-600 flex items-center justify-between gap-3">
-      <span>{{ loadError() }}</span>
-      <button (click)="load()" class="btn-outline text-xs">Retry</button>
+      <span>{{ loadError() | translate }}</span>
+      <button (click)="load()" class="btn-outline text-xs">{{ 'Retry' | translate }}</button>
     </div>
   }
 
@@ -66,18 +66,18 @@
 
               <div>
                 <div class="flex items-center gap-2 flex-wrap">
-                  <span class="font-mono text-[11px] font-bold text-blue-600">{{ item.entityType }}</span>
-                  <span class="status-badge pending">{{ item.status }}</span>
+                  <span class="font-mono text-[11px] font-bold text-blue-600">{{ item.entityType | translate }}</span>
+                  <span class="status-badge pending">{{ item.status | translate }}</span>
                 </div>
-                <h3 class="font-extrabold text-sm text-[var(--text-main)] mt-0.5">{{ item.title }}</h3>
-                <p class="text-xs text-[var(--text-muted)] mt-0.5">{{ item.description }}</p>
-                <p class="text-[11px] text-[var(--text-muted)] mt-1">Requested by {{ item.requestedBy }} • {{ item.createdDate | date: 'yyyy-MM-dd HH:mm' }}</p>
+                <h3 class="font-extrabold text-sm text-[var(--text-main)] mt-0.5">{{ item.title | translate }}</h3>
+                <p class="text-xs text-[var(--text-muted)] mt-0.5">{{ item.description | translate }}</p>
+                <p class="text-[11px] text-[var(--text-muted)] mt-1">{{ 'Requested by' | translate }} {{ item.requestedBy }} • {{ item.createdDate | appDate }}</p>
               </div>
             </div>
 
             <div class="text-right shrink-0">
               @if (item.amount != null) {
-                <div class="text-xs text-slate-500">Amount</div>
+                <div class="text-xs text-slate-500">{{ 'Amount' | translate }}</div>
                 <div class="font-bold text-amber-600">${{ item.amount | number:'1.2-2' }}</div>
               }
             </div>
@@ -85,15 +85,15 @@
 
           <div class="flex justify-end">
             <button (click)="approveOne(item)" [disabled]="approving()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl disabled:opacity-60">
-              {{ approving() ? 'Approving...' : 'Approve' }}
+              {{ approving() ? ('Approving...' | translate) : ('Approve' | translate) }}
             </button>
           </div>
         </div>
       } @empty {
         <div class="card-panel text-center py-12 text-xs text-[var(--text-muted)]">
           <i class="pi pi-check-circle text-4xl text-emerald-500 block mb-2"></i>
-          <p class="font-bold text-slate-700 dark:text-slate-200">All clear</p>
-          <p>No pending approvals for the selected filter.</p>
+          <p class="font-bold text-slate-700 dark:text-slate-200">{{ 'All clear' | translate }}</p>
+          <p>{{ 'No pending approvals for the selected filter.' | translate }}</p>
         </div>
       }
     </div>

@@ -101,6 +101,57 @@ public class AuthController : AbpControllerBase
 
         return Ok(Result<TenantCheckResponse>.Ok(data, "Tenant found successfully."));
     }
+
+    /// <summary>
+    /// Gets branding and logo for the current active tenant or specified tenant name.
+    /// </summary>
+    [HttpGet("tenant/branding")]
+    [HttpGet("auth/tenant/branding")]
+    [AllowAnonymous]
+    public async Task<ActionResult<Result<TenantBrandingInfo>>> GetTenantBranding([FromQuery] string? tenantName)
+    {
+        var targetName = Request.Headers["X-Tenant-Name"].FirstOrDefault()
+                         ?? Request.Headers["__tenant"].FirstOrDefault()
+                         ?? tenantName;
+
+        var tid = _currentTenant.Id;
+        var branding = await _tenantBrandingProvider.GetBrandingAsync(tid, targetName);
+        return Ok(Result<TenantBrandingInfo>.Ok(branding));
+    }
+
+    /// <summary>
+    /// Allows a tenant admin to update their organization logo in the database.
+    /// </summary>
+    [HttpPost("tenant/logo")]
+    [HttpPost("auth/tenant/logo")]
+    public async Task<ActionResult<Result<TenantBrandingInfo>>> SetTenantLogo([FromBody] SetTenantLogoRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.LogoUrl))
+        {
+            return BadRequest(Result<TenantBrandingInfo>.Fail("Logo URL or image data is required.", 400));
+        }
+
+        var tenantId = _currentTenant.Id;
+        var tenantName = Request.Headers["X-Tenant-Name"].FirstOrDefault()
+                         ?? Request.Headers["__tenant"].FirstOrDefault()
+                         ?? request.TenantName;
+
+        if (!tenantId.HasValue && !string.IsNullOrWhiteSpace(tenantName))
+        {
+            var tenant = await _tenantRepository.FindByNameAsync(tenantName.Trim());
+            if (tenant != null) tenantId = tenant.Id;
+        }
+
+        if (!tenantId.HasValue)
+        {
+            return BadRequest(Result<TenantBrandingInfo>.Fail("Active tenant not found. Please log in to a tenant or specify tenant name.", 400));
+        }
+
+        await _tenantBrandingProvider.SetTenantLogoAsync(tenantId.Value, request.LogoUrl.Trim());
+        var updated = await _tenantBrandingProvider.GetBrandingAsync(tenantId.Value);
+
+        return Ok(Result<TenantBrandingInfo>.Ok(updated, "Tenant logo updated and saved in database successfully."));
+    }
     #endregion
 
     #region 2. Universal Login & Token Generation
@@ -770,6 +821,12 @@ public class ResetPasswordRequest
     public string Email { get; set; } = string.Empty;
     public string Otp { get; set; } = string.Empty;
     public string NewPassword { get; set; } = string.Empty;
+    public string? TenantName { get; set; }
+}
+
+public class SetTenantLogoRequest
+{
+    public string LogoUrl { get; set; } = string.Empty;
     public string? TenantName { get; set; }
 }
 #endregion

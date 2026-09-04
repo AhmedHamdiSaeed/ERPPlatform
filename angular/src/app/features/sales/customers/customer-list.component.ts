@@ -6,11 +6,12 @@ import { ToastService } from '../../../core/services/toast.service';
 import { DialogService } from '../../../core/services/dialog.service';
 import { StateService } from '../../../core/services/state.service';
 import { PERMISSIONS } from '../../../core/models/permissions';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-customer-list',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, TranslatePipe],
   templateUrl: './customer-list.component.html'
 })
 export class CustomerListComponent {

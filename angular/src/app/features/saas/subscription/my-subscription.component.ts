@@ -2,11 +2,13 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SubscriptionApiService, SubscriptionDto, PlanDto } from '../../../core/services/api/subscription-api.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { AppDatePipe } from '../../../shared/pipes/app-date.pipe';
 
 @Component({
   selector: 'app-my-subscription',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe, AppDatePipe],
   templateUrl: './my-subscription.component.html'
 })
 export class MySubscriptionComponent {

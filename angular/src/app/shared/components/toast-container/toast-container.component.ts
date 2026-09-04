@@ -1,15 +1,18 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ToastService, ToastItem } from '../../../core/services/toast.service';
+import { StateService } from '../../../core/services/state.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-toast-container',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe],
   templateUrl: './toast-container.component.html'
 })
 export class ToastContainerComponent {
   toastService = inject(ToastService);
+  state = inject(StateService);
 
   dismiss(id: string, event?: Event): void {
     if (event) {

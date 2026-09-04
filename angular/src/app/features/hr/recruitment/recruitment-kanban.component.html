@@ -2,12 +2,12 @@
       
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">{{ 'HR:RecruitmentCandidatePipeline' | abpLocalization }}</h1>
-          <p class="text-xs text-[var(--text-muted)] mt-0.5">{{ 'HR:RecruitmentCandidatePipelineDesc' | abpLocalization }}</p>
+          <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">{{ 'Recruitment & Candidate Pipeline' | translate }}</h1>
+          <p class="text-xs text-[var(--text-muted)] mt-0.5">{{ 'Track applicant stages, ratings, interview notes, and hiring decisions.' | translate }}</p>
         </div>
 
         <button (click)="addCandidate()" class="btn-primary text-xs cursor-pointer">
-          <i class="pi pi-user-plus"></i> {{ 'HR:AddCandidate' | abpLocalization }}
+          <i class="pi pi-user-plus"></i> {{ 'Add Candidate' | translate }}
         </button>
       </div>
 
@@ -19,7 +19,7 @@
             
             <!-- Column Header -->
             <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-700">
-              <span class="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">{{ stage }}</span>
+              <span class="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">{{ stage | translate }}</span>
               <span class="px-2 py-0.5 text-[10px] font-bold bg-white dark:bg-slate-700 rounded-full text-blue-600 shadow-2xs">
                 {{ getCandidatesByStage(stage).length }}
               </span>
@@ -34,8 +34,8 @@
                   
                   <div class="flex items-start justify-between">
                     <div>
-                      <h4 class="font-bold text-xs text-[var(--text-main)] group-hover:text-blue-600 transition-colors">{{ cand.name }}</h4>
-                      <span class="text-[10px] text-blue-600 font-semibold block mt-0.5">{{ cand.appliedPosition }}</span>
+                      <h4 class="font-bold text-xs text-[var(--text-main)] group-hover:text-blue-600 transition-colors">{{ cand.name | translate }}</h4>
+                      <span class="text-[10px] text-blue-600 font-semibold block mt-0.5">{{ cand.appliedPosition | translate }}</span>
                     </div>
                     <div class="flex items-center gap-0.5 text-amber-500 font-bold text-[10px]">
                       <i class="pi pi-star-fill text-[9px]"></i>
@@ -46,13 +46,13 @@
                   <div class="flex flex-wrap gap-1">
                     @for (s of cand.skills.slice(0, 3); track s) {
                       <span class="px-1.5 py-0.5 text-[9px] bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded font-medium">
-                        {{ s }}
+                        {{ s | translate }}
                       </span>
                     }
                   </div>
 
                   <div class="pt-2 border-t border-slate-100 dark:border-slate-700/50 flex items-center justify-between text-[10px] text-slate-400">
-                    <span>{{ cand.experienceYears }} yrs exp</span>
+                    <span>{{ cand.experienceYears }} {{ 'yrs exp' | translate }}</span>
                     <div class="flex gap-1">
                       <button (click)="$event.stopPropagation(); moveStage(cand, -1)" class="p-1 hover:text-blue-600" title="Move Back"><i class="pi pi-arrow-left"></i></button>
                       <button (click)="$event.stopPropagation(); moveStage(cand, 1)" class="p-1 hover:text-blue-600" title="Move Forward"><i class="pi pi-arrow-right"></i></button>
@@ -63,7 +63,7 @@
 
               @if (getCandidatesByStage(stage).length === 0) {
                 <div class="p-4 text-center text-[10px] text-slate-400 border border-dashed border-slate-300 dark:border-slate-700 rounded-xl">
-                  {{ 'HR:NoCandidatesIn' | abpLocalization }} {{ stage }}
+                  {{ 'No Candidates In' | translate }} {{ stage | translate }}
                 </div>
               }
             </div>
@@ -78,7 +78,7 @@
         <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs animate-fade-in">
           <div class="w-full max-w-md max-h-[90vh] bg-[var(--bg-card)] border border-[var(--border-color)] p-6 shadow-2xl overflow-y-auto space-y-6 m-4">
             <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-4">
-              <h3 class="font-extrabold text-base text-[var(--text-main)]">{{ 'HR:CandidateProfile' | abpLocalization }}</h3>
+              <h3 class="font-extrabold text-base text-[var(--text-main)]">{{ 'Candidate Profile' | translate }}</h3>
               <button (click)="selectedCandidate.set(null)" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times text-lg"></i></button>
             </div>
 
@@ -87,28 +87,28 @@
                 <div class="w-16 h-16 rounded-full bg-blue-100 text-blue-600 font-black text-xl flex items-center justify-center mx-auto mb-2">
                   {{ selectedCandidate()?.name?.charAt(0) }}
                 </div>
-                <h2 class="font-black text-lg text-[var(--text-main)]">{{ selectedCandidate()?.name }}</h2>
-                <span class="text-blue-600 font-bold block mt-0.5">{{ selectedCandidate()?.appliedPosition }}</span>
-                <span class="status-badge active mt-2 inline-block">{{ selectedCandidate()?.stage }} Stage</span>
+                <h2 class="font-black text-lg text-[var(--text-main)]">{{ selectedCandidate()?.name | translate }}</h2>
+                <span class="text-blue-600 font-bold block mt-0.5">{{ selectedCandidate()?.appliedPosition | translate }}</span>
+                <span class="status-badge active mt-2 inline-block">{{ selectedCandidate()?.stage | translate }} {{ 'Stage' | translate }}</span>
               </div>
 
               <div class="space-y-2">
-                <div><span class="text-slate-400 block">{{ 'HR:Email' | abpLocalization }}:</span> <span class="font-bold">{{ selectedCandidate()?.email }}</span></div>
-                <div><span class="text-slate-400 block">{{ 'HR:Phone' | abpLocalization }}:</span> <span class="font-bold">{{ selectedCandidate()?.phone }}</span></div>
-                <div><span class="text-slate-400 block">{{ 'HR:Experience' | abpLocalization }}:</span> <span class="font-bold">{{ selectedCandidate()?.experienceYears }} Years</span></div>
-                <div><span class="text-slate-400 block">{{ 'HR:InterviewerRating' | abpLocalization }}:</span> <span class="font-bold text-amber-500">★ {{ selectedCandidate()?.rating }} / 5.0</span></div>
+                <div><span class="text-slate-400 block">{{ 'Email' | translate }}:</span> <span class="font-bold">{{ selectedCandidate()?.email }}</span></div>
+                <div><span class="text-slate-400 block">{{ 'Phone' | translate }}:</span> <span class="font-bold">{{ selectedCandidate()?.phone }}</span></div>
+                <div><span class="text-slate-400 block">{{ 'Experience' | translate }}:</span> <span class="font-bold">{{ selectedCandidate()?.experienceYears }} {{ 'Years' | translate }}</span></div>
+                <div><span class="text-slate-400 block">{{ 'Interviewer Rating' | translate }}:</span> <span class="font-bold text-amber-500">★ {{ selectedCandidate()?.rating }} / 5.0</span></div>
               </div>
 
               @if (selectedCandidate()?.notes) {
                 <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
-                  <span class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:InterviewNotes' | abpLocalization }}:</span>
-                  <p class="text-slate-600 dark:text-slate-300 leading-relaxed">{{ selectedCandidate()?.notes }}</p>
+                  <span class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'Interview Notes' | translate }}:</span>
+                  <p class="text-slate-600 dark:text-slate-300 leading-relaxed">{{ selectedCandidate()?.notes | translate }}</p>
                 </div>
               }
 
               <div class="pt-4 border-t border-[var(--border-color)] space-y-2">
-                <button (click)="moveStage(selectedCandidate()!, 1)" class="w-full btn-primary text-xs justify-center py-2.5">{{ 'HR:AdvanceCandidateStage' | abpLocalization }}</button>
-                <button (click)="selectedCandidate.set(null)" class="w-full btn-outline text-xs justify-center py-2.5">{{ 'HR:CloseProfile' | abpLocalization }}</button>
+                <button (click)="moveStage(selectedCandidate()!, 1)" class="w-full btn-primary text-xs justify-center py-2.5">{{ 'Advance Candidate Stage' | translate }}</button>
+                <button (click)="selectedCandidate.set(null)" class="w-full btn-outline text-xs justify-center py-2.5">{{ 'Close Profile' | translate }}</button>
               </div>
             </div>
           </div>

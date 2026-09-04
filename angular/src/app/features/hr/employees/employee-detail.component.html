@@ -3,7 +3,7 @@
       <!-- Back Link -->
       <div class="flex items-center gap-2">
         <a routerLink="/hr/employees" class="text-xs text-blue-600 font-semibold hover:underline flex items-center gap-1">
-          <i class="pi pi-arrow-left"></i> {{ 'HR:BackToEmployeesDirectory' | abpLocalization }}
+          <i class="pi pi-arrow-left"></i> {{ 'HR:BackToEmployeesDirectory' | translate }}
         </a>
       </div>
 
@@ -18,15 +18,15 @@
               <span class="status-badge active">{{ employee()?.status }}</span>
             </div>
             <p class="text-sm text-blue-200 font-medium">{{ employee()?.position }} • {{ employee()?.departmentName }}</p>
-            <p class="text-xs text-blue-300">{{ 'HR:IdCode' | abpLocalization }}: <span class="font-mono font-bold">{{ employee()?.employeeCode }}</span> | Joined: {{ employee()?.joiningDate }}</p>
+            <p class="text-xs text-blue-300">{{ 'HR:IdCode' | translate }}: <span class="font-mono font-bold">{{ employee()?.employeeCode }}</span> | {{ 'Joined:' | translate }} {{ employee()?.joiningDate }}</p>
           </div>
 
           <div class="flex items-center gap-2">
             <button class="px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-semibold backdrop-blur-xs transition-colors">
-              <i class="pi pi-envelope"></i> {{ 'HR:SendEmail' | abpLocalization }}
+              <i class="pi pi-envelope"></i> {{ 'HR:SendEmail' | translate }}
             </button>
             <button class="px-3 py-2 bg-white text-blue-900 hover:bg-blue-50 rounded-xl text-xs font-bold shadow-md transition-colors">
-              <i class="pi pi-pencil"></i> {{ 'HR:EditProfile' | abpLocalization }}
+              <i class="pi pi-pencil"></i> {{ 'HR:EditProfile' | translate }}
             </button>
           </div>
         </div>
@@ -42,7 +42,7 @@
             [class.border-transparent]="activeTab() !== tab"
             [class.text-[var(--text-muted)]]="activeTab() !== tab"
             class="px-4 py-3 border-b-2 hover:text-blue-600 transition-colors whitespace-nowrap">
-            {{ tab }}
+            {{ tab | translate }}
           </button>
         }
       </div>
@@ -55,37 +55,37 @@
           <div class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
-                <span class="text-[11px] text-[var(--text-muted)] block">{{ 'HR:Email' | abpLocalization }}</span>
+                <span class="text-[11px] text-[var(--text-muted)] block">{{ 'HR:Email' | translate }}</span>
                 <span class="font-semibold text-xs text-[var(--text-main)]">{{ employee()?.email }}</span>
               </div>
               <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
-                <span class="text-[11px] text-[var(--text-muted)] block">{{ 'HR:Phone' | abpLocalization }}</span>
+                <span class="text-[11px] text-[var(--text-muted)] block">{{ 'HR:Phone' | translate }}</span>
                 <span class="font-semibold text-xs text-[var(--text-main)]">{{ employee()?.phone }}</span>
               </div>
               <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
-                <span class="text-[11px] text-[var(--text-muted)] block">{{ 'HR:DirectManager' | abpLocalization }}</span>
+                <span class="text-[11px] text-[var(--text-muted)] block">{{ 'HR:DirectManager' | translate }}</span>
                 <span class="font-semibold text-xs text-[var(--text-main)]">{{ employee()?.managerName }}</span>
               </div>
               <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
-                <span class="text-[11px] text-[var(--text-muted)] block">{{ 'HR:WorkLocation' | abpLocalization }}</span>
+                <span class="text-[11px] text-[var(--text-muted)] block">{{ 'HR:WorkLocation' | translate }}</span>
                 <span class="font-semibold text-xs text-[var(--text-main)]">{{ employee()?.location }}</span>
               </div>
             </div>
 
             <div class="border-t border-[var(--border-color)] pt-4">
-              <h4 class="font-bold text-xs text-[var(--text-main)] mb-3">{{ 'HR:KeyPerformanceSnapshot' | abpLocalization }}</h4>
+              <h4 class="font-bold text-xs text-[var(--text-main)] mb-3">{{ 'HR:KeyPerformanceSnapshot' | translate }}</h4>
               <div class="grid grid-cols-3 gap-4 text-center">
                 <div class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
                   <span class="text-2xl font-black text-blue-600 block">98.5%</span>
-                  <span class="text-xs text-slate-500">{{ 'HR:AttendanceRate' | abpLocalization }}</span>
+                  <span class="text-xs text-slate-500">{{ 'HR:AttendanceRate' | translate }}</span>
                 </div>
                 <div class="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-100 dark:border-emerald-800">
                   <span class="text-2xl font-black text-emerald-600 block">18 Days</span>
-                  <span class="text-xs text-slate-500">{{ 'HR:AnnualLeave' | abpLocalization }} Balance</span>
+                  <span class="text-xs text-slate-500">{{ 'HR:AnnualLeave' | translate }} {{ 'Balance' | translate }}</span>
                 </div>
                 <div class="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800">
                   <span class="text-2xl font-black text-indigo-600 block">4.9 / 5</span>
-                  <span class="text-xs text-slate-500">{{ 'HR:PerformanceRating' | abpLocalization }}</span>
+                  <span class="text-xs text-slate-500">{{ 'HR:PerformanceRating' | translate }}</span>
                 </div>
               </div>
             </div>
@@ -95,33 +95,33 @@
         <!-- Tab 2: Personal Information -->
         @if (activeTab() === 'HR:TabPersonalInfo') {
           <div class="grid grid-cols-2 gap-4 text-xs">
-            <div><span class="text-slate-400 block">Full Legal Name:</span> <span class="font-bold">{{ employee()?.name }}</span></div>
-            <div><span class="text-slate-400 block">Nationality:</span> <span class="font-bold">Egyptian</span></div>
-            <div><span class="text-slate-400 block">National ID / Passport:</span> <span class="font-bold">29508151203948</span></div>
-            <div><span class="text-slate-400 block">Marital Status:</span> <span class="font-bold">Married</span></div>
+            <div><span class="text-slate-400 block">{{ 'Full Legal Name:' | translate }}</span> <span class="font-bold">{{ employee()?.name }}</span></div>
+            <div><span class="text-slate-400 block">{{ 'Nationality:' | translate }}</span> <span class="font-bold">{{ 'Egyptian' | translate }}</span></div>
+            <div><span class="text-slate-400 block">{{ 'National ID / Passport:' | translate }}</span> <span class="font-bold">29508151203948</span></div>
+            <div><span class="text-slate-400 block">{{ 'Marital Status:' | translate }}</span> <span class="font-bold">{{ 'Married' | translate }}</span></div>
           </div>
         }
 
         <!-- Tab 3: Employment -->
         @if (activeTab() === 'HR:TabEmployment') {
           <div class="grid grid-cols-2 gap-4 text-xs">
-            <div><span class="text-slate-400 block">{{ 'HR:BaseSalary' | abpLocalization }}:</span> <span class="font-bold text-emerald-600">\${{ employee()?.salary | number }} / mo</span></div>
-            <div><span class="text-slate-400 block">Contract Type:</span> <span class="font-bold">Full Time Permanent</span></div>
-            <div><span class="text-slate-400 block">{{ 'HR:Department' | abpLocalization }}:</span> <span class="font-bold">{{ employee()?.departmentName }}</span></div>
+            <div><span class="text-slate-400 block">{{ 'HR:BaseSalary' | translate }}:</span> <span class="font-bold text-emerald-600">\${{ employee()?.salary | number }} / mo</span></div>
+            <div><span class="text-slate-400 block">{{ 'Contract Type:' | translate }}</span> <span class="font-bold">{{ 'Full Time Permanent' | translate }}</span></div>
+            <div><span class="text-slate-400 block">{{ 'HR:Department' | translate }}:</span> <span class="font-bold">{{ employee()?.departmentName }}</span></div>
           </div>
         }
 
         <!-- Tab 4: Attendance -->
         @if (activeTab() === 'HR:Attendance') {
           <div class="space-y-3 text-xs">
-            <p class="text-slate-500">Recent check-in records for {{ employee()?.name }}:</p>
+            <p class="text-slate-500">{{ 'Recent check-in records for' | translate }} {{ employee()?.name }}:</p>
             @for (att of attendance(); track att.id) {
               <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl flex items-center justify-between">
                 <div>
                   <span class="font-bold block">{{ att.date }}</span>
-                  <span class="text-slate-400">Check In: {{ att.checkIn }} | Check Out: {{ att.checkOut }}</span>
+                  <span class="text-slate-400">{{ 'Check In:' | translate }} {{ att.checkIn }} | {{ 'Check Out:' | translate }} {{ att.checkOut }}</span>
                 </div>
-                <span class="status-badge active">{{ att.status }}</span>
+                <span class="status-badge active">{{ att.status | translate }}</span>
               </div>
             }
           </div>
@@ -130,14 +130,14 @@
         <!-- Tab 5: Leave -->
         @if (activeTab() === 'HR:Leave') {
           <div class="space-y-3 text-xs">
-            <p class="text-slate-500">Leave history for {{ employee()?.name }}:</p>
+            <p class="text-slate-500">{{ 'Leave history for' | translate }} {{ employee()?.name }}:</p>
             @for (lv of mockLeave; track lv.id) {
               <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl flex items-center justify-between">
                 <div>
-                  <span class="font-bold block">{{ lv.leaveType }} Leave ({{ lv.daysCount }} days)</span>
-                  <span class="text-slate-400">{{ lv.startDate }} to {{ lv.endDate }} • {{ lv.reason }}</span>
+                  <span class="font-bold block">{{ lv.leaveType | translate }} {{ 'Leave' | translate }} ({{ lv.daysCount }} {{ 'days' | translate }})</span>
+                  <span class="text-slate-400">{{ lv.startDate }} {{ 'to' | translate }} {{ lv.endDate }} • {{ lv.reason | translate }}</span>
                 </div>
-                <span class="status-badge active">{{ lv.status }}</span>
+                <span class="status-badge active">{{ lv.status | translate }}</span>
               </div>
             }
           </div>
@@ -148,11 +148,11 @@
           <div class="space-y-2 text-xs">
             <div class="p-3 border border-[var(--border-color)] rounded-xl flex items-center justify-between">
               <div class="flex items-center gap-2"><i class="pi pi-file-pdf text-red-500 text-base"></i> <span>Employment_Contract_Signed.pdf</span></div>
-              <button class="text-blue-600 font-semibold hover:underline">{{ 'HR:Download' | abpLocalization }}</button>
+              <button class="text-blue-600 font-semibold hover:underline">{{ 'HR:Download' | translate }}</button>
             </div>
             <div class="p-3 border border-[var(--border-color)] rounded-xl flex items-center justify-between">
               <div class="flex items-center gap-2"><i class="pi pi-file-pdf text-red-500 text-base"></i> <span>National_ID_Scan.pdf</span></div>
-              <button class="text-blue-600 font-semibold hover:underline">{{ 'HR:Download' | abpLocalization }}</button>
+              <button class="text-blue-600 font-semibold hover:underline">{{ 'HR:Download' | translate }}</button>
             </div>
           </div>
         }
@@ -161,8 +161,8 @@
         @if (activeTab() === 'HR:Performance') {
           <div class="text-xs space-y-2">
             <div class="p-4 bg-indigo-50 dark:bg-slate-800 rounded-xl border border-indigo-100 dark:border-slate-700">
-              <span class="font-bold block text-sm text-indigo-900 dark:text-indigo-200">2026 Q2 Performance Review: Exceeds Expectations (4.9 / 5)</span>
-              <p class="text-indigo-700 dark:text-indigo-300 mt-1">Demonstrated exemplary leadership in leading the ERP modularization and Angular PWA deployment.</p>
+              <span class="font-bold block text-sm text-indigo-900 dark:text-indigo-200">{{ '2026 Q2 Performance Review' | translate }}: {{ 'Exceeds Expectations' | translate }} (4.9 / 5)</span>
+              <p class="text-indigo-700 dark:text-indigo-300 mt-1">{{ 'Demonstrated exemplary leadership in leading the ERP modularization and Angular PWA deployment.' | translate }}</p>
             </div>
           </div>
         }
@@ -171,7 +171,7 @@
         @if (activeTab() === 'HR:TabActivity') {
           <div class="text-xs space-y-2">
             <div class="p-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
-              <span class="font-bold">Updated Profile Photo</span> <span class="text-slate-400 text-[10px] block">Yesterday at 04:15 PM</span>
+              <span class="font-bold">{{ 'Updated Profile Photo' | translate }}</span> <span class="text-slate-400 text-[10px] block">{{ 'Yesterday at 04:15 PM' | translate }}</span>
             </div>
           </div>
         }

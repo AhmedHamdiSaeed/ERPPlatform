@@ -2,11 +2,13 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { SalesApiService, SalesDashboardStats, SalesInvoice } from '../../../core/services/api/sales-api.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { AppDatePipe } from '../../../shared/pipes/app-date.pipe';
 
 @Component({
   selector: 'app-sales-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TranslatePipe, AppDatePipe],
   templateUrl: './sales-dashboard.component.html'
 })
 export class SalesDashboardComponent {

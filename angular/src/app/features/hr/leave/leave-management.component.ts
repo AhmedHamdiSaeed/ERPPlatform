@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { LocalizationPipe } from '@abp/ng.core';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { FormsModule } from '@angular/forms';
 import { LeaveRequest } from '../../../core/models/erp-models';
 import { HrApiService } from '../../../core/services/api/hr-api.service';
@@ -8,7 +8,7 @@ import { ToastService } from '../../../core/services/toast.service';
 @Component({
   selector: 'app-leave-management',
   standalone: true,
-  imports: [FormsModule, LocalizationPipe],
+  imports: [FormsModule, TranslatePipe],
   templateUrl: './leave-management.component.html'
 })
 export class LeaveManagementComponent {
@@ -48,9 +48,13 @@ export class LeaveManagementComponent {
     const daysCount = Math.max(1, Math.round((endDate.getTime() - startDate.getTime()) / 86400000) + 1);
 
     try {
+      const employees = await this.hrApi.getEmployees();
+      const empId = employees.length > 0 ? employees[0].id : '00000000-0000-0000-0000-000000000001';
+      const empName = employees.length > 0 ? employees[0].name : 'Ahmed Saeed';
+
       await this.hrApi.createLeaveRequest({
-        employeeId: '',
-        employeeName: 'Current User',
+        employeeId: empId,
+        employeeName: empName,
         leaveType: this.newReq.leaveType,
         startDate: this.newReq.startDate,
         endDate: this.newReq.endDate,

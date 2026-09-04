@@ -82,6 +82,27 @@
   To add a filter, declare a DTO deriving from `PagedAndSortedResultRequestDto`, use it as the
   4th generic argument of `CrudAppService<,,TGetListInput,>`, and override that hook.
 
+## Localization (en / ar)
+
+- Dictionaries: `angular/src/assets/i18n/{en,ar}.json`, flat `"English key": "translation"` maps.
+  `TranslationService` (`core/services/translation.service.ts`) is **not** ngx-translate — `get(key)`
+  returns the key itself when there is no entry, so **an untranslated UI string means a missing
+  ar.json key**, not a broken pipe.
+- Two consumption paths, both fed by the same dictionary:
+  1. `TranslatePipe` for `{{ 'Key' | translate }}`.
+  2. A `MutationObserver` DOM walker that translates **raw text nodes** and `input[placeholder]`
+     after every DOM mutation. Toasts (`toast-container`) and confirm dialogs (`confirm-dialog`)
+     render as plain text, so they are translated by path 2 — no pipe needed.
+- **Text nodes that mix Arabic and English can never be fixed by a dictionary entry.**
+  `processTextNode` returns early when the node already contains an Arabic char, so
+  `{{ 'HR:AnnualLeave' | translate }} Balance` stays "إجازة سنوية Balance" forever. Split it into
+  separate interpolations, or better, use one whole-sentence key (Arabic word order differs).
+- Interpolated/template-literal messages (`Are you sure you want to delete ${name}? ...`) need a
+  regex in `matchDynamicToast()` — add both the to-Arabic and the reverse Arabic→English branch.
+- Non-English keys (`HR:Attendance`, `Menu:*`, `Permission:*`) need an `en.json` entry too.
+- Helpers: `C:\tmp\scan_missing.py` (report untranslated strings per component),
+  `C:\tmp\add_translations.py` (merge new keys without overwriting).
+
 ## Verifying frontend ↔ API wiring
 
 Swagger is the source of truth. Workflow:

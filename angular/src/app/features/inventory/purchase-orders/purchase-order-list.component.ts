@@ -4,11 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { PurchaseOrder } from '../../../core/models/erp-models';
 import { InventoryApiService } from '../../../core/services/api/inventory-api.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { AppDatePipe } from '../../../shared/pipes/app-date.pipe';
 
 @Component({
   selector: 'app-purchase-order-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslatePipe, AppDatePipe],
   templateUrl: './purchase-order-list.component.html'
 })
 export class PurchaseOrderListComponent {
@@ -40,7 +42,7 @@ export class PurchaseOrderListComponent {
       await this.inventoryApi.createPurchaseOrder({
         poNumber: `PO-2026-880${Math.floor(3 + Math.random()*9)}`,
         supplierName: 'FurniCorp Ltd.',
-        orderDate: new Date().toISOString(),
+        orderDate: new Date().toISOString().split('T')[0],
         deliveryDate: '2026-08-25',
         items,
         subtotal,

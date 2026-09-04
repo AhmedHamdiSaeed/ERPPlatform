@@ -3,10 +3,10 @@
   <div>
     <h1 class="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
       <i class="pi pi-qrcode text-indigo-600 dark:text-indigo-400"></i>
-      Barcode & QR Code Scanner
+      {{ 'Barcode & QR Code Scanner' | translate }}
     </h1>
     <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-      Optical Barcode Intake, Stock Transfer Verification, and Audit Verification
+      {{ 'Optical Barcode Intake, Stock Transfer Verification, and Audit Verification' | translate }}
     </p>
   </div>
 
@@ -14,7 +14,7 @@
     <!-- Camera Viewport Card -->
     <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5 space-y-4">
       <h2 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-        <i class="pi pi-camera text-indigo-500"></i> Camera Viewport
+        <i class="pi pi-camera text-indigo-500"></i> {{ 'Camera Viewport' | translate }}
       </h2>
 
       <div class="relative bg-slate-900 rounded-lg overflow-hidden h-64 flex items-center justify-center border-2 border-dashed border-slate-700">
@@ -22,12 +22,12 @@
           <!-- Laser Animation -->
           <div class="absolute inset-x-0 h-1 bg-rose-500 shadow-lg shadow-rose-500/50 animate-pulse"></div>
           <p class="text-xs text-rose-400 font-mono flex items-center gap-2">
-            <i class="pi font-spin pi-spin pi-spinner"></i> Scanning optical barcode...
+            <i class="pi font-spin pi-spin pi-spinner"></i> {{ 'Scanning optical barcode...' | translate }}
           </p>
         } @else {
           <div class="text-center p-4">
             <i class="pi pi-qrcode text-5xl text-slate-600 mb-2"></i>
-            <p class="text-xs text-slate-400">Align barcode or QR code within frame</p>
+            <p class="text-xs text-slate-400">{{ 'Align barcode or QR code within frame' | translate }}</p>
           </div>
         }
       </div>
@@ -37,23 +37,23 @@
         [disabled]="isScanning() || !canScan()"
         class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium text-sm transition-all shadow hover:shadow-indigo-500/25 flex items-center justify-center gap-2 disabled:opacity-60">
         <i class="pi pi-play"></i>
-        {{ isScanning() ? 'Scanning...' : (loadingProducts() ? 'Loading Products...' : 'Activate Camera Scanner') }}
+        {{ isScanning() ? ('Scanning...' | translate) : (loadingProducts() ? ('Loading Products...' | translate) : ('Activate Camera Scanner' | translate)) }}
       </button>
       @if (loadError()) {
         <div class="text-xs text-rose-600 flex items-center justify-between gap-2">
-          <span>{{ loadError() }}</span>
-          <button (click)="loadProducts()" class="btn-outline text-xs">Retry</button>
+          <span>{{ loadError() | translate }}</span>
+          <button (click)="loadProducts()" class="btn-outline text-xs">{{ 'Retry' | translate }}</button>
         </div>
       }
       @if (!loadingProducts() && !loadError() && products().length === 0) {
-        <p class="text-xs text-amber-600">No products available to scan right now.</p>
+        <p class="text-xs text-amber-600">{{ 'No products available to scan right now.' | translate }}</p>
       }
     </div>
 
     <!-- Manual Lookup & Scanned Output -->
     <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5 space-y-4">
       <h2 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-        <i class="pi pi-search text-indigo-500"></i> Manual SKU / Barcode Entry
+        <i class="pi pi-search text-indigo-500"></i> {{ 'Manual SKU / Barcode Entry' | translate }}
       </h2>
 
       <div class="flex gap-2">
@@ -67,7 +67,7 @@
           (click)="lookupManual()"
           [disabled]="loadingProducts() || !!loadError()"
           class="px-4 py-2 bg-slate-800 dark:bg-slate-700 text-white rounded-lg text-sm font-medium hover:bg-slate-700 disabled:opacity-60">
-          Lookup
+          {{ 'Lookup' | translate }}
         </button>
       </div>
 

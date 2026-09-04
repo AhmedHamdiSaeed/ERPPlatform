@@ -2,12 +2,12 @@
       
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">{{ 'HR:DepartmentsDirectory' | abpLocalization }}</h1>
-          <p class="text-xs text-[var(--text-muted)] mt-0.5">{{ 'HR:DepartmentsDirectoryDesc' | abpLocalization }}</p>
+          <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">{{ 'HR:DepartmentsDirectory' | translate }}</h1>
+          <p class="text-xs text-[var(--text-muted)] mt-0.5">{{ 'HR:DepartmentsDirectoryDesc' | translate }}</p>
         </div>
 
         <button (click)="openAddModal()" class="btn-primary text-xs cursor-pointer">
-          <i class="pi pi-plus"></i> {{ 'HR:CreateDepartment' | abpLocalization }}
+          <i class="pi pi-plus"></i> {{ 'HR:CreateDepartment' | translate }}
         </button>
       </div>
 
@@ -49,32 +49,32 @@
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
           <div class="w-full max-w-md bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl p-6 space-y-4">
             <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
-              <h3 class="font-bold text-sm text-[var(--text-main)]">{{ 'HR:CreateNewDepartment' | abpLocalization }}</h3>
+              <h3 class="font-bold text-sm text-[var(--text-main)]">{{ 'HR:CreateNewDepartment' | translate }}</h3>
               <button (click)="showModal.set(false)" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times"></i></button>
             </div>
 
             <div class="space-y-3 text-xs">
               <div>
-                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:DepartmentName' | abpLocalization }}</label>
+                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:DepartmentName' | translate }}</label>
                 <input type="text" [(ngModel)]="newDept.name" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
               </div>
               <div>
-                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:Code' | abpLocalization }} (e.g. IT, HR, FIN)</label>
+                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:Code' | translate }} (e.g. IT, HR, FIN)</label>
                 <input type="text" [(ngModel)]="newDept.code" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
               </div>
               <div>
-                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:ManagerName' | abpLocalization }}</label>
+                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:ManagerName' | translate }}</label>
                 <input type="text" [(ngModel)]="newDept.managerName" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
               </div>
               <div>
-                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:AnnualBudget' | abpLocalization }}</label>
+                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:AnnualBudget' | translate }}</label>
                 <input type="number" [(ngModel)]="newDept.budget" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
               </div>
             </div>
 
             <div class="pt-3 border-t border-[var(--border-color)] flex justify-end gap-2">
-              <button (click)="showModal.set(false)" class="btn-outline text-xs">{{ 'UI:Cancel' | abpLocalization }}</button>
-              <button (click)="saveDepartment()" class="btn-primary text-xs">{{ 'HR:CreateDepartment' | abpLocalization }}</button>
+              <button (click)="showModal.set(false)" class="btn-outline text-xs">{{ 'UI:Cancel' | translate }}</button>
+              <button (click)="saveDepartment()" class="btn-primary text-xs">{{ 'HR:CreateDepartment' | translate }}</button>
             </div>
           </div>
         </div>

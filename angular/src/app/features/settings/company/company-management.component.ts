@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { OrgApiService, Company, Branch, CostCenter, FiscalYear } from '../../../core/services/api/org-api.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { DialogService } from '../../../core/services/dialog.service';
@@ -8,7 +9,7 @@ import { DialogService } from '../../../core/services/dialog.service';
 @Component({
   selector: 'app-company-management',
   standalone: true,
-  imports: [FormsModule, RouterModule],
+  imports: [FormsModule, RouterModule, TranslatePipe],
   templateUrl: './company-management.component.html'
 })
 export class CompanyManagementComponent {
@@ -30,6 +31,22 @@ export class CompanyManagementComponent {
   currentBranch: Partial<Branch> = {};
   currentCostCenter: Partial<CostCenter> = {};
   currentFiscalYear: Partial<FiscalYear> = {};
+
+  /**
+   * Whole-sentence key for the creation modal heading. Returning a single key
+   * (instead of "Add {{ activeTab() }} Record") keeps the heading translatable
+   * as one phrase, which is required for correct Arabic word order.
+   */
+  private readonly addRecordTitleKeys: Record<string, string> = {
+    companies: 'Add Company Record',
+    branches: 'Add Branch Record',
+    costCenters: 'Add Cost Center Record',
+    fiscalYears: 'Add Fiscal Year Record'
+  };
+
+  addRecordTitleKey(): string {
+    return this.addRecordTitleKeys[this.activeTab()] ?? 'Add Record';
+  }
 
   constructor() {
     this.loadAllData();

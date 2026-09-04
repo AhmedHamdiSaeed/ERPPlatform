@@ -1,13 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { LocalizationPipe } from '@abp/ng.core';
 import { StateService } from '../../../core/services/state.service';
 import { FileImportService } from '../../../core/services/file-import.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterModule, LocalizationPipe],
+  imports: [RouterModule, TranslatePipe],
   templateUrl: './header.component.html'
 })
 export class HeaderComponent {

@@ -3,16 +3,16 @@
       <!-- Page Header -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">{{ 'HR:EmployeesDirectory' | abpLocalization }}</h1>
-          <p class="text-xs text-[var(--text-muted)] mt-0.5">{{ 'HR:EmployeesDirectoryDesc' | abpLocalization }}</p>
+          <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">{{ 'HR:EmployeesDirectory' | translate }}</h1>
+          <p class="text-xs text-[var(--text-muted)] mt-0.5">{{ 'HR:EmployeesDirectoryDesc' | translate }}</p>
         </div>
 
         <div class="flex items-center gap-2">
           <button (click)="openAddModal()" class="btn-primary text-xs cursor-pointer">
-            <i class="pi pi-user-plus"></i> {{ 'HR:AddEmployee' | abpLocalization }}
+            <i class="pi pi-user-plus"></i> {{ 'HR:AddEmployee' | translate }}
           </button>
           <button (click)="exportCsv()" class="btn-outline text-xs cursor-pointer">
-            <i class="pi pi-file-excel"></i> {{ 'HR:ExportCsv' | abpLocalization }}
+            <i class="pi pi-file-excel"></i> {{ 'HR:ExportCsv' | translate }}
           </button>
         </div>
       </div>
@@ -24,21 +24,21 @@
           <input 
             type="text" 
             [(ngModel)]="searchQuery" 
-            placeholder="{{ 'HR:SearchPlaceholder' | abpLocalization }}"
+            placeholder="{{ 'HR:SearchPlaceholder' | translate }}"
             class="w-full pl-9 pr-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden"
           />
         </div>
 
         <div class="flex items-center gap-2 w-full sm:w-auto overflow-x-auto">
           <select [(ngModel)]="statusFilter" class="px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-[var(--text-main)]">
-            <option value="ALL">{{ 'HR:AllStatuses' | abpLocalization }}</option>
-            <option value="Active">{{ 'HR:Active' | abpLocalization }}</option>
-            <option value="On Leave">{{ 'HR:OnLeave' | abpLocalization }}</option>
-            <option value="Inactive">{{ 'HR:Inactive' | abpLocalization }}</option>
+            <option value="ALL">{{ 'HR:AllStatuses' | translate }}</option>
+            <option value="Active">{{ 'HR:Active' | translate }}</option>
+            <option value="On Leave">{{ 'HR:OnLeave' | translate }}</option>
+            <option value="Inactive">{{ 'HR:Inactive' | translate }}</option>
           </select>
 
           <span class="text-xs text-[var(--text-muted)] font-semibold whitespace-nowrap">
-            Showing {{ filteredEmployees().length }} Employees
+            {{ 'HR:Showing' | translate }} {{ filteredEmployees().length }} {{ 'HR:Employees' | translate }}
           </span>
         </div>
       </div>
@@ -49,13 +49,13 @@
           <table class="w-full text-left border-collapse">
             <thead>
               <tr class="bg-slate-100/70 dark:bg-slate-800/70 text-slate-500 dark:text-slate-400 text-[11px] font-bold uppercase tracking-wider border-b border-[var(--border-color)]">
-                <th class="p-3.5">{{ 'HR:Employee' | abpLocalization }}</th>
-                <th class="p-3.5">{{ 'HR:IdCode' | abpLocalization }}</th>
-                <th class="p-3.5">{{ 'HR:Department' | abpLocalization }}</th>
-                <th class="p-3.5">{{ 'HR:Position' | abpLocalization }}</th>
-                <th class="p-3.5">{{ 'HR:JoiningDate' | abpLocalization }}</th>
-                <th class="p-3.5">{{ 'HR:Status' | abpLocalization }}</th>
-                <th class="p-3.5 text-right">{{ 'HR:Actions' | abpLocalization }}</th>
+                <th class="p-3.5">{{ 'HR:Employee' | translate }}</th>
+                <th class="p-3.5">{{ 'HR:IdCode' | translate }}</th>
+                <th class="p-3.5">{{ 'HR:Department' | translate }}</th>
+                <th class="p-3.5">{{ 'HR:Position' | translate }}</th>
+                <th class="p-3.5">{{ 'HR:JoiningDate' | translate }}</th>
+                <th class="p-3.5">{{ 'HR:Status' | translate }}</th>
+                <th class="p-3.5 text-right">{{ 'HR:Actions' | translate }}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-[var(--border-color)] text-xs text-[var(--text-main)]">
@@ -74,13 +74,13 @@
                   </td>
 
                   <td class="p-3.5 font-mono text-[11px] font-semibold text-slate-500">{{ emp.employeeCode }}</td>
-                  <td class="p-3.5 font-medium">{{ emp.departmentName }}</td>
-                  <td class="p-3.5 text-slate-600 dark:text-slate-300">{{ emp.position }}</td>
-                  <td class="p-3.5 text-slate-500">{{ emp.joiningDate }}</td>
+                  <td class="p-3.5 font-medium">{{ emp.departmentName | translate }}</td>
+                  <td class="p-3.5 text-slate-600 dark:text-slate-300">{{ emp.position | translate }}</td>
+                  <td class="p-3.5 text-slate-500">{{ emp.joiningDate | appDate }}</td>
 
                   <td class="p-3.5">
                     <span class="status-badge" [class.active]="emp.status === 'Active'" [class.on_leave]="emp.status === 'On Leave'" [class.inactive]="emp.status === 'Inactive'">
-                      {{ emp.status }}
+                      {{ emp.status | translate }}
                     </span>
                   </td>
 
@@ -108,32 +108,32 @@
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
           <div class="w-full max-w-lg bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl overflow-hidden p-6 space-y-4">
             <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
-              <h3 class="font-bold text-sm text-[var(--text-main)]">{{ isEditMode ? ('HR:EditEmployeeProfile' | abpLocalization) : ('HR:AddNewEmployee' | abpLocalization) }}</h3>
+              <h3 class="font-bold text-sm text-[var(--text-main)]">{{ isEditMode ? ('HR:EditEmployeeProfile' | translate) : ('HR:AddNewEmployee' | translate) }}</h3>
               <button (click)="showModal.set(false)" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times"></i></button>
             </div>
 
             <div class="grid grid-cols-2 gap-3 text-xs">
               <div>
-                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:FullName' | abpLocalization }}</label>
+                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:FullName' | translate }}</label>
                 <input type="text" [(ngModel)]="currentEmp.name" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
               </div>
               <div>
-                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:EmailAddress' | abpLocalization }}</label>
+                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:EmailAddress' | translate }}</label>
                 <input type="email" [(ngModel)]="currentEmp.email" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
               </div>
               <div>
-                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:Department' | abpLocalization }}</label>
+                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:Department' | translate }}</label>
                 <input type="text" [(ngModel)]="currentEmp.departmentName" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
               </div>
               <div>
-                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:Position' | abpLocalization }}</label>
+                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:Position' | translate }}</label>
                 <input type="text" [(ngModel)]="currentEmp.position" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
               </div>
             </div>
 
             <div class="pt-3 border-t border-[var(--border-color)] flex justify-end gap-2">
-              <button (click)="showModal.set(false)" class="btn-outline text-xs">{{ 'UI:Cancel' | abpLocalization }}</button>
-              <button (click)="saveEmployee()" class="btn-primary text-xs">{{ 'HR:SaveEmployee' | abpLocalization }}</button>
+              <button (click)="showModal.set(false)" class="btn-outline text-xs">{{ 'UI:Cancel' | translate }}</button>
+              <button (click)="saveEmployee()" class="btn-primary text-xs">{{ 'HR:SaveEmployee' | translate }}</button>
             </div>
           </div>
         </div>

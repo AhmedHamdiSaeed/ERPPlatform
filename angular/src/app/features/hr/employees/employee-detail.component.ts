@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { LocalizationPipe } from '@abp/ng.core';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { CommonModule } from '@angular/common'; // Needed for pipes (number, date, etc.)
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Employee, AttendanceRecord, LeaveRequest } from '../../../core/models/erp-models';
@@ -9,7 +9,7 @@ import { ToastService } from '../../../core/services/toast.service';
 @Component({
   selector: 'app-employee-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, LocalizationPipe],
+  imports: [CommonModule, RouterModule, TranslatePipe],
   templateUrl: './employee-detail.component.html'
 })
 export class EmployeeDetailComponent {

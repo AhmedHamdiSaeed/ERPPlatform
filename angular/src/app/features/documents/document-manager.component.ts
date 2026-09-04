@@ -7,6 +7,8 @@ import { FormsModule } from '@angular/forms';
 import {
   DocumentService, DocumentDto, FolderDto
 } from './document.service';
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+import { DialogService } from '../../core/services/dialog.service';
 
 interface BreadcrumbItem {
   id?: string;
@@ -16,7 +18,7 @@ interface BreadcrumbItem {
 @Component({
   selector: 'app-document-manager',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslatePipe],
   template: `
 <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
 
@@ -24,8 +26,8 @@ interface BreadcrumbItem {
   <div class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 sticky top-0 z-10">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Document Manager</h1>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Organize and manage your files</p>
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white">{{ 'Document Manager' | translate }}</h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{{ 'Organize and manage your files' | translate }}</p>
       </div>
       <div class="flex items-center gap-3">
         <!-- Upload Button -->
@@ -34,7 +36,7 @@ interface BreadcrumbItem {
           <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
           </svg>
-          Upload File
+          {{ 'Upload File' | translate }}
         </button>
         <!-- New Folder Button -->
         <button (click)="showNewFolderInput = true"
@@ -42,7 +44,7 @@ interface BreadcrumbItem {
           <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
           </svg>
-          New Folder
+          {{ 'New Folder' | translate }}
         </button>
         <!-- View Toggle -->
         <div class="flex items-center bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
@@ -76,7 +78,7 @@ interface BreadcrumbItem {
         <button (click)="navigateToCrumb(i)"
           [class.text-slate-900]="last" [class.dark:text-white]="last" [class.font-semibold]="last"
           [class.text-slate-500]="!last" [class.hover:text-indigo-600]="!last"
-          class="transition-colors">{{ crumb.name }}</button>
+          class="transition-colors">{{ crumb.name | translate }}</button>
       }
     </nav>
 
@@ -87,11 +89,11 @@ interface BreadcrumbItem {
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
         </svg>
         <input #folderInput type="text" [(ngModel)]="newFolderName" (keyup.enter)="createFolder()" (keyup.escape)="showNewFolderInput = false; newFolderName=''"
-          placeholder="Folder name..." autofocus
+          [placeholder]="'Folder name...' | translate" autofocus
           class="flex-1 text-sm outline-none bg-transparent text-slate-900 dark:text-white placeholder-slate-400"/>
         <div class="flex gap-2">
-          <button (click)="createFolder()" class="px-3 py-1.5 bg-indigo-600 text-white text-xs font-medium rounded-lg hover:bg-indigo-700 transition">Create</button>
-          <button (click)="showNewFolderInput = false; newFolderName=''" class="px-3 py-1.5 text-slate-500 text-xs hover:text-slate-700 dark:hover:text-slate-300 transition">Cancel</button>
+          <button (click)="createFolder()" class="px-3 py-1.5 bg-indigo-600 text-white text-xs font-medium rounded-lg hover:bg-indigo-700 transition">{{ 'Create' | translate }}</button>
+          <button (click)="showNewFolderInput = false; newFolderName=''" class="px-3 py-1.5 text-slate-500 text-xs hover:text-slate-700 dark:hover:text-slate-300 transition">{{ 'Cancel' | translate }}</button>
         </div>
       </div>
     }
@@ -100,7 +102,7 @@ interface BreadcrumbItem {
     @if (uploading) {
       <div class="mb-4 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-xl p-4 flex items-center gap-3">
         <div class="h-4 w-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-        <span class="text-sm text-indigo-700 dark:text-indigo-300">Uploading {{ uploadingFileName }}...</span>
+        <span class="text-sm text-indigo-700 dark:text-indigo-300">{{ 'Uploading' | translate }} {{ uploadingFileName }}...</span>
       </div>
     }
 
@@ -115,8 +117,8 @@ interface BreadcrumbItem {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
           </svg>
         </div>
-        <h3 class="text-lg font-semibold text-slate-700 dark:text-slate-300">Drop files here or click to upload</h3>
-        <p class="text-sm text-slate-500 dark:text-slate-500 mt-1">Supports any file type up to 100 MB</p>
+        <h3 class="text-lg font-semibold text-slate-700 dark:text-slate-300">{{ 'Drop files here or click to upload' | translate }}</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-500 mt-1">{{ 'Supports any file type up to 100 MB' | translate }}</p>
       </div>
     }
 
@@ -180,10 +182,10 @@ interface BreadcrumbItem {
         <table class="w-full text-sm">
           <thead class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
             <tr>
-              <th class="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Name</th>
-              <th class="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Type</th>
-              <th class="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Size</th>
-              <th class="text-right px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
+              <th class="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ 'Name' | translate }}</th>
+              <th class="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ 'Type' | translate }}</th>
+              <th class="text-left px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ 'Size' | translate }}</th>
+              <th class="text-right px-6 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{{ 'Actions' | translate }}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
@@ -197,10 +199,10 @@ interface BreadcrumbItem {
                     <span class="font-medium text-slate-800 dark:text-slate-200">{{ folder.name }}</span>
                   </div>
                 </td>
-                <td class="px-6 py-4 text-slate-500 dark:text-slate-400">Folder</td>
+                <td class="px-6 py-4 text-slate-500 dark:text-slate-400">{{ 'Folder' | translate }}</td>
                 <td class="px-6 py-4 text-slate-500 dark:text-slate-400">—</td>
                 <td class="px-6 py-4 text-right">
-                  <button (click)="deleteFolder(folder)" class="text-red-400 hover:text-red-600 transition-colors text-xs font-medium">Delete</button>
+                  <button (click)="deleteFolder(folder)" class="text-red-400 hover:text-red-600 transition-colors text-xs font-medium">{{ 'Delete' | translate }}</button>
                 </td>
               </tr>
             }
@@ -217,8 +219,8 @@ interface BreadcrumbItem {
                 <td class="px-6 py-4 text-slate-500 dark:text-slate-400">{{ doc.extension.replace('.','').toUpperCase() }}</td>
                 <td class="px-6 py-4 text-slate-500 dark:text-slate-400">{{ docService.formatBytes(doc.sizeBytes) }}</td>
                 <td class="px-6 py-4 text-right flex justify-end gap-3">
-                  <button (click)="downloadDoc(doc)" class="text-indigo-500 hover:text-indigo-700 transition-colors text-xs font-medium">Download</button>
-                  <button (click)="deleteDoc(doc)" class="text-red-400 hover:text-red-600 transition-colors text-xs font-medium">Delete</button>
+                  <button (click)="downloadDoc(doc)" class="text-indigo-500 hover:text-indigo-700 transition-colors text-xs font-medium">{{ 'Download' | translate }}</button>
+                  <button (click)="deleteDoc(doc)" class="text-red-400 hover:text-red-600 transition-colors text-xs font-medium">{{ 'Delete' | translate }}</button>
                 </td>
               </tr>
             }
@@ -238,6 +240,7 @@ interface BreadcrumbItem {
 })
 export class DocumentManagerComponent implements OnInit {
   docService = inject(DocumentService);
+  private dialog = inject(DialogService);
 
   folders = signal<FolderDto[]>([]);
   documents = signal<DocumentDto[]>([]);
@@ -295,8 +298,16 @@ export class DocumentManagerComponent implements OnInit {
     });
   }
 
-  deleteFolder(folder: FolderDto) {
-    if (!confirm(`Delete folder "${folder.name}"?`)) return;
+  async deleteFolder(folder: FolderDto) {
+    const confirmed = await this.dialog.confirm({
+      title: 'Confirm Deletion',
+      message: `Delete folder "${folder.name}"?`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      type: 'danger',
+      icon: 'trash'
+    });
+    if (!confirmed) return;
     this.docService.deleteFolder(folder.id).subscribe({
       next: () => this.folders.update(prev => prev.filter(f => f.id !== folder.id))
     });
@@ -361,8 +372,16 @@ export class DocumentManagerComponent implements OnInit {
     });
   }
 
-  deleteDoc(doc: DocumentDto) {
-    if (!confirm(`Delete "${doc.title}${doc.extension}"?`)) return;
+  async deleteDoc(doc: DocumentDto) {
+    const confirmed = await this.dialog.confirm({
+      title: 'Confirm Deletion',
+      message: `Delete "${doc.title}${doc.extension}"?`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      type: 'danger',
+      icon: 'trash'
+    });
+    if (!confirmed) return;
     this.docService.deleteDocument(doc.id).subscribe({
       next: () => this.documents.update(prev => prev.filter(d => d.id !== doc.id))
     });

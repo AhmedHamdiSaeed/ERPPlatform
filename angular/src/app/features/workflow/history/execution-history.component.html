@@ -2,8 +2,8 @@
       
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">Workflow Execution History & SLA Logs</h1>
-          <p class="text-xs text-[var(--text-muted)] mt-0.5">Audit log of all workflow runs, step durations, condition evaluations, and visual execution timelines.</p>
+          <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">{{ 'Workflow Execution History & SLA Logs' | translate }}</h1>
+          <p class="text-xs text-[var(--text-muted)] mt-0.5">{{ 'Audit log of all workflow runs, step durations, condition evaluations, and visual execution timelines.' | translate }}</p>
         </div>
       </div>
 
@@ -12,17 +12,17 @@
         <!-- Execution Logs Table -->
         <div class="card-panel !p-0 lg:col-span-2 overflow-hidden">
           <div class="p-3.5 border-b border-[var(--border-color)]">
-            <h3 class="text-xs font-bold text-[var(--text-main)]">Execution Runs</h3>
+            <h3 class="text-xs font-bold text-[var(--text-main)]">{{ 'Execution Runs' | translate }}</h3>
           </div>
 
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs border-collapse">
               <thead>
                 <tr class="bg-slate-100/70 dark:bg-slate-800/70 text-slate-500 text-[11px] font-bold uppercase">
-                  <th class="p-3">Execution ID</th>
-                  <th class="p-3">Workflow Name</th>
-                  <th class="p-3">Triggered By</th>
-                  <th class="p-3">Duration</th>
+                  <th class="p-3">{{ 'Execution ID' | translate }}</th>
+                  <th class="p-3">{{ 'Workflow Name' | translate }}</th>
+                  <th class="p-3">{{ 'Triggered By' | translate }}</th>
+                  <th class="p-3">{{ 'Duration' | translate }}</th>
                   <th class="p-3">Status</th>
                 </tr>
               </thead>

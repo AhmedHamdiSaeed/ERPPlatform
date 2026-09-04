@@ -1,11 +1,11 @@
 <div class="space-y-6 animate-fade-in pb-8">
   <div class="flex items-center justify-between">
     <div>
-      <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">Feature Usage & Subscription Limits</h1>
-      <p class="text-xs text-[var(--text-muted)] mt-0.5">Real-time consumption counters, threshold alerts, and capacity caps for your organization.</p>
+      <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">{{ 'Feature Usage & Subscription Limits' | translate }}</h1>
+      <p class="text-xs text-[var(--text-muted)] mt-0.5">{{ 'Real-time consumption counters, threshold alerts, and capacity caps for your organization.' | translate }}</p>
     </div>
     <button (click)="showUpgradeModal.set(true)" class="btn-primary text-xs flex items-center gap-2">
-      <i class="pi pi-arrow-up-right"></i> Request Limit Increase
+      <i class="pi pi-arrow-up-right"></i> {{ 'Request Limit Increase' | translate }}
     </button>
   </div>
 
@@ -14,15 +14,15 @@
       <div class="card-panel space-y-3 border border-[var(--border-color)]">
         <div class="flex justify-between items-start">
           <div>
-            <span class="font-mono text-[10px] font-bold text-blue-600 uppercase">{{ f.category }}</span>
-            <h3 class="font-bold text-sm text-[var(--text-main)] mt-0.5">{{ f.name }}</h3>
+            <span class="font-mono text-[10px] font-bold text-blue-600 uppercase">{{ f.category | translate }}</span>
+            <h3 class="font-bold text-sm text-[var(--text-main)] mt-0.5">{{ f.name | translate }}</h3>
           </div>
           @if (!f.enabled) {
-            <span class="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-500 text-[10px] font-bold rounded-full">Disabled</span>
+            <span class="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-500 text-[10px] font-bold rounded-full">{{ 'Disabled' | translate }}</span>
           } @else if (f.limit === null) {
-            <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded-full">Unlimited</span>
+            <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded-full">{{ 'Unlimited' | translate }}</span>
           } @else {
-            <span class="px-2 py-0.5 bg-blue-100 text-blue-800 text-[10px] font-bold rounded-full">{{ f.unit }}</span>
+            <span class="px-2 py-0.5 bg-blue-100 text-blue-800 text-[10px] font-bold rounded-full">{{ f.unit | translate }}</span>
           }
         </div>
 
@@ -36,16 +36,16 @@
               <div class="h-full rounded-full transition-all duration-500" [class]="getThresholdClass(getPercentage(f))" [style.width.%]="getPercentage(f)"></div>
             </div>
             <div class="flex justify-between text-[10px] text-[var(--text-muted)] pt-1">
-              <span>Remaining: {{ f.remaining }} {{ f.unit }}</span>
+              <span>{{ 'Remaining:' | translate }} {{ f.remaining }} {{ f.unit | translate }}</span>
               @if (getPercentage(f) >= 100) {
-                <span class="text-rose-600 font-bold">Limit Reached</span>
+                <span class="text-rose-600 font-bold">{{ 'Limit Reached' | translate }}</span>
               }
             </div>
           </div>
         } @else if (f.enabled && f.limit === null) {
-          <p class="text-xs text-emerald-600 font-bold">Included in current subscription plan with unlimited allocation.</p>
+          <p class="text-xs text-emerald-600 font-bold">{{ 'Included in current subscription plan with unlimited allocation.' | translate }}</p>
         } @else {
-          <p class="text-xs text-[var(--text-muted)]">Feature not enabled on current tier. Upgrade to unlock.</p>
+          <p class="text-xs text-[var(--text-muted)]">{{ 'Feature not enabled on current tier. Upgrade to unlock.' | translate }}</p>
         }
       </div>
     }
@@ -55,11 +55,11 @@
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60">
       <div class="w-full max-w-md bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-6 space-y-4 text-xs text-center">
         <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl mx-auto"><i class="pi pi-arrow-up-right"></i></div>
-        <h3 class="font-bold text-base">Capacity Limit Reached</h3>
-        <p class="text-[11px] text-[var(--text-muted)]">Your organization has reached the monthly quota for selected ERP operations. Upgrade your SaaS tier to increase resource allocations immediately.</p>
+        <h3 class="font-bold text-base">{{ 'Capacity Limit Reached' | translate }}</h3>
+        <p class="text-[11px] text-[var(--text-muted)]">{{ 'Your organization has reached the monthly quota for selected ERP operations. Upgrade your SaaS tier to increase resource allocations immediately.' | translate }}</p>
         <div class="pt-2 flex justify-center gap-2">
-          <button (click)="showUpgradeModal.set(false)" class="btn-outline text-xs">Dismiss</button>
-          <a routerLink="/saas/subscription" (click)="showUpgradeModal.set(false)" class="btn-primary text-xs flex items-center gap-2">View Subscription Plans</a>
+          <button (click)="showUpgradeModal.set(false)" class="btn-outline text-xs">{{ 'Dismiss' | translate }}</button>
+          <a routerLink="/saas/subscription" (click)="showUpgradeModal.set(false)" class="btn-primary text-xs flex items-center gap-2">{{ 'View Subscription Plans' | translate }}</a>
         </div>
       </div>
     </div>

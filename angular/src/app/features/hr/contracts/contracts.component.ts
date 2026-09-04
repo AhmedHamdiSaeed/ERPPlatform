@@ -1,5 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
-import { LocalizationPipe } from '@abp/ng.core';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { AppDatePipe } from '../../../shared/pipes/app-date.pipe';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ToastService } from '../../../core/services/toast.service';
@@ -18,7 +19,7 @@ export interface EmployeeContract {
 @Component({
   selector: 'app-contracts',
   standalone: true,
-  imports: [CommonModule, FormsModule, LocalizationPipe],
+  imports: [CommonModule, FormsModule, TranslatePipe, AppDatePipe],
   templateUrl: './contracts.component.html'
 })
 export class ContractsComponent {

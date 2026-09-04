@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { Deal } from '../../../core/models/erp-models';
 import { SharedApiService } from '../../../core/services/api/shared-api.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-sales-pipeline-kanban',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslatePipe],
   templateUrl: './sales-pipeline-kanban.component.html'
 })
 export class SalesPipelineKanbanComponent {

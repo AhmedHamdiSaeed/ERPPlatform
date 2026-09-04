@@ -2,48 +2,48 @@
       
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">Stock Transfers & Dispatch</h1>
-          <p class="text-xs text-[var(--text-muted)] mt-0.5">Track inter-warehouse item movements, approvals, dispatching, and transit statuses.</p>
+          <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">{{ 'Stock Transfers & Dispatch' | translate }}</h1>
+          <p class="text-xs text-[var(--text-muted)] mt-0.5">{{ 'Track inter-warehouse item movements, approvals, dispatching, and transit statuses.' | translate }}</p>
         </div>
 
         <button (click)="openTransferModal()" [disabled]="loading()" class="btn-primary text-xs cursor-pointer disabled:opacity-60">
-          <i class="pi pi-sync"></i> Initiate Stock Transfer
+          <i class="pi pi-sync"></i> {{ 'Initiate Stock Transfer' | translate }}
         </button>
       </div>
 
       <!-- Transfers Registry Table -->
       <div class="card-panel !p-0 overflow-hidden">
         @if (loading()) {
-          <div class="p-3.5 border-b border-[var(--border-color)] text-xs text-[var(--text-muted)]">Loading transfers and products...</div>
+          <div class="p-3.5 border-b border-[var(--border-color)] text-xs text-[var(--text-muted)]">{{ 'Loading transfers and products...' | translate }}</div>
         }
         @if (loadError() && !loading()) {
           <div class="p-3.5 border-b border-[var(--border-color)] text-xs text-rose-600 flex items-center justify-between gap-2">
-            <span>{{ loadError() }}</span>
-            <button (click)="loadData()" class="btn-outline text-xs">Retry</button>
+            <span>{{ loadError() | translate }}</span>
+            <button (click)="loadData()" class="btn-outline text-xs">{{ 'Retry' | translate }}</button>
           </div>
         }
         @if (!loading() && !loadError() && transfers().length === 0) {
           <div class="p-3.5 border-b border-[var(--border-color)] text-xs text-[var(--text-muted)] flex items-center justify-between gap-2">
-            <span>No transfers found.</span>
-            <button (click)="loadData()" class="btn-outline text-xs">Refresh</button>
+            <span>{{ 'No transfers found.' | translate }}</span>
+            <button (click)="loadData()" class="btn-outline text-xs">{{ 'Refresh' | translate }}</button>
           </div>
         }
         <div class="p-3.5 border-b border-[var(--border-color)] flex items-center justify-between">
-          <h3 class="text-xs font-bold text-[var(--text-main)]">Stock Movement History</h3>
+          <h3 class="text-xs font-bold text-[var(--text-main)]">{{ 'Stock Movement History' | translate }}</h3>
         </div>
 
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse text-xs">
             <thead>
               <tr class="bg-slate-100/70 dark:bg-slate-800/70 text-slate-500 text-[11px] font-bold uppercase">
-                <th class="p-3.5">Transfer Code</th>
-                <th class="p-3.5">Source Warehouse</th>
-                <th class="p-3.5">Destination Warehouse</th>
-                <th class="p-3.5">Product & Quantity</th>
-                <th class="p-3.5">Requested By</th>
-                <th class="p-3.5">Date</th>
-                <th class="p-3.5">Status</th>
-                <th class="p-3.5 text-right">Action</th>
+                <th class="p-3.5">{{ 'Transfer Code' | translate }}</th>
+                <th class="p-3.5">{{ 'Source Warehouse' | translate }}</th>
+                <th class="p-3.5">{{ 'Destination Warehouse' | translate }}</th>
+                <th class="p-3.5">{{ 'Product & Quantity' | translate }}</th>
+                <th class="p-3.5">{{ 'Requested By' | translate }}</th>
+                <th class="p-3.5">{{ 'Date' | translate }}</th>
+                <th class="p-3.5">{{ 'Status' | translate }}</th>
+                <th class="p-3.5 text-right">{{ 'Action' | translate }}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-[var(--border-color)] text-[var(--text-main)]">
@@ -51,22 +51,22 @@
               @for (st of transfers(); track st.id) {
                 <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/50">
                   <td class="p-3.5 font-mono text-[11px] font-bold text-blue-600">{{ st.transferCode }}</td>
-                  <td class="p-3.5 font-medium text-slate-700 dark:text-slate-300">{{ st.sourceWarehouse }}</td>
-                  <td class="p-3.5 font-medium text-slate-700 dark:text-slate-300">{{ st.destinationWarehouse }}</td>
-                  <td class="p-3.5 font-bold">{{ st.productName }} <span class="text-blue-600">({{ st.quantity }} pcs)</span></td>
-                  <td class="p-3.5 text-slate-500">{{ st.requestedBy }}</td>
-                  <td class="p-3.5 text-slate-500">{{ st.date }}</td>
+                  <td class="p-3.5 font-medium text-slate-700 dark:text-slate-300">{{ st.sourceWarehouse | translate }}</td>
+                  <td class="p-3.5 font-medium text-slate-700 dark:text-slate-300">{{ st.destinationWarehouse | translate }}</td>
+                  <td class="p-3.5 font-bold">{{ st.productName | translate }} <span class="text-blue-600">({{ st.quantity }} {{ 'pcs' | translate }})</span></td>
+                  <td class="p-3.5 text-slate-500">{{ st.requestedBy | translate }}</td>
+                  <td class="p-3.5 text-slate-500">{{ st.date | appDate }}</td>
                   <td class="p-3.5">
                     <span class="status-badge" [class.approved]="st.status === 'Approved' || st.status === 'Completed'" [class.pending]="st.status === 'Pending Approval' || st.status === 'In Transit'">
-                      {{ st.status }}
+                      {{ st.status | translate }}
                     </span>
                   </td>
                   <td class="p-3.5 text-right">
                     @if (st.status === 'In Transit') {
-                      <button (click)="completeTransfer(st.id)" [disabled]="submitting()" class="px-2.5 py-1 bg-emerald-600 text-white font-bold rounded text-[11px] disabled:opacity-60">{{ submitting() ? 'Updating...' : 'Confirm Received' }}</button>
+                      <button (click)="completeTransfer(st.id)" [disabled]="submitting()" class="px-2.5 py-1 bg-emerald-600 text-white font-bold rounded text-[11px] disabled:opacity-60">{{ (submitting() ? 'Updating...' : 'Confirm Received') | translate }}</button>
                     }
                     @if (st.status !== 'In Transit') {
-                      <span class="text-[11px] text-slate-400 font-medium">Verified</span>
+                      <span class="text-[11px] text-slate-400 font-medium">{{ 'Verified' | translate }}</span>
                     }
                   </td>
                 </tr>
@@ -82,50 +82,50 @@
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
           <div class="w-full max-w-md bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl p-6 space-y-4">
             <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
-              <h3 class="font-bold text-sm text-[var(--text-main)]">New Inter-Warehouse Transfer</h3>
+              <h3 class="font-bold text-sm text-[var(--text-main)]">{{ 'New Inter-Warehouse Transfer' | translate }}</h3>
               <button (click)="showModal.set(false)" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times"></i></button>
             </div>
 
             <div class="space-y-3 text-xs">
               <div>
-                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">Source Warehouse</label>
+                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'Source Warehouse' | translate }}</label>
                 <select [(ngModel)]="newTrf.sourceWarehouse" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg">
-                  <option value="Main Warehouse">Main Warehouse</option>
-                  <option value="Secondary Warehouse">Secondary Warehouse</option>
-                  <option value="Central Logistics Hub">Central Logistics Hub</option>
+                  <option value="Main Warehouse">{{ 'Main Warehouse' | translate }}</option>
+                  <option value="Secondary Warehouse">{{ 'Secondary Warehouse' | translate }}</option>
+                  <option value="Central Logistics Hub">{{ 'Central Logistics Hub' | translate }}</option>
                 </select>
               </div>
 
               <div>
-                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">Destination Warehouse</label>
+                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'Destination Warehouse' | translate }}</label>
                 <select [(ngModel)]="newTrf.destinationWarehouse" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg">
-                  <option value="Secondary Warehouse">Secondary Warehouse</option>
-                  <option value="Main Warehouse">Main Warehouse</option>
-                  <option value="Central Logistics Hub">Central Logistics Hub</option>
+                  <option value="Secondary Warehouse">{{ 'Secondary Warehouse' | translate }}</option>
+                  <option value="Main Warehouse">{{ 'Main Warehouse' | translate }}</option>
+                  <option value="Central Logistics Hub">{{ 'Central Logistics Hub' | translate }}</option>
                 </select>
               </div>
 
               <div>
-                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">Select Product</label>
+                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'Select Product' | translate }}</label>
                 <select [(ngModel)]="newTrf.productName" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" [disabled]="products().length === 0 || submitting()">
                   @for (p of products(); track p.id) {
-                    <option [value]="p.name">{{ p.name }} (Current: {{ p.stock }} pcs)</option>
+                    <option [value]="p.name">{{ p.name | translate }} ({{ 'Current:' | translate }} {{ p.stock }} {{ 'pcs' | translate }})</option>
                   }
                 </select>
                 @if (products().length === 0) {
-                  <p class="mt-1 text-[11px] text-amber-600">No products available for transfer.</p>
+                  <p class="mt-1 text-[11px] text-amber-600">{{ 'No products available for transfer.' | translate }}</p>
                 }
               </div>
 
               <div>
-                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">Transfer Quantity</label>
+                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'Transfer Quantity' | translate }}</label>
                 <input type="number" min="1" [(ngModel)]="newTrf.quantity" [disabled]="submitting()" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
               </div>
             </div>
 
             <div class="pt-3 border-t border-[var(--border-color)] flex justify-end gap-2">
-              <button (click)="showModal.set(false)" [disabled]="submitting()" class="btn-outline text-xs disabled:opacity-60">Cancel</button>
-              <button (click)="submitTransfer()" [disabled]="submitting()" class="btn-primary text-xs disabled:opacity-60">{{ submitting() ? 'Submitting...' : 'Dispatch Transfer' }}</button>
+              <button (click)="showModal.set(false)" [disabled]="submitting()" class="btn-outline text-xs disabled:opacity-60">{{ 'Cancel' | translate }}</button>
+              <button (click)="submitTransfer()" [disabled]="submitting()" class="btn-primary text-xs disabled:opacity-60">{{ (submitting() ? 'Submitting...' : 'Dispatch Transfer') | translate }}</button>
             </div>
           </div>
         </div>

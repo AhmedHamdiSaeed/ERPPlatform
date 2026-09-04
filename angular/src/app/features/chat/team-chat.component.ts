@@ -12,6 +12,7 @@ import {
 import { ChatSignalrService } from '../../core/services/chat-signalr.service';
 import { StateService } from '../../core/services/state.service';
 import { ToastService } from '../../core/services/toast.service';
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
 export interface TextSegment {
   text: string;
@@ -39,7 +40,7 @@ const TYPING_TIMEOUT_MS = 3000;
 @Component({
   selector: 'app-team-chat',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslatePipe],
   templateUrl: './team-chat.component.html'
 })
 export class TeamChatComponent implements OnInit, OnDestroy {

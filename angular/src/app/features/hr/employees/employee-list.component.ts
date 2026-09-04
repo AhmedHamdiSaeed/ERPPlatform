@@ -1,5 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
-import { LocalizationPipe } from '@abp/ng.core';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { AppDatePipe } from '../../../shared/pipes/app-date.pipe';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Employee } from '../../../core/models/erp-models';
@@ -10,7 +11,7 @@ import { DialogService } from '../../../core/services/dialog.service';
 @Component({
   selector: 'app-employee-list',
   standalone: true,
-  imports: [FormsModule, RouterModule, LocalizationPipe],
+  imports: [FormsModule, RouterModule, TranslatePipe, AppDatePipe],
   templateUrl: './employee-list.component.html'
 })
 export class EmployeeListComponent {

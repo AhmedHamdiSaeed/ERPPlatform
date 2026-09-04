@@ -4,11 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { Account, JournalEntry } from '../../core/models/erp-models';
 import { SharedApiService } from '../../core/services/api/shared-api.service';
 import { ToastService } from '../../core/services/toast.service';
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+import { AppDatePipe } from '../../shared/pipes/app-date.pipe';
 
 @Component({
   selector: 'app-finance-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslatePipe, AppDatePipe],
   templateUrl: './finance-dashboard.component.html'
 })
 export class FinanceDashboardComponent {

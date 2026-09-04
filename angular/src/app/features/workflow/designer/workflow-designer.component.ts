@@ -1,5 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { AppDatePipe } from '../../../shared/pipes/app-date.pipe';
 import { WorkflowDefinition, WorkflowNode, WorkflowConnection, WorkflowNodeType } from '../../../core/models/erp-models';
 import { WorkflowApiService } from '../../../core/services/api/workflow-api.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -7,7 +9,7 @@ import { ToastService } from '../../../core/services/toast.service';
 @Component({
   selector: 'app-workflow-designer',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, TranslatePipe, AppDatePipe],
   templateUrl: './workflow-designer.component.html'
 })
 export class WorkflowDesignerComponent {

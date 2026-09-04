@@ -4,16 +4,20 @@
         <button 
           (click)="state.toggleSidebar()" 
           class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-[var(--text-muted)] transition-colors focus:outline-hidden"
-          title="{{ 'UI:ToggleSidebar' | abpLocalization }}">
+          title="{{ 'UI:ToggleSidebar' | translate }}">
           <i class="pi pi-bars text-lg"></i>
         </button>
 
         <a routerLink="/dashboard" class="flex items-center gap-2.5 group decoration-none">
-          <div class="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-sm group-hover:scale-105 transition-transform">
-            <i class="pi pi-box"></i>
-          </div>
+          @if (state.currentUser().tenantLogo) {
+            <img [src]="state.currentUser().tenantLogo" [alt]="state.currentUser().tenantName || 'Tenant Logo'" class="w-9 h-9 rounded-lg object-contain bg-white dark:bg-slate-800 p-0.5 border border-slate-200 dark:border-slate-700 shadow-xs group-hover:scale-105 transition-transform" />
+          } @else {
+            <div class="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-sm group-hover:scale-105 transition-transform">
+              <i class="pi pi-box"></i>
+            </div>
+          }
           <div class="hidden sm:block">
-            <span class="font-bold text-slate-800 dark:text-slate-100 text-base leading-tight block">ERP Platform</span>
+            <span class="font-bold text-slate-800 dark:text-slate-100 text-base leading-tight block">{{ state.currentUser().tenantName || 'ERP Platform' }}</span>
             <span class="text-[10px] text-blue-600 font-semibold tracking-widest uppercase block">Enterprise Suite</span>
           </div>
         </a>
@@ -26,7 +30,7 @@
           class="w-full flex items-center justify-between px-3.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-500 hover:border-blue-500 transition-colors text-sm cursor-pointer">
           <div class="flex items-center gap-2">
             <i class="pi pi-search text-slate-400"></i>
-            <span>{{ 'UI:SearchPlaceholder' | abpLocalization }}</span>
+            <span>{{ 'UI:SearchPlaceholder' | translate }}</span>
           </div>
           <kbd class="px-2 py-0.5 text-[11px] font-mono font-semibold bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-slate-500 shadow-2xs">Ctrl K</kbd>
         </button>
@@ -47,7 +51,7 @@
           class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 text-white font-medium text-xs shadow-xs hover:bg-blue-700 transition-colors cursor-pointer"
           title="Import a file (resumable, runs in the background)">
           <i class="pi pi-upload"></i>
-          <span class="hidden sm:inline">{{ 'UI:Import' | abpLocalization }}</span>
+          <span class="hidden sm:inline">{{ 'UI:Import' | translate }}</span>
         </button>
 
         <!-- AI Assistant Button -->
@@ -55,22 +59,27 @@
           (click)="state.toggleAiWidget()"
           class="relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-indigo-500 to-blue-600 text-white font-medium text-xs shadow-xs hover:opacity-95 transition-opacity cursor-pointer">
           <i class="pi pi-sparkles"></i>
-          <span class="hidden sm:inline">{{ 'UI:AIAssistant' | abpLocalization }}</span>
+          <span class="hidden sm:inline">{{ 'UI:AIAssistant' | translate }}</span>
         </button>
 
         <!-- Light/Dark Theme Toggle -->
         <button 
           (click)="state.toggleTheme()" 
           class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-[var(--text-muted)] transition-colors"
-          [title]="'UI:ToggleTheme' | abpLocalization">
+          [title]="'UI:ToggleTheme' | translate">
           <i [class]="state.theme() === 'light' ? 'pi pi-moon' : 'pi pi-sun'" class="text-lg"></i>
         </button>
 
         <!-- Language / RTL Switcher -->
         <button 
+          id="lang-switch-btn"
           (click)="state.setLanguage(state.lang() === 'en' ? 'ar' : 'en')"
-          class="px-2.5 py-1 rounded-md border border-[var(--border-color)] text-xs font-semibold text-[var(--text-main)] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-          {{ state.lang() === 'en' ? 'العربية' : 'English' }}
+          class="flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-[var(--border-color)] text-xs font-semibold text-[var(--text-main)] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer notranslate lang-switch-btn"
+          data-no-translate="true"
+          translate="no"
+          [title]="state.lang() === 'en' ? 'التبديل إلى اللغة العربية' : 'Switch to English'">
+          <i class="pi pi-globe text-blue-500"></i>
+          <span class="notranslate" data-no-translate="true" translate="no">{{ state.lang() === 'en' ? 'العربية' : 'English' }}</span>
         </button>
 
         <!-- Notifications Dropdown Toggle -->
@@ -88,8 +97,8 @@
           @if (showNotifDropdown) {
             <div class="absolute right-0 mt-2 w-80 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl shadow-lg z-50 overflow-hidden animate-fade-in">
               <div class="p-3 border-b border-[var(--border-color)] flex items-center justify-between">
-                <h4 class="font-semibold text-sm">{{ 'UI:Notifications' | abpLocalization }}</h4>
-                <button (click)="state.markAllNotificationsAsRead()" class="text-xs text-blue-600 hover:underline">{{ 'UI:MarkAllRead' | abpLocalization }}</button>
+                <h4 class="font-semibold text-sm">{{ 'UI:Notifications' | translate }}</h4>
+                <button (click)="state.markAllNotificationsAsRead()" class="text-xs text-blue-600 hover:underline">{{ 'UI:MarkAllRead' | translate }}</button>
               </div>
               <div class="max-h-72 overflow-y-auto divide-y divide-[var(--border-color)]">
                 @for (n of state.notifications(); track n.id) {
@@ -107,12 +116,12 @@
                   </div>
                 } @empty {
                   <div class="p-6 text-center text-xs text-[var(--text-muted)]">
-                    {{ 'UI:NoNotifications' | abpLocalization }}
+                    {{ 'UI:NoNotifications' | translate }}
                   </div>
                 }
               </div>
               <div class="p-2 border-t border-[var(--border-color)] text-center bg-slate-50 dark:bg-slate-900/50">
-                <a routerLink="/notifications" (click)="showNotifDropdown = false" class="text-xs text-blue-600 font-medium hover:underline">{{ 'UI:ViewNotificationCenter' | abpLocalization }}</a>
+                <a routerLink="/notifications" (click)="showNotifDropdown = false" class="text-xs text-blue-600 font-medium hover:underline">{{ 'UI:ViewNotificationCenter' | translate }}</a>
               </div>
             </div>
           }
@@ -136,14 +145,14 @@
                 <p class="text-[11px] text-[var(--text-muted)] truncate">{{ state.currentUser().email }}</p>
               </div>
               <a routerLink="/settings" (click)="showUserMenu = false" class="flex items-center gap-2.5 px-3 py-2 text-xs rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-[var(--text-main)]">
-                <i class="pi pi-user text-slate-400"></i> {{ 'UI:MyProfileSettings' | abpLocalization }}
+                <i class="pi pi-user text-slate-400"></i> {{ 'UI:MyProfileSettings' | translate }}
               </a>
               <a routerLink="/workflow/tasks" (click)="showUserMenu = false" class="flex items-center gap-2.5 px-3 py-2 text-xs rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-[var(--text-main)]">
-                <i class="pi pi-check-square text-slate-400"></i> {{ 'UI:MyTasksInbox' | abpLocalization }}
+                <i class="pi pi-check-square text-slate-400"></i> {{ 'UI:MyTasksInbox' | translate }}
               </a>
               <div class="border-t border-[var(--border-color)] my-1"></div>
               <a routerLink="/auth/login" (click)="showUserMenu = false" class="flex items-center gap-2.5 px-3 py-2 text-xs rounded-md hover:bg-red-50 text-red-600">
-                <i class="pi pi-sign-out"></i> {{ 'UI:Logout' | abpLocalization }}
+                <i class="pi pi-sign-out"></i> {{ 'UI:Logout' | translate }}
               </a>
             </div>
           }

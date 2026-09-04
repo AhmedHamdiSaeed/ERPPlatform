@@ -4,16 +4,19 @@ import { FormsModule } from '@angular/forms';
 import { ReportDefinition } from '../../core/models/erp-models';
 import { ReportsApiService, ReportRunResult } from '../../core/services/api/reports-api.service';
 import { ToastService } from '../../core/services/toast.service';
+import { TranslationService } from '../../core/services/translation.service';
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-report-center',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslatePipe],
   templateUrl: './report-center.component.html'
 })
 export class ReportCenterComponent {
   private reportsApi = inject(ReportsApiService);
   private toast = inject(ToastService);
+  private translation = inject(TranslationService);
 
   reports = signal<ReportDefinition[]>([]);
   categoryFilter = 'ALL';
@@ -45,6 +48,18 @@ export class ReportCenterComponent {
   filteredReports() {
     if (this.categoryFilter === 'ALL') return this.reports();
     return this.reports().filter(r => r.category === this.categoryFilter);
+  }
+
+  displayReportCategory(category: string): string {
+    return category === 'HR' ? 'Human Resources' : category;
+  }
+
+  reportRecordCountLabel(count: number): string {
+    return `${count.toLocaleString()} ${this.translation.instant('records')}`;
+  }
+
+  reportLastRunLabel(lastGenerated: string): string {
+    return `${this.translation.instant('Last run:')} ${lastGenerated || '-'}`;
   }
 
   async generateReport(rep: ReportDefinition) {

@@ -1,6 +1,8 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ToastService } from '../../../core/services/toast.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { AppDatePipe } from '../../../shared/pipes/app-date.pipe';
 
 export interface DeliveryNoteItem {
   id: string;
@@ -16,7 +18,7 @@ export interface DeliveryNoteItem {
 @Component({
   selector: 'app-delivery-notes',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, TranslatePipe, AppDatePipe],
   templateUrl: './delivery-notes.component.html'
 })
 export class DeliveryNotesComponent {

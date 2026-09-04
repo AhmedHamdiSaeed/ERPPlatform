@@ -1,5 +1,7 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { AppDatePipe } from '../../../shared/pipes/app-date.pipe';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { ToastService } from '../../../core/services/toast.service';
@@ -20,7 +22,7 @@ export interface UserAccount {
 @Component({
   selector: 'app-user-management',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, TranslatePipe, AppDatePipe],
   templateUrl: './user-management.component.html'
 })
 export class UserManagementComponent implements OnInit {

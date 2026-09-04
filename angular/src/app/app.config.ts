@@ -7,6 +7,7 @@ import { ThemeSharedModule } from '@abp/ng.theme.shared';
 import { appRoutes } from './app.routes';
 import { authInterceptorFn } from './core/interceptors/auth.interceptor';
 import { SessionTimeoutService } from './core/services/session-timeout.service';
+import { TranslationService } from './core/services/translation.service';
 import { environment } from '../environments/environment';
 
 export const appConfig: ApplicationConfig = {
@@ -23,5 +24,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([authInterceptorFn])),
     // Restores the 3h session clock, watches user activity and keeps tabs in sync.
     provideAppInitializer(() => inject(SessionTimeoutService).init()),
+    // Starts the intelligent DOM auto-translator across all pages and tables.
+    provideAppInitializer(() => inject(TranslationService).init()),
   ],
 };

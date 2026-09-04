@@ -1,11 +1,13 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { SubscriptionApiService, FeatureAccessDto } from '../../../core/services/api/subscription-api.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-subscription-usage',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule, TranslatePipe],
   templateUrl: './subscription-usage.component.html'
 })
 export class SubscriptionUsageComponent {

@@ -1,13 +1,16 @@
 import { Component, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StockTransfer, Product } from '../../../core/models/erp-models';
 import { InventoryApiService } from '../../../core/services/api/inventory-api.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { AppDatePipe } from '../../../shared/pipes/app-date.pipe';
 
 @Component({
   selector: 'app-stock-transfer-list',
   standalone: true,
-  imports: [FormsModule],
+  imports: [CommonModule, FormsModule, TranslatePipe, AppDatePipe],
   templateUrl: './stock-transfer-list.component.html'
 })
 export class StockTransferListComponent {
@@ -94,7 +97,7 @@ export class StockTransferListComponent {
         productName: this.newTrf.productName!,
         quantity: this.newTrf.quantity || 10,
         requestedBy: 'Omar Farouk',
-        date: new Date().toISOString(),
+        date: new Date().toISOString().split('T')[0],
         status: 'Pending Approval'
       });
       await this.loadTransfers();

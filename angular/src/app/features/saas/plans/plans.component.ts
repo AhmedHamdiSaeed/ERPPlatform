@@ -1,13 +1,14 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { SubscriptionApiService, PlanDto, PlanFeatureDto } from '../../../core/services/api/subscription-api.service';
 import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-plans',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslatePipe],
   templateUrl: './plans.component.html'
 })
 export class PlansComponent {

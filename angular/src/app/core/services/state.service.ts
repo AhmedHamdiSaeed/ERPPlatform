@@ -122,13 +122,17 @@ export class StateService {
         const matchedRole = validRoles.find(r => userRoles.includes(r));
         const resolvedRole: UserProfile['role'] = isAdmin ? 'Admin' : (matchedRole || 'Employee');
 
+        const prevUser = this.currentUser();
         this.setCurrentUser({
           id: config.currentUser.id,
           name: config.currentUser.userName || config.currentUser.name || 'User',
           email: config.currentUser.email || '',
           role: resolvedRole,
-          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-          permissions: grantedPermissions
+          avatar: prevUser.avatar || prevUser.tenantLogo || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+          permissions: grantedPermissions,
+          tenantId: config.currentTenant?.id || prevUser.tenantId,
+          tenantName: config.currentTenant?.name || prevUser.tenantName,
+          tenantLogo: prevUser.tenantLogo
         });
 
         await this.loadNotifications();
@@ -146,6 +150,22 @@ export class StateService {
         this.setGuestUser();
       }
     }
+  }
+
+  updateTenantLogo(logoUrl: string) {
+    this.currentUser.update(user => {
+      const updated: UserProfile = {
+        ...user,
+        tenantLogo: logoUrl,
+        avatar: logoUrl || user.avatar
+      };
+      try {
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem(USER_PROFILE_STORAGE_KEY, JSON.stringify(updated));
+        }
+      } catch {}
+      return updated;
+    });
   }
 
   setGuestUser() {

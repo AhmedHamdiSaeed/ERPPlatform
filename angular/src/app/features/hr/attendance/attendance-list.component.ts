@@ -1,5 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
-import { LocalizationPipe } from '@abp/ng.core';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { AppDatePipe } from '../../../shared/pipes/app-date.pipe';
 import { FormsModule } from '@angular/forms';
 import { AttendanceRecord } from '../../../core/models/erp-models';
 import { HrApiService } from '../../../core/services/api/hr-api.service';
@@ -8,7 +9,7 @@ import { ToastService } from '../../../core/services/toast.service';
 @Component({
   selector: 'app-attendance-list',
   standalone: true,
-  imports: [FormsModule, LocalizationPipe],
+  imports: [FormsModule, TranslatePipe, AppDatePipe],
   templateUrl: './attendance-list.component.html'
 })
 export class AttendanceListComponent {

@@ -1,36 +1,36 @@
 <div class="space-y-6 animate-fade-in pb-8">
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
     <div>
-      <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">Report Center & Business Intelligence</h1>
-      <p class="text-xs text-[var(--text-muted)] mt-0.5">Generate, schedule, and export enterprise data reports across all ERP modules.</p>
+      <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">{{ 'Report Center & Business Intelligence' | translate }}</h1>
+      <p class="text-xs text-[var(--text-muted)] mt-0.5">{{ 'Generate, schedule, and export enterprise data reports across all ERP modules.' | translate }}</p>
     </div>
 
     <div class="flex items-center gap-2">
       <select [(ngModel)]="categoryFilter" class="px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs">
-        <option value="ALL">All Modules</option>
-        <option value="HR">Human Resources</option>
-        <option value="Inventory">Inventory</option>
-        <option value="Workflow">Workflow Engine</option>
-        <option value="Financial">Financial</option>
+        <option value="ALL">{{ 'All Modules' | translate }}</option>
+        <option value="HR">{{ 'Human Resources' | translate }}</option>
+        <option value="Inventory">{{ 'Inventory' | translate }}</option>
+        <option value="Workflow">{{ 'Workflow Engine' | translate }}</option>
+        <option value="Financial">{{ 'Financial' | translate }}</option>
       </select>
     </div>
   </div>
 
   @if (loading()) {
-    <div class="card-panel text-sm text-[var(--text-muted)]">Loading reports...</div>
+    <div class="card-panel text-sm text-[var(--text-muted)]">{{ 'Loading reports...' | translate }}</div>
   }
 
   @if (loadError() && !loading()) {
     <div class="card-panel text-sm text-rose-600 flex items-center justify-between gap-3">
-      <span>{{ loadError() }}</span>
-      <button (click)="loadReports()" class="btn-outline text-xs">Retry</button>
+      <span>{{ loadError() | translate }}</span>
+      <button (click)="loadReports()" class="btn-outline text-xs">{{ 'Retry' | translate }}</button>
     </div>
   }
 
   @if (!loading() && !loadError() && filteredReports().length === 0) {
     <div class="card-panel text-sm text-[var(--text-muted)] flex items-center justify-between gap-3">
-      <span>No reports found for this category.</span>
-      <button (click)="loadReports()" class="btn-outline text-xs">Refresh</button>
+      <span>{{ 'No reports found for this category.' | translate }}</span>
+      <button (click)="loadReports()" class="btn-outline text-xs">{{ 'Refresh' | translate }}</button>
     </div>
   }
 
@@ -45,23 +45,23 @@
               [class.bg-emerald-100]="rep.category === 'Inventory'" [class.text-emerald-700]="rep.category === 'Inventory'"
               [class.bg-indigo-100]="rep.category === 'Workflow'" [class.text-indigo-700]="rep.category === 'Workflow'"
               [class.bg-amber-100]="rep.category === 'Financial'" [class.text-amber-700]="rep.category === 'Financial'">
-              {{ rep.category }}
+              {{ displayReportCategory(rep.category) | translate }}
             </span>
-            <span class="text-[10px] text-slate-400 font-mono">{{ rep.recordCount | number }} records</span>
+            <span class="text-[10px] text-slate-400 font-mono">{{ reportRecordCountLabel(rep.recordCount) }}</span>
           </div>
 
-          <h3 class="font-extrabold text-sm text-[var(--text-main)] group-hover:text-blue-600 transition-colors leading-tight">{{ rep.title }}</h3>
-          <p class="text-xs text-[var(--text-muted)] leading-relaxed">{{ rep.description }}</p>
+          <h3 class="font-extrabold text-sm text-[var(--text-main)] group-hover:text-blue-600 transition-colors leading-tight">{{ rep.title | translate }}</h3>
+          <p class="text-xs text-[var(--text-muted)] leading-relaxed">{{ rep.description | translate }}</p>
         </div>
 
         <div class="pt-4 mt-4 border-t border-[var(--border-color)] flex items-center justify-between">
-          <span class="text-[11px] text-slate-400"><i class="pi pi-clock text-[10px]"></i> Last run: {{ rep.lastGenerated }}</span>
+          <span class="text-[11px] text-slate-400"><i class="pi pi-clock text-[10px]"></i> {{ reportLastRunLabel(rep.lastGenerated) }}</span>
           <div class="flex items-center gap-2">
             <button (click)="generateReport(rep)" [disabled]="generating() || exporting()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] rounded-xl transition-colors disabled:opacity-60">
-              <i class="pi pi-chart-bar text-[10px]"></i> {{ generating() ? 'Generating...' : 'Generate' }}
+              <i class="pi pi-chart-bar text-[10px]"></i> {{ 'Generate' | translate }}
             </button>
             <button (click)="exportReport(rep)" [disabled]="generating() || exporting()" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-[11px] rounded-xl hover:bg-slate-200 transition-colors disabled:opacity-60">
-              <i class="pi pi-download text-[10px]"></i> {{ exporting() ? 'Exporting...' : 'Export CSV' }}
+              <i class="pi pi-download text-[10px]"></i> {{ exporting() ? ('Exporting...' | translate) : ('Export CSV' | translate) }}
             </button>
           </div>
         </div>
@@ -75,26 +75,26 @@
       <div class="w-full max-w-5xl bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl p-6 space-y-5 overflow-y-auto max-h-[85vh]">
         <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
           <div>
-            <h3 class="font-extrabold text-base text-[var(--text-main)]">{{ previewReport()?.title }}</h3>
-            <p class="text-xs text-[var(--text-muted)]">Generated at {{ previewData()?.generatedAt }} • {{ previewData()?.recordCount | number }} rows</p>
+            <h3 class="font-extrabold text-base text-[var(--text-main)]">{{ previewReport()?.title | translate }}</h3>
+            <p class="text-xs text-[var(--text-muted)]">{{ 'Generated at' | translate }} {{ previewData()?.generatedAt }} • {{ previewData()?.recordCount | number }} {{ 'rows' | translate }}</p>
           </div>
           <button (click)="closePreview()" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times text-lg"></i></button>
         </div>
 
         <div class="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-8 text-center space-y-3 border border-dashed border-slate-300 dark:border-slate-700">
           <i class="pi pi-chart-bar text-5xl text-blue-500"></i>
-          <p class="text-xs text-slate-500 font-medium">Data visualization for <strong>{{ previewReport()?.title }}</strong> can be rendered from the same result set.</p>
+          <p class="text-xs text-slate-500 font-medium">{{ 'Data visualization for' | translate }} <strong>{{ previewReport()?.title | translate }}</strong> {{ 'can be rendered from the same result set.' | translate }}</p>
         </div>
 
         <div class="space-y-2">
-          <h4 class="text-xs font-bold text-[var(--text-main)]">Live Data Preview</h4>
+          <h4 class="text-xs font-bold text-[var(--text-main)]">{{ 'Live Data Preview' | translate }}</h4>
           <div class="border border-[var(--border-color)] rounded-xl overflow-auto max-h-[360px]">
             <table class="w-full text-left text-xs">
               <thead class="bg-slate-100 dark:bg-slate-800 font-bold text-slate-500 sticky top-0">
                 <tr>
                   <th class="p-2.5">#</th>
                   @for (col of previewData()!.columns; track col) {
-                    <th class="p-2.5">{{ col }}</th>
+                    <th class="p-2.5">{{ col | translate }}</th>
                   }
                 </tr>
               </thead>
@@ -113,8 +113,8 @@
         </div>
 
         <div class="pt-3 border-t border-[var(--border-color)] flex justify-end gap-2">
-          <button (click)="closePreview()" class="btn-outline text-xs">Close</button>
-          <button (click)="exportReport(previewReport()!)" [disabled]="exporting() || generating()" class="btn-primary text-xs disabled:opacity-60"><i class="pi pi-download"></i> {{ exporting() ? 'Exporting...' : 'Export Full Report' }}</button>
+          <button (click)="closePreview()" class="btn-outline text-xs">{{ 'Close' | translate }}</button>
+          <button (click)="exportReport(previewReport()!)" [disabled]="exporting() || generating()" class="btn-primary text-xs disabled:opacity-60"><i class="pi pi-download"></i> {{ exporting() ? ('Exporting...' | translate) : ('Export Full Report' | translate) }}</button>
         </div>
       </div>
     </div>

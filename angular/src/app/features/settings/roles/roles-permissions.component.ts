@@ -1,5 +1,7 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { AppDatePipe } from '../../../shared/pipes/app-date.pipe';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { ToastService } from '../../../core/services/toast.service';
@@ -39,7 +41,7 @@ const DEFAULT_SCOPE: PageScopeState = { scopeType: DataScopeType.All, targetIds:
 @Component({
   selector: 'app-roles-permissions',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, TranslatePipe],
   templateUrl: './roles-permissions.component.html'
 })
 export class RolesPermissionsComponent implements OnInit {

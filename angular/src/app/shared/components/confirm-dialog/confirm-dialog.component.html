@@ -19,8 +19,8 @@
         </div>
 
         <div class="flex-1 min-w-0">
-          <h3 class="font-extrabold text-base text-[var(--text-main)] leading-tight">{{ active.options.title }}</h3>
-          <p class="text-xs text-[var(--text-muted)] mt-1.5 leading-relaxed leading-normal">{{ active.options.message }}</p>
+          <h3 class="font-extrabold text-base text-[var(--text-main)] leading-tight">{{ active.options.title | translate }}</h3>
+          <p class="text-xs text-[var(--text-muted)] mt-1.5 leading-relaxed leading-normal">{{ active.options.message | translate }}</p>
         </div>
       </div>
 
@@ -29,7 +29,7 @@
         <button 
           (click)="dialogService.handleCancel()"
           class="px-4 py-2 text-xs font-semibold rounded-xl border border-[var(--border-color)] text-[var(--text-main)] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-          {{ active.options.cancelText }}
+          {{ active.options.cancelText | translate }}
         </button>
 
         <button 
@@ -39,7 +39,7 @@
           [class.bg-emerald-600]="active.options.type === 'success'" [class.hover:bg-emerald-700]="active.options.type === 'success'"
           [class.bg-blue-600]="active.options.type === 'info'" [class.hover:bg-blue-700]="active.options.type === 'info'"
           class="px-4 py-2 text-xs font-bold text-white rounded-xl shadow-md transition-colors flex items-center gap-2">
-          <span>{{ active.options.confirmText }}</span>
+          <span>{{ active.options.confirmText | translate }}</span>
         </button>
       </div>
 

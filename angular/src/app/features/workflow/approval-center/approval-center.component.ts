@@ -1,5 +1,7 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { AppDatePipe } from '../../../shared/pipes/app-date.pipe';
 import {
   ApprovalCenterApiService,
   ApprovalEntityType,
@@ -10,7 +12,7 @@ import { ToastService } from '../../../core/services/toast.service';
 @Component({
   selector: 'app-approval-center',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, TranslatePipe, AppDatePipe],
   templateUrl: './approval-center.component.html'
 })
 export class ApprovalCenterComponent {

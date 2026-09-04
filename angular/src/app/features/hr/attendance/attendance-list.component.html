@@ -2,49 +2,49 @@
       
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">{{ 'HR:AttendanceTimesheets' | abpLocalization }}</h1>
-          <p class="text-xs text-[var(--text-muted)] mt-0.5">{{ 'HR:AttendanceTimesheetsDesc' | abpLocalization }}</p>
+          <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">{{ 'HR:AttendanceTimesheets' | translate }}</h1>
+          <p class="text-xs text-[var(--text-muted)] mt-0.5">{{ 'HR:AttendanceTimesheetsDesc' | translate }}</p>
         </div>
 
         <button (click)="logCheckIn()" class="btn-primary text-xs cursor-pointer">
-          <i class="pi pi-clock"></i> {{ 'HR:QuickCheckIn' | abpLocalization }}
+          <i class="pi pi-clock"></i> {{ 'HR:QuickCheckIn' | translate }}
         </button>
       </div>
 
       <!-- Quick Summary Metric Cards -->
       <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 text-center">
         <div class="card-panel !p-3 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100">
-          <span class="text-xl font-black text-emerald-600 block">4 {{ 'HR:Present' | abpLocalization }}</span>
-          <span class="text-[10px] text-slate-500 uppercase font-bold">{{ 'HR:OnTime' | abpLocalization }}</span>
+          <span class="text-xl font-black text-emerald-600 block">4 {{ 'HR:Present' | translate }}</span>
+          <span class="text-[10px] text-slate-500 uppercase font-bold">{{ 'HR:OnTime' | translate }}</span>
         </div>
         <div class="card-panel !p-3 bg-amber-50 dark:bg-amber-900/20 border-amber-100">
-          <span class="text-xl font-black text-amber-600 block">1 {{ 'HR:Late' | abpLocalization }}</span>
-          <span class="text-[10px] text-slate-500 uppercase font-bold">{{ 'HR:Delayed' | abpLocalization }}</span>
+          <span class="text-xl font-black text-amber-600 block">1 {{ 'HR:Late' | translate }}</span>
+          <span class="text-[10px] text-slate-500 uppercase font-bold">{{ 'HR:Delayed' | translate }}</span>
         </div>
         <div class="card-panel !p-3 bg-indigo-50 dark:bg-indigo-900/20 border-indigo-100">
-          <span class="text-xl font-black text-indigo-600 block">1 {{ 'HR:Remote' | abpLocalization }}</span>
-          <span class="text-[10px] text-slate-500 uppercase font-bold">{{ 'HR:WFH' | abpLocalization }}</span>
+          <span class="text-xl font-black text-indigo-600 block">1 {{ 'HR:Remote' | translate }}</span>
+          <span class="text-[10px] text-slate-500 uppercase font-bold">{{ 'HR:WFH' | translate }}</span>
         </div>
         <div class="card-panel !p-3 bg-blue-50 dark:bg-blue-900/20 border-blue-100">
-          <span class="text-xl font-black text-blue-600 block">1 {{ 'HR:Approved' | abpLocalization }}</span>
-          <span class="text-[10px] text-slate-500 uppercase font-bold">{{ 'HR:Approved' | abpLocalization }}</span>
+          <span class="text-xl font-black text-blue-600 block">1 {{ 'HR:Approved' | translate }}</span>
+          <span class="text-[10px] text-slate-500 uppercase font-bold">{{ 'HR:Approved' | translate }}</span>
         </div>
         <div class="card-panel !p-3 bg-rose-50 dark:bg-rose-900/20 border-rose-100 col-span-2 lg:col-span-1">
-          <span class="text-xl font-black text-rose-600 block">0 {{ 'HR:Absent' | abpLocalization }}</span>
-          <span class="text-[10px] text-slate-500 uppercase font-bold">{{ 'HR:Unexcused' | abpLocalization }}</span>
+          <span class="text-xl font-black text-rose-600 block">0 {{ 'HR:Absent' | translate }}</span>
+          <span class="text-[10px] text-slate-500 uppercase font-bold">{{ 'HR:Unexcused' | translate }}</span>
         </div>
       </div>
 
       <!-- Attendance Table -->
       <div class="card-panel !p-0 overflow-hidden">
         <div class="p-3 border-b border-[var(--border-color)] flex items-center justify-between">
-          <span class="text-xs font-bold text-[var(--text-main)]">Daily Attendance Log (2026-08-08)</span>
+          <span class="text-xs font-bold text-[var(--text-main)]">{{ 'HR:DailyAttendanceLog' | translate }} ({{ '2026-08-08' | appDate }})</span>
           <select [(ngModel)]="statusFilter" class="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 border rounded-lg text-xs">
-            <option value="ALL">{{ 'HR:AllStatuses' | abpLocalization }}</option>
-            <option value="Present">{{ 'HR:Present' | abpLocalization }}</option>
-            <option value="Late">{{ 'HR:Late' | abpLocalization }}</option>
-            <option value="Remote">{{ 'HR:Remote' | abpLocalization }}</option>
-            <option value="On Leave">{{ 'HR:OnLeave' | abpLocalization }}</option>
+            <option value="ALL">{{ 'HR:AllStatuses' | translate }}</option>
+            <option value="Present">{{ 'HR:Present' | translate }}</option>
+            <option value="Late">{{ 'HR:Late' | translate }}</option>
+            <option value="Remote">{{ 'HR:Remote' | translate }}</option>
+            <option value="On Leave">{{ 'HR:OnLeave' | translate }}</option>
           </select>
         </div>
 
@@ -52,13 +52,13 @@
           <table class="w-full text-left border-collapse text-xs">
             <thead>
               <tr class="bg-slate-100/70 dark:bg-slate-800/70 text-slate-500 text-[11px] font-bold uppercase">
-                <th class="p-3.5">{{ 'HR:Employee' | abpLocalization }}</th>
-                <th class="p-3.5">{{ 'HR:Department' | abpLocalization }}</th>
-                <th class="p-3.5">{{ 'HR:CheckIn' | abpLocalization }}</th>
-                <th class="p-3.5">{{ 'HR:CheckOut' | abpLocalization }}</th>
-                <th class="p-3.5">{{ 'HR:HoursWorked' | abpLocalization }}</th>
-                <th class="p-3.5">{{ 'HR:Overtime' | abpLocalization }}</th>
-                <th class="p-3.5">{{ 'HR:Status' | abpLocalization }}</th>
+                <th class="p-3.5">{{ 'HR:Employee' | translate }}</th>
+                <th class="p-3.5">{{ 'HR:Department' | translate }}</th>
+                <th class="p-3.5">{{ 'HR:CheckIn' | translate }}</th>
+                <th class="p-3.5">{{ 'HR:CheckOut' | translate }}</th>
+                <th class="p-3.5">{{ 'HR:HoursWorked' | translate }}</th>
+                <th class="p-3.5">{{ 'HR:Overtime' | translate }}</th>
+                <th class="p-3.5">{{ 'HR:Status' | translate }}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-[var(--border-color)] text-[var(--text-main)]">

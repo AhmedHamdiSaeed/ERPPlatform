@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 import { Product } from '../../../core/models/erp-models';
 import { InventoryApiService } from '../../../core/services/api/inventory-api.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -8,7 +9,7 @@ import { ToastService } from '../../../core/services/toast.service';
 @Component({
   selector: 'app-barcode-scanner',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslatePipe],
   templateUrl: './barcode-scanner.component.html'
 })
 export class BarcodeScannerComponent {

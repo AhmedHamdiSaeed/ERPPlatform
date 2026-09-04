@@ -3,14 +3,14 @@
   <!-- Header Bar -->
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
     <div>
-      <h1 class="text-xl sm:text-2xl font-black text-[var(--text-main)] tracking-tight">Sales & Financial Invoices</h1>
-      <p class="text-xs text-[var(--text-muted)] mt-0.5">Manage customer billing, tax calculations, and revenue tracking.</p>
+      <h1 class="text-xl sm:text-2xl font-black text-[var(--text-main)] tracking-tight">{{ 'Sales & Financial Invoices' | translate }}</h1>
+      <p class="text-xs text-[var(--text-muted)] mt-0.5">{{ 'Manage customer billing, tax calculations, and revenue tracking.' | translate }}</p>
     </div>
 
     <div class="flex items-center gap-2">
       @if (state.hasPermission(PERMISSIONS.InvoicesCreate)) {
         <button (click)="showCreateModal.set(true)" class="btn-primary text-xs">
-          <i class="pi pi-plus"></i> Create Invoice
+          <i class="pi pi-plus"></i> {{ 'Create Invoice' | translate }}
         </button>
       }
     </div>
@@ -19,7 +19,7 @@
   <!-- KPI Overview Cards -->
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
     <div class="card-panel border-l-4 border-l-emerald-500">
-      <span class="text-[11px] font-bold text-slate-400 block uppercase tracking-wider">Total Paid Revenue</span>
+      <span class="text-[11px] font-bold text-slate-400 block uppercase tracking-wider">{{ 'Total Paid Revenue' | translate }}</span>
       <div class="flex items-baseline justify-between mt-1">
         <span class="text-2xl font-black text-emerald-600">${{ totalRevenue() | number }}</span>
         <span class="text-xs text-emerald-600 font-semibold">+18.4%</span>
@@ -27,7 +27,7 @@
     </div>
 
     <div class="card-panel border-l-4 border-l-amber-500">
-      <span class="text-[11px] font-bold text-slate-400 block uppercase tracking-wider">Pending Accounts Receivable</span>
+      <span class="text-[11px] font-bold text-slate-400 block uppercase tracking-wider">{{ 'Pending Accounts Receivable' | translate }}</span>
       <div class="flex items-baseline justify-between mt-1">
         <span class="text-2xl font-black text-amber-600">${{ pendingRevenue() | number }}</span>
         <span class="text-xs text-slate-400">2 Invoices</span>
@@ -35,10 +35,10 @@
     </div>
 
     <div class="card-panel border-l-4 border-l-blue-500">
-      <span class="text-[11px] font-bold text-slate-400 block uppercase tracking-wider">Average VAT Rate</span>
+      <span class="text-[11px] font-bold text-slate-400 block uppercase tracking-wider">{{ 'Average VAT Rate' | translate }}</span>
       <div class="flex items-baseline justify-between mt-1">
         <span class="text-2xl font-black text-blue-600">14.0%</span>
-        <span class="text-xs text-slate-400">Standard Rate</span>
+        <span class="text-xs text-slate-400">{{ 'Standard Rate' | translate }}</span>
       </div>
     </div>
   </div>
@@ -50,7 +50,7 @@
       <input 
         type="text" 
         [(ngModel)]="searchQuery"
-        placeholder="Search invoice # or client..." 
+        [placeholder]="'Search invoice # or client...' | translate" 
         class="w-full pl-9 pr-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-hidden"
       />
     </div>
@@ -60,22 +60,22 @@
         (click)="statusFilter = 'ALL'" 
         [class.bg-blue-600]="statusFilter === 'ALL'" 
         [class.text-white]="statusFilter === 'ALL'"
-        class="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 font-medium">All</button>
+        class="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 font-medium">{{ 'All' | translate }}</button>
       <button 
         (click)="statusFilter = 'Paid'" 
         [class.bg-emerald-600]="statusFilter === 'Paid'" 
         [class.text-white]="statusFilter === 'Paid'"
-        class="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 font-medium">Paid</button>
+        class="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 font-medium">{{ 'Paid' | translate }}</button>
       <button 
         (click)="statusFilter = 'Pending'" 
         [class.bg-amber-600]="statusFilter === 'Pending'" 
         [class.text-white]="statusFilter === 'Pending'"
-        class="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 font-medium">Pending</button>
+        class="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 font-medium">{{ 'Pending' | translate }}</button>
       <button 
         (click)="statusFilter = 'Overdue'" 
         [class.bg-rose-600]="statusFilter === 'Overdue'" 
         [class.text-white]="statusFilter === 'Overdue'"
-        class="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 font-medium">Overdue</button>
+        class="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 font-medium">{{ 'Overdue' | translate }}</button>
     </div>
   </div>
 
@@ -85,34 +85,34 @@
       <table class="w-full text-left text-xs">
         <thead class="bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold uppercase tracking-wider">
           <tr>
-            <th class="p-3.5">Invoice #</th>
-            <th class="p-3.5">Customer / Client</th>
-            <th class="p-3.5">Issue Date</th>
-            <th class="p-3.5">Due Date</th>
-            <th class="p-3.5 text-right">Net Amount</th>
-            <th class="p-3.5 text-right">Tax (14%)</th>
-            <th class="p-3.5 text-right">Grand Total</th>
-            <th class="p-3.5">Status</th>
-            <th class="p-3.5 text-right">Actions</th>
+            <th class="p-3.5">{{ 'Invoice #' | translate }}</th>
+            <th class="p-3.5">{{ 'Customer / Client' | translate }}</th>
+            <th class="p-3.5">{{ 'Issue Date' | translate }}</th>
+            <th class="p-3.5">{{ 'Due Date' | translate }}</th>
+            <th class="p-3.5 text-right">{{ 'Net Amount' | translate }}</th>
+            <th class="p-3.5 text-right">{{ 'Tax (14%)' | translate }}</th>
+            <th class="p-3.5 text-right">{{ 'Grand Total' | translate }}</th>
+            <th class="p-3.5">{{ 'Status' | translate }}</th>
+            <th class="p-3.5 text-right">{{ 'Actions' | translate }}</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-[var(--border-color)] text-[var(--text-main)]">
           <tr *ngFor="let inv of filteredInvoices()" class="hover:bg-slate-50/80 dark:hover:bg-slate-800/50">
             <td class="p-3.5 font-mono text-[11px] font-bold text-blue-600">{{ inv.invoiceNumber }}</td>
             <td class="p-3.5 font-bold">{{ inv.customerName }}</td>
-            <td class="p-3.5 text-slate-500">{{ inv.issueDate }}</td>
-            <td class="p-3.5 text-slate-500">{{ inv.dueDate }}</td>
+            <td class="p-3.5 text-slate-500">{{ inv.issueDate | appDate }}</td>
+            <td class="p-3.5 text-slate-500">{{ inv.dueDate | appDate }}</td>
             <td class="p-3.5 text-right font-medium">${{ inv.amount | number }}</td>
             <td class="p-3.5 text-right text-slate-500">${{ inv.tax | number }}</td>
             <td class="p-3.5 text-right font-black text-emerald-600">${{ inv.totalAmount | number }}</td>
             <td class="p-3.5">
               <span class="status-badge" [class.approved]="inv.status === 'Paid'" [class.pending]="inv.status === 'Pending'" [class.inactive]="inv.status === 'Overdue'">
-                {{ inv.status }}
+                {{ inv.status | translate }}
               </span>
             </td>
             <td class="p-3.5 text-right">
-              <button *ngIf="inv.status === 'Pending'" (click)="markAsPaid(inv.id)" class="px-2.5 py-1 bg-emerald-600 text-white font-bold rounded text-[11px]">Mark Paid</button>
-              <span *ngIf="inv.status === 'Paid'" class="text-[11px] text-slate-400 font-medium">Cleared</span>
+              <button *ngIf="inv.status === 'Pending'" (click)="markAsPaid(inv.id)" class="px-2.5 py-1 bg-emerald-600 text-white font-bold rounded text-[11px]">{{ 'Mark Paid' | translate }}</button>
+              <span *ngIf="inv.status === 'Paid'" class="text-[11px] text-slate-400 font-medium">{{ 'Cleared' | translate }}</span>
             </td>
           </tr>
         </tbody>
@@ -124,28 +124,28 @@
   <div *ngIf="showCreateModal()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
     <div class="w-full max-w-md bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl p-6 space-y-4">
       <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
-        <h3 class="font-bold text-sm text-[var(--text-main)]">Issue New Billing Invoice</h3>
+        <h3 class="font-bold text-sm text-[var(--text-main)]">{{ 'Issue New Billing Invoice' | translate }}</h3>
         <button (click)="showCreateModal.set(false)" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times"></i></button>
       </div>
 
       <div class="space-y-3 text-xs">
         <div>
-          <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">Customer / Client Name</label>
+          <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'Customer / Client Name' | translate }}</label>
           <input type="text" [(ngModel)]="newInvoice.customerName" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" placeholder="e.g. Acme Corp" />
         </div>
         <div>
-          <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">Net Invoice Amount ($)</label>
+          <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'Net Invoice Amount ($)' | translate }}</label>
           <input type="number" [(ngModel)]="newInvoice.amount" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
         </div>
         <div>
-          <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">Due Date</label>
+          <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'Due Date' | translate }}</label>
           <input type="date" [(ngModel)]="newInvoice.dueDate" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
         </div>
       </div>
 
       <div class="pt-3 border-t border-[var(--border-color)] flex justify-end gap-2">
-        <button (click)="showCreateModal.set(false)" class="btn-outline text-xs">Cancel</button>
-        <button (click)="createInvoice()" class="btn-primary text-xs">Issue Invoice</button>
+        <button (click)="showCreateModal.set(false)" class="btn-outline text-xs">{{ 'Cancel' | translate }}</button>
+        <button (click)="createInvoice()" class="btn-primary text-xs">{{ 'Issue Invoice' | translate }}</button>
       </div>
     </div>
   </div>

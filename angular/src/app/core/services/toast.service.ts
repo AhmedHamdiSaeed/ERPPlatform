@@ -1,4 +1,6 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
+import { TranslationService } from './translation.service';
+import { StateService } from './state.service';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
@@ -15,18 +17,26 @@ export interface ToastItem {
   providedIn: 'root'
 })
 export class ToastService {
+  private translation = inject(TranslationService, { optional: true });
+  private state = inject(StateService, { optional: true });
+
   toasts = signal<ToastItem[]>([]);
 
   show(message: string, type: ToastType = 'info', title?: string, duration: number = 4000) {
     const id = `toast-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`;
-    const defaultTitle = title || this.getDefaultTitle(type);
-    const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const isAr = this.state ? this.state.lang() === 'ar' : false;
+    const defaultTitle = title || this.getDefaultTitle(type, isAr);
+    const timestamp = new Date().toLocaleTimeString(isAr ? 'ar-EG' : 'en-US', { hour: '2-digit', minute: '2-digit' });
+
+    // Localize message and title according to current language
+    const localizedMessage = this.translation ? this.translation.get(message) : message;
+    const localizedTitle = this.translation ? this.translation.get(defaultTitle) : defaultTitle;
 
     const newToast: ToastItem = {
       id,
       type,
-      title: defaultTitle,
-      message,
+      title: localizedTitle,
+      message: localizedMessage,
       duration,
       timestamp
     };
@@ -64,7 +74,15 @@ export class ToastService {
     this.toasts.set([]);
   }
 
-  private getDefaultTitle(type: ToastType): string {
+  private getDefaultTitle(type: ToastType, isAr: boolean = false): string {
+    if (isAr) {
+      switch (type) {
+        case 'success': return 'نجاح';
+        case 'error': return 'خطأ';
+        case 'warning': return 'تنبيه';
+        case 'info': return 'إشعار';
+      }
+    }
     switch (type) {
       case 'success': return 'Success';
       case 'error': return 'Error';

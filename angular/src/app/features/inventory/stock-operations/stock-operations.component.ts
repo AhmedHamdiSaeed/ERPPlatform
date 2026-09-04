@@ -1,6 +1,9 @@
 import { Component, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ToastService } from '../../../core/services/toast.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { AppDatePipe } from '../../../shared/pipes/app-date.pipe';
 
 export interface StockOperationLog {
   id: string;
@@ -17,7 +20,7 @@ export interface StockOperationLog {
 @Component({
   selector: 'app-stock-operations',
   standalone: true,
-  imports: [FormsModule],
+  imports: [CommonModule, FormsModule, TranslatePipe, AppDatePipe],
   templateUrl: './stock-operations.component.html'
 })
 export class StockOperationsComponent {

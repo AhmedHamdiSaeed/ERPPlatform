@@ -5,17 +5,21 @@ import { RouterModule } from '@angular/router';
 import { SalesApiService, SalesQuotation } from '../../../core/services/api/sales-api.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { DialogService } from '../../../core/services/dialog.service';
+import { TranslationService } from '../../../core/services/translation.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { AppDatePipe } from '../../../shared/pipes/app-date.pipe';
 
 @Component({
   selector: 'app-sales-quotations',
   standalone: true,
-  imports: [FormsModule, RouterModule, CommonModule],
+  imports: [FormsModule, RouterModule, CommonModule, TranslatePipe, AppDatePipe],
   templateUrl: './sales-quotations.component.html'
 })
 export class SalesQuotationsComponent {
   private salesApi = inject(SalesApiService);
   private toast = inject(ToastService);
   private dialog = inject(DialogService);
+  private translation = inject(TranslationService);
 
   quotations = signal<SalesQuotation[]>([]);
   statusFilter = signal<string>('ALL');
@@ -70,10 +74,10 @@ export class SalesQuotationsComponent {
 
   async convertToInvoice(id: string) {
     const confirmed = await this.dialog.confirm({
-      title: 'Convert Quotation to Invoice',
-      message: 'Are you sure you want to convert this quotation into a formal sales invoice?',
-      confirmText: 'Convert Now',
-      cancelText: 'Cancel'
+      title: this.translation.get('Convert Quotation to Invoice'),
+      message: this.translation.get('Are you sure you want to convert this quotation into a formal sales invoice?'),
+      confirmText: this.translation.get('Convert Now'),
+      cancelText: this.translation.get('Cancel')
     });
 
     if (confirmed) {

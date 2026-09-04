@@ -1,12 +1,15 @@
 import { Component, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PurchaseApiService, GoodsReceiptItem } from '../../../core/services/api/purchase-api.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { AppDatePipe } from '../../../shared/pipes/app-date.pipe';
 
 @Component({
   selector: 'app-goods-receipts',
   standalone: true,
-  imports: [FormsModule],
+  imports: [CommonModule, FormsModule, TranslatePipe, AppDatePipe],
   templateUrl: './goods-receipts.component.html'
 })
 export class GoodsReceiptsComponent {

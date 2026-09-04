@@ -1,5 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
-import { LocalizationPipe } from '@abp/ng.core';
+import { CommonModule } from '@angular/common';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { Candidate } from '../../../core/models/erp-models';
 import { RecruitmentApiService } from '../../../core/services/api/recruitment-api.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -9,7 +10,7 @@ type StageType = 'Applied' | 'Screening' | 'Interview' | 'Technical' | 'Offer' |
 @Component({
   selector: 'app-recruitment-kanban',
   standalone: true,
-  imports: [LocalizationPipe],
+  imports: [CommonModule, TranslatePipe],
   templateUrl: './recruitment-kanban.component.html'
 })
 export class RecruitmentKanbanComponent {

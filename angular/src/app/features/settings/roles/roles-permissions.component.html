@@ -1,13 +1,13 @@
 <div class="space-y-6 animate-fade-in pb-8">
   <div class="flex items-center justify-between">
     <div>
-      <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">Role-Based Access Control (RBAC)</h1>
+      <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">{{ 'Role-Based Access Control (RBAC)' | translate }}</h1>
       <p class="text-xs text-[var(--text-muted)] mt-0.5">
-        Pick a role, open a module, then set page permissions and the data scope for that page.
+        {{ 'Open a module to configure its pages. Scoped pages also control which records are visible.' | translate }}
       </p>
     </div>
     <button (click)="openCreateModal()" class="btn-primary text-xs flex items-center gap-2">
-      <i class="pi pi-plus"></i> Create Role
+      <i class="pi pi-plus"></i> {{ 'Create New Role' | translate }}
     </button>
   </div>
 
@@ -16,13 +16,13 @@
     <!-- Roles Column -->
     <div class="card-panel space-y-3">
       <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
-        <h3 class="font-bold text-xs text-[var(--text-main)]">System Roles</h3>
-        <span class="text-[10px] text-[var(--text-muted)] font-mono">{{ roles().length }} roles</span>
+        <h3 class="font-bold text-xs text-[var(--text-main)]">{{ 'System Roles' | translate }}</h3>
+        <span class="text-[10px] text-[var(--text-muted)] font-mono">{{ roles().length }} {{ 'roles' | translate }}</span>
       </div>
 
       @if (loadingRoles()) {
         <div class="text-xs text-[var(--text-muted)] flex items-center gap-2">
-          <i class="pi pi-spin pi-spinner"></i> Loading roles…
+          <i class="pi pi-spin pi-spinner"></i> {{ 'Loading roles…' | translate }}
         </div>
       }
 
@@ -36,14 +36,14 @@
               <span class="font-bold text-xs text-[var(--text-main)]">{{ r.name }}</span>
               @if (r.userCount !== undefined) {
                 <span class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-[10px] font-bold rounded-full text-[var(--text-muted)]">
-                  {{ r.userCount }} users
+                  {{ r.userCount }} {{ 'users' | translate }}
                 </span>
               }
             </div>
           </div>
         } @empty {
           @if (!loadingRoles()) {
-            <p class="text-xs text-[var(--text-muted)]">No roles found.</p>
+            <p class="text-xs text-[var(--text-muted)]">{{ 'No roles found.' | translate }}</p>
           }
         }
       </div>
@@ -54,28 +54,28 @@
       <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
         <div>
           <h3 class="font-bold text-sm text-[var(--text-main)]">
-            Access Policy: <span class="text-blue-600 dark:text-blue-400">{{ selectedRole()?.name }}</span>
+            {{ 'Access Policy:' | translate }} <span class="text-blue-600 dark:text-blue-400">{{ selectedRole()?.name }}</span>
           </h3>
           <p class="text-[11px] text-[var(--text-muted)]">
-            Open a module to configure its pages. Scoped pages also control which records are visible.
+            {{ 'Open a module to configure its pages. Scoped pages also control which records are visible.' | translate }}
           </p>
         </div>
         <div class="flex items-center gap-2">
           <button (click)="expandAll()" class="px-2.5 py-1.5 text-[11px] font-bold rounded-lg bg-slate-100 dark:bg-slate-700 text-[var(--text-muted)] hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
-            Expand all
+            {{ 'Expand all' | translate }}
           </button>
           <button (click)="collapseAll()" class="px-2.5 py-1.5 text-[11px] font-bold rounded-lg bg-slate-100 dark:bg-slate-700 text-[var(--text-muted)] hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
-            Collapse
+            {{ 'Collapse' | translate }}
           </button>
           <button (click)="save()" [disabled]="saving()" class="btn-primary text-xs flex items-center gap-2">
-            <i [class]="saving() ? 'pi pi-spin pi-spinner' : 'pi pi-check'"></i> Save Policy
+            <i [class]="saving() ? 'pi pi-spin pi-spinner' : 'pi pi-check'"></i> {{ 'Save Policy' | translate }}
           </button>
         </div>
       </div>
 
       @if (loadingPermissions()) {
         <div class="text-xs text-[var(--text-muted)] flex items-center gap-2 py-4">
-          <i class="pi pi-spin pi-spinner"></i> Loading permissions…
+          <i class="pi pi-spin pi-spinner"></i> {{ 'Loading permissions…' | translate }}
         </div>
       }
 
@@ -89,8 +89,8 @@
                     class="w-full flex items-center justify-between gap-3 px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/40 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-left">
               <div class="flex items-center gap-2.5 min-w-0">
                 <i [class]="module.icon + ' text-blue-600 dark:text-blue-400 text-xs'"></i>
-                <span class="font-bold text-xs text-[var(--text-main)] truncate">{{ module.name }}</span>
-                <span class="text-[10px] text-[var(--text-muted)] font-mono">{{ module.pages.length }} pages</span>
+                <span class="font-bold text-xs text-[var(--text-main)] truncate">{{ module.name | translate }}</span>
+                <span class="text-[10px] text-[var(--text-muted)] font-mono">{{ module.pages.length }} {{ 'pages' | translate }}</span>
               </div>
               <div class="flex items-center gap-2 shrink-0">
                 <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">
@@ -111,10 +111,10 @@
                             class="w-full flex items-center justify-between gap-3 px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors text-left">
                       <div class="flex items-center gap-2.5 min-w-0">
                         <i [class]="isPageExpanded(page.key) ? 'pi pi-chevron-down text-[10px] text-[var(--text-muted)]' : 'pi pi-chevron-right text-[10px] text-[var(--text-muted)]'"></i>
-                        <span class="text-xs font-semibold text-[var(--text-main)] truncate">{{ page.name }}</span>
+                        <span class="text-xs font-semibold text-[var(--text-main)] truncate">{{ page.name | translate }}</span>
                         @if (page.supportsScope) {
                           <span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300">
-                            Scoped
+                            {{ 'Scoped' | translate }}
                           </span>
                         }
                       </div>
@@ -124,7 +124,7 @@
                         </span>
                         @if (page.supportsScope) {
                           <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
-                            {{ scopeLabel(page.key) }}
+                            {{ scopeLabel(page.key) | translate }}
                           </span>
                         }
                       </div>
@@ -136,26 +136,26 @@
 
                         <!-- Permissions -->
                         <div>
-                          <p class="text-[10px] font-bold uppercase tracking-wide text-[var(--text-muted)] mb-1.5">Permissions</p>
+                          <p class="text-[10px] font-bold uppercase tracking-wide text-[var(--text-muted)] mb-1.5">{{ 'Permissions' | translate }}</p>
                           <div class="flex flex-wrap gap-x-5 gap-y-1.5">
                             @for (action of actions; track action) {
                               <label class="flex items-center gap-1.5 text-xs cursor-pointer select-none"
                                      [class.opacity-40]="!isDefined(page, action)"
                                      [class.cursor-not-allowed]="!isDefined(page, action)"
-                                     [title]="isDefined(page, action) ? permissionName(page, action) : 'This permission is not defined in the backend yet'">
+                                     [title]="isDefined(page, action) ? permissionName(page, action) : ('This permission is not defined in the backend yet' | translate)">
                                 <input type="checkbox"
                                        [checked]="isGranted(page, action)"
                                        [disabled]="!isDefined(page, action)"
                                        (change)="togglePermission(page, action)"
                                        class="rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
-                                <span class="text-[var(--text-main)]">{{ action }}</span>
+                                <span class="text-[var(--text-main)]">{{ action | translate }}</span>
                               </label>
                             }
                           </div>
                           @if (!isDefined(page, 'View')) {
                             <p class="text-[10px] text-amber-600 dark:text-amber-400 mt-1.5">
                               <i class="pi pi-info-circle"></i>
-                              Backend has no permissions defined for this page yet, so toggles are disabled.
+                              {{ 'Backend has no permissions defined for this page yet, so toggles are disabled.' | translate }}
                             </p>
                           }
                         </div>
@@ -163,13 +163,13 @@
                         <!-- Data scope -->
                         @if (page.supportsScope) {
                           <div class="border-t border-[var(--border-color)] pt-2.5">
-                            <p class="text-[10px] font-bold uppercase tracking-wide text-[var(--text-muted)] mb-1.5">Data Scope</p>
+                            <p class="text-[10px] font-bold uppercase tracking-wide text-[var(--text-muted)] mb-1.5">{{ 'Data Scope' | translate }}</p>
 
                             <select [ngModel]="scopeFor(page.key).scopeType"
                                     (ngModelChange)="setScopeType(page.key, $event)"
                                     class="w-full sm:w-64 px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-[var(--text-main)] focus:outline-none focus:border-blue-500">
                               @for (option of scopeOptions; track option.value) {
-                                <option [ngValue]="option.value">{{ option.label }}</option>
+                                <option [ngValue]="option.value">{{ option.label | translate }}</option>
                               }
                             </select>
 
@@ -186,14 +186,14 @@
                                 }
                               </div>
                               <p class="text-[10px] text-[var(--text-muted)] mt-1">
-                                {{ scopeFor(page.key).targetIds.length }} selected
+                                {{ scopeFor(page.key).targetIds.length }} {{ 'selected' | translate }}
                               </p>
                             } @else {
                               @if (scopeFor(page.key).scopeType !== 0) {
                                 <p class="text-[10px] text-[var(--text-muted)] mt-1.5">
                                   @if (scopeFor(page.key).scopeType === 1 || scopeFor(page.key).scopeType === 2) {
                                     <i class="pi pi-info-circle"></i>
-                                    Resolved from the signed-in user's own {{ scopeFor(page.key).scopeType === 1 ? 'department' : 'branch' }}.
+                                    {{ scopeFor(page.key).scopeType === 1 ? ('Resolved from the signed-in user’s own department.' | translate) : ('Resolved from the signed-in user’s own branch.' | translate) }}
                                   }
                                 </p>
                               }
@@ -220,7 +220,7 @@
     <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-6 space-y-5 shadow-2xl">
         <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
-          <h3 class="font-bold text-sm text-slate-800 dark:text-white">Create New Role</h3>
+          <h3 class="font-bold text-sm text-slate-800 dark:text-white">{{ 'Create New Role' | translate }}</h3>
           <button (click)="showCreateModal.set(false)" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
             <i class="pi pi-times text-sm"></i>
           </button>
@@ -228,8 +228,8 @@
 
         <div class="space-y-3">
           <div>
-            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Role Name</label>
-            <input type="text" [(ngModel)]="newRoleName" placeholder="e.g. HR Manager"
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">{{ 'Role Name' | translate }}</label>
+            <input type="text" [(ngModel)]="newRoleName" [placeholder]="'e.g. HR Manager' | translate"
                    class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:border-blue-500" />
           </div>
         </div>
@@ -237,9 +237,9 @@
         <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
           <button (click)="showCreateModal.set(false)"
                   class="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-xl hover:bg-slate-200 transition-colors">
-            Cancel
+            {{ 'Cancel' | translate }}
           </button>
-          <button (click)="createRole()" class="btn-primary text-xs px-4 py-2">Create Role</button>
+          <button (click)="createRole()" class="btn-primary text-xs px-4 py-2">{{ 'Create Role' | translate }}</button>
         </div>
       </div>
     </div>

@@ -1,13 +1,15 @@
 import { Component, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Product } from '../../../core/models/erp-models';
 import { InventoryApiService } from '../../../core/services/api/inventory-api.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [FormsModule],
+  imports: [CommonModule, FormsModule, TranslatePipe],
   templateUrl: './product-list.component.html'
 })
 export class ProductListComponent {

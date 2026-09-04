@@ -1,12 +1,14 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { AppDatePipe } from '../../../shared/pipes/app-date.pipe';
 import { OrgApiService, Currency, TaxConfig } from '../../../core/services/api/org-api.service';
 import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-currency-tax',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, TranslatePipe],
   templateUrl: './currency-tax.component.html'
 })
 export class CurrencyTaxComponent {

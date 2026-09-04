@@ -1,4 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { AppDatePipe } from '../../../shared/pipes/app-date.pipe';
 import { WorkflowExecutionLog } from '../../../core/models/erp-models';
 import { WorkflowExecutionApiService } from '../../../core/services/api/workflow-execution-api.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -6,7 +8,7 @@ import { ToastService } from '../../../core/services/toast.service';
 @Component({
   selector: 'app-execution-history',
   standalone: true,
-  imports: [],
+  imports: [TranslatePipe, AppDatePipe],
   templateUrl: './execution-history.component.html'
 })
 export class ExecutionHistoryComponent {

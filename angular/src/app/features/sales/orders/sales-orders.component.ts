@@ -2,6 +2,8 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ToastService } from '../../../core/services/toast.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { AppDatePipe } from '../../../shared/pipes/app-date.pipe';
 
 export interface SalesOrder {
   id: string;
@@ -16,7 +18,7 @@ export interface SalesOrder {
 @Component({
   selector: 'app-sales-orders',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, TranslatePipe, AppDatePipe],
   templateUrl: './sales-orders.component.html'
 })
 export class SalesOrdersComponent {
