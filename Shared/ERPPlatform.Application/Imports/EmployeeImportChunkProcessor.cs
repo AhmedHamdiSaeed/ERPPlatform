@@ -7,9 +7,9 @@ using ERPPlatform.Application.Imports;
 using ERPPlatform.Domain.Imports;
 using ERPPlatform.Imports;
 using ERPPlatform.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Volo.Abp;
+using Volo.Abp.BlobStoring;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Guids;
@@ -228,17 +228,28 @@ public class EmployeeImportChunkProcessor : ITransientDependency
         using var uow = _unitOfWorkManager.Begin(
             new AbpUnitOfWorkOptions { IsTransactional = true }, requiresNew: true);
 
-        var affected = await (await _chunkRepository.GetQueryableAsync())
-            .Where(c => c.Id == chunkId &&
-                        (c.Status == EmployeeImportChunkStatus.Pending || c.Status == EmployeeImportChunkStatus.Failed))
-            .ExecuteUpdateAsync(setters => setters
-                .SetProperty(c => c.Status, EmployeeImportChunkStatus.Processing)
-                .SetProperty(c => c.AttemptCount, c => c.AttemptCount + 1)
-                .SetProperty(c => c.StartedAt, _clock.Now)
-                .SetProperty(c => c.LastError, (string?)null));
+        // Guard the status check in the same query that loads the chunk: only a chunk that is
+        // still Pending (or previously Failed) may be claimed, so two workers racing for the
+        // same chunk cannot both win.
+        var chunk = await _chunkRepository.FindAsync(
+            c => c.Id == chunkId &&
+                 (c.Status == EmployeeImportChunkStatus.Pending || c.Status == EmployeeImportChunkStatus.Failed));
 
+        if (chunk is null)
+        {
+            // Already claimed, already done, or gone — this worker lost the race.
+            await uow.CompleteAsync();
+            return false;
+        }
+
+        chunk.Status = EmployeeImportChunkStatus.Processing;
+        chunk.AttemptCount += 1;
+        chunk.StartedAt = _clock.Now;
+        chunk.LastError = null;
+
+        await _chunkRepository.UpdateAsync(chunk);
         await uow.CompleteAsync();
-        return affected == 1;
+        return true;
     }
 
     private async Task<int> GetAttemptCountAsync(Guid chunkId)
@@ -282,9 +293,8 @@ public class EmployeeImportChunkProcessor : ITransientDependency
             {
                 foreach (var error in outcome.Errors)
                 {
-                    errors.Add(new EmployeeImportError
+                    errors.Add(new EmployeeImportError(_guidGenerator.Create())
                     {
-                        Id = _guidGenerator.Create(),
                         ImportJobId = job.Id,
                         ChunkId = chunk.Id,
                         RowNumber = error.RowNumber,
@@ -501,7 +511,7 @@ public class EmployeeImportChunkProcessor : ITransientDependency
 public class EmployeeImportChunkException : BusinessException
 {
     public EmployeeImportChunkException(string message, Exception? innerException = null)
-        : base(EmployeeImportErrorCodes.ChunkFailed, message, innerException)
+        : base(EmployeeImportErrorCodes.ChunkFailed, message, details: null, innerException: innerException)
     {
     }
 }

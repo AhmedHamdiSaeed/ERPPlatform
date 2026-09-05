@@ -376,6 +376,20 @@ public class EmployeeImportAppService : ERPPlatformAppService, IEmployeeImportAp
         return query.OrderBy(j => j.CreationTime);
     }
 
+    /// <summary>
+    /// Errors are most useful in spreadsheet order — CreationTime is near-identical for every
+    /// row in a chunk, so sorting by it would look random to the user reviewing the failures.
+    /// </summary>
+    private static IQueryable<EmployeeImportError> ApplySorting(IQueryable<EmployeeImportError> query, EmployeeImportErrorListInput input)
+    {
+        if (!string.IsNullOrWhiteSpace(input.Sorting) && input.Sorting.Contains("desc", StringComparison.OrdinalIgnoreCase))
+        {
+            return query.OrderByDescending(e => e.RowNumber);
+        }
+
+        return query.OrderBy(e => e.RowNumber);
+    }
+
     private static IQueryable<T> ApplyPaging<T>(IQueryable<T> query, PagedResultRequestDto input)
     {
         return query

@@ -9,6 +9,17 @@ namespace ERPPlatform.Domain.Imports;
 /// </summary>
 public class EmployeeImportError : Entity<Guid>
 {
+    /// <summary>
+    /// Parameterless constructor is required by ABP; the framework assigns the Id on insert.
+    /// Use the (Guid id) overload when you already have a generated Id and need it in the object graph.
+    /// </summary>
+    public EmployeeImportError() { }
+
+    public EmployeeImportError(Guid id)
+    {
+        Id = id;
+    }
+
     public Guid ImportJobId { get; set; }
 
     public Guid? ChunkId { get; set; }

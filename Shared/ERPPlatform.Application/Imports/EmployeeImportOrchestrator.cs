@@ -6,6 +6,7 @@ using ERPPlatform.Domain.Imports;
 using ERPPlatform.Imports;
 using Microsoft.Extensions.Options;
 using Volo.Abp;
+using Volo.Abp.BlobStoring;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Guids;
