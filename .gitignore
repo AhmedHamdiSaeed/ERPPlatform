@@ -255,6 +255,12 @@ paket-files/
 Host/ERPPlatform.HttpApi.Host/Logs/*
 Shared/ERPPlatform.DbMigrator/Logs/*
 
+# ── Secrets & Environment (NEVER commit) ──
+**/appsettings.secrets.json
+.env
+.env.*
+!.env.example
+
 # Use abp install-libs to restore.
 **/wwwroot/libs/*
 

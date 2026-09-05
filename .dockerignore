@@ -1,0 +1,44 @@
+# ── Build artifacts ──
+**/bin/
+**/obj/
+**/out/
+
+# ── Node ──
+**/node_modules/
+**/dist/
+**/.angular/
+
+# ── Git ──
+.git/
+.gitignore
+.gitattributes
+
+# ── IDE / Editor ──
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.sln.docstates
+
+# ── Logs ──
+**/Logs/
+**/*.log
+
+# ── Tests ──
+test/
+**/TestResults/
+
+# ── Docker (prevent recursive context) ──
+docker-compose*.yml
+Dockerfile*
+
+# ── Misc ──
+*.md
+!README.md
+*.zip
+.github/
+.config/
+.workbuddy-ai/
+mobile/
+tools/

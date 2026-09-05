@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { SignalrService } from '../../shared/services/signalr.service';
 import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from 'src/app/shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-notifications',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule,TranslatePipe],
   template: `
     <div class="min-h-screen bg-slate-50 dark:bg-slate-900 py-8 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
       <div class="max-w-3xl mx-auto">
@@ -37,8 +38,8 @@ import { FormsModule } from '@angular/forms';
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
               </svg>
             </div>
-            <h3 class="text-lg font-medium text-slate-900 dark:text-white">No notifications yet</h3>
-            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">When someone sends a notification, it will appear here.</p>
+            <h3 class="text-lg font-medium text-slate-900 dark:text-white">{{ 'NoNotificationsYet' | translate }}</h3>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ 'NoNotificationsYetDescription' | translate }}</p>
           </div>
 
           <!-- List -->

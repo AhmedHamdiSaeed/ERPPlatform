@@ -13,6 +13,7 @@ using Volo.Abp.SettingManagement.EntityFrameworkCore;
 using Volo.Abp.TenantManagement;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
 using ERPPlatform.Domain.Entities;
+using ERPPlatform.Domain.Imports;
 using ERPPlatform.Documents;
 
 namespace ERPPlatform.EntityFrameworkCore;
@@ -151,6 +152,11 @@ public class ERPPlatformDbContext :
 
     // Role Data Scope DbSets (per-role, per-page row-level scoping)
     public DbSet<RolePageScope> RolePageScopes { get; set; }
+
+    // Resumable Employee Excel Import DbSets
+    public DbSet<EmployeeImportJob> EmployeeImportJobs { get; set; }
+    public DbSet<EmployeeImportChunk> EmployeeImportChunks { get; set; }
+    public DbSet<EmployeeImportError> EmployeeImportErrors { get; set; }
 
     public ERPPlatformDbContext(DbContextOptions<ERPPlatformDbContext> options)
         : base(options)
@@ -320,6 +326,50 @@ public class ERPPlatformDbContext :
         {
             b.HasIndex(x => new { x.RoleName, x.PageKey });
             b.HasIndex(x => x.PageKey);
+        });
+
+        // ── Employee Excel Import ────────────────────────────────
+        builder.Entity<EmployeeImportJob>(b =>
+        {
+            b.ToTable(ERPPlatformConsts.DbTablePrefix + "EmployeeImportJobs", ERPPlatformConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.FileName).IsRequired().HasMaxLength(512);
+            b.Property(x => x.StorageKey).IsRequired().HasMaxLength(1024);
+            b.Property(x => x.FileHash).HasMaxLength(128);
+            // "Same user submitting the same file while it is still running" is the
+            // duplicate-submission guard the UI relies on.
+            b.HasIndex(x => new { x.CreatorId, x.FileHash, x.Status });
+            b.Property(x => x.CreatedByUserName).HasMaxLength(256);
+            b.Property(x => x.LastError).HasMaxLength(EmployeeImportConsts.MaxErrorMessageLength);
+            b.HasIndex(x => x.Status);
+            b.HasIndex(x => x.CreationTime);
+            b.HasIndex(x => x.CreatedByUserName);
+        });
+
+        builder.Entity<EmployeeImportChunk>(b =>
+        {
+            b.ToTable(ERPPlatformConsts.DbTablePrefix + "EmployeeImportChunks", ERPPlatformConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.LastError).HasMaxLength(EmployeeImportConsts.MaxErrorMessageLength);
+            b.Property(x => x.HangfireJobId).HasMaxLength(128);
+
+            // One chunk row per (job, chunk number) — the natural key the resume
+            // logic uses, and the guard against duplicate chunk creation.
+            b.HasIndex(x => new { x.ImportJobId, x.ChunkNumber }).IsUnique();
+
+            // Speeds up "find the next chunk that still needs work".
+            b.HasIndex(x => new { x.ImportJobId, x.Status });
+        });
+
+        builder.Entity<EmployeeImportError>(b =>
+        {
+            b.ToTable(ERPPlatformConsts.DbTablePrefix + "EmployeeImportErrors", ERPPlatformConsts.DbSchema);
+            b.ConfigureByConvention();
+            b.Property(x => x.ColumnName).HasMaxLength(128);
+            b.Property(x => x.Value).HasMaxLength(EmployeeImportConsts.MaxErrorValueLength);
+            b.Property(x => x.ErrorMessage).IsRequired().HasMaxLength(EmployeeImportConsts.MaxErrorMessageLength);
+            b.HasIndex(x => x.ImportJobId);
+            b.HasIndex(x => x.ChunkId);
         });
     }
 }

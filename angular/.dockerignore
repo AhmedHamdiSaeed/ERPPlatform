@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.angular/
+.git/
+*.md
+.editorconfig
+.eslintrc.json
+.prettierrc
+karma.conf.js
+tsconfig.spec.json
+*.log

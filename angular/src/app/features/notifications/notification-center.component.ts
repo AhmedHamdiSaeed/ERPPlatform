@@ -2,11 +2,12 @@ import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { NotificationItem } from '../../core/models/erp-models';
 import { StateService } from '../../core/services/state.service';
+import { TranslatePipe } from 'src/app/shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-notification-center',
   standalone: true,
-  imports: [RouterModule],
+  imports: [RouterModule,TranslatePipe],
   templateUrl: './notification-center.component.html'
 })
 export class NotificationCenterComponent {

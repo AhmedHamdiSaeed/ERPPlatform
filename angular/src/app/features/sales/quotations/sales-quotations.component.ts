@@ -82,7 +82,8 @@ export class SalesQuotationsComponent {
 
     if (confirmed) {
       await this.salesApi.convertToInvoice(id);
-      this.toast.success('Quotation converted to Sales Invoice!');
+      this.toast.success(  this.translation.get('QuotationConvertedToSalesInvoice')
+);
       await this.loadQuotations();
     }
   }

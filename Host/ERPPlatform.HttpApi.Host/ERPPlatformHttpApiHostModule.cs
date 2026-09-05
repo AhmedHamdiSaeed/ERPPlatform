@@ -46,6 +46,10 @@ using ERPPlatform.Modules.Workflow;
 using ERPPlatform.Modules.AI;
 using ERPPlatform.Dapper.Queries;
 using ERPPlatform.Hubs;
+using ERPPlatform.Imports;
+using ERPPlatform.Application.Imports;
+using Hangfire;
+using Hangfire.SqlServer;
 
 namespace ERPPlatform;
 
@@ -109,6 +113,8 @@ public class ERPPlatformHttpApiHostModule : AbpModule
         ConfigureBlobStoring(context);
         ConfigureRateLimiting(context);
         ConfigureTokenLifetimes(context);
+        ConfigureEmployeeImport(context, configuration);
+        ConfigureHangfire(context, configuration);
 
         Configure<AbpMvcLibsOptions>(options =>
         {
@@ -167,6 +173,53 @@ public class ERPPlatformHttpApiHostModule : AbpModule
         {
             options.AccessTokenLifetime = TimeSpan.FromMinutes(accessTokenMinutes);
             options.RefreshTokenLifetime = TimeSpan.FromDays(refreshTokenDays);
+        });
+    }
+
+    /// <summary>
+    /// Binds the <c>EmployeeImport</c> config section and registers the Host-side
+    /// implementations of the application-layer abstractions (scheduler -> Hangfire,
+    /// notifier -> SignalR). The maintenance hosted service self-registers via
+    /// <see cref="Volo.Abp.DependencyInjection.ISingletonDependency"/>.
+    /// </summary>
+    private void ConfigureEmployeeImport(ServiceConfigurationContext context, IConfiguration configuration)
+    {
+        Configure<EmployeeImportOptions>(configuration.GetSection("EmployeeImport"));
+
+        context.Services.AddTransient<IEmployeeImportJobScheduler, EmployeeImportHangfireScheduler>();
+        context.Services.AddTransient<IEmployeeImportNotifier, EmployeeImportSignalRNotifier>();
+        context.Services.AddTransient<IEmployeeImportScheduleArgsFactory, EmployeeImportScheduleArgsFactory>();
+    }
+
+    /// <summary>
+    /// Hangfire backing store + worker server. The worker only drains the dedicated
+    /// <c>employee-import</c> queue (plus <c>default</c>), so import work is isolated
+    /// from any other background processing and vice-versa. The dashboard is exposed
+    /// only in Development; in production it must sit behind authenticated/app-authorised
+    /// middleware.
+    /// </summary>
+    private void ConfigureHangfire(ServiceConfigurationContext context, IConfiguration configuration)
+    {
+        var connectionString = configuration.GetConnectionString("Default");
+
+        context.Services.AddHangfire(config => config
+            .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UseSqlServerStorage(connectionString, new SqlServerStorageOptions
+            {
+                CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+                SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+                QueuePollInterval = TimeSpan.FromSeconds(15),
+                UseRecommendedIsolationLevel = true,
+                DisableGlobalLocks = true
+            }));
+
+        context.Services.AddHangfireServer(options =>
+        {
+            options.Queues = new[] { "employee-import", "default" };
+            options.WorkerCount = Math.Max(Environment.ProcessorCount, 2);
+            options.ServerName = $"{Environment.MachineName}:employee-import";
         });
     }
 
@@ -392,10 +445,28 @@ public class ERPPlatformHttpApiHostModule : AbpModule
             c.OAuthScopes("ERPPlatform");
         });
 
+        if (env.IsDevelopment())
+        {
+            app.UseHangfireDashboard("/hangfire", new DashboardOptions
+            {
+                Authorization = new[] { new HangfireDashboardAllowAllFilter() }
+            });
+        }
+
         app.UseAuditing();
         app.UseAbpSerilogEnrichers();
         app.UseConfiguredEndpoints();
     }
+}
+
+/// <summary>
+/// Development-only, unauthenticated access to the Hangfire dashboard. This is NOT
+/// safe for production — replace with a real policy/role check before exposing the
+/// dashboard on a public endpoint.
+/// </summary>
+public class HangfireDashboardAllowAllFilter : Hangfire.Dashboard.IDashboardAuthorizationFilter
+{
+    public bool Authorize(Hangfire.Dashboard.DashboardContext context) => true;
 }
 
 public class RouteNormalizationConvention : IApplicationModelConvention

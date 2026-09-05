@@ -2,6 +2,7 @@
   "culture": "ar",
   "texts": {
     "AppName": "منصة ERP",
+    "InvalidExcelFile": "يرجى اختيار ملف Excel صالح.",
     "Dashboard:Title": "لوحة التحكم التنفيذية",
     "Dashboard:Subtitle": "نظرة عامة فورية على القوى العاملة والمخزون وسير العمل ومؤشرات المؤسسة.",
     "Dashboard:ExplainWithAi": "الشرح بالذكاء الاصطناعي",
@@ -323,6 +324,14 @@
     "HR:TabPersonalInfo": "المعلومات الشخصية",
     "HR:TabEmployment": "التوظيف",
     "HR:TabDocuments": "المستندات",
-    "HR:TabActivity": "النشاط"
+    "HR:TabActivity": "النشاط",
+
+    "Permission:EmployeeImport": "استيراد الموظفين",
+    "Permission:EmployeeImport:View": "عرض سجل استيراد الموظفين",
+    "Permission:EmployeeImport:Create": "استيراد الموظفين من Excel",
+    "Permission:EmployeeImport:Retry": "إعادة محاولة عمليات الاستيراد الفاشلة",
+    "Permission:EmployeeImport:Cancel": "إلغاء عمليات الاستيراد الجارية",
+    "Permission:EmployeeImport:ViewErrors": "عرض أخطاء استيراد الموظفين",
+    "Permission:EmployeeImport:Delete": "حذف سجل استيراد الموظفين"
   }
 }

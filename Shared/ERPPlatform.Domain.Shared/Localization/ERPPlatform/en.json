@@ -2,6 +2,7 @@
   "culture": "en",
   "texts": {
     "AppName": "ERPPlatform",
+    "InvalidExcelFile": "Please choose a valid Excel file.",
     "Dashboard:Title": "Executive ERP Dashboard",
     "Dashboard:Subtitle": "Real-time overview of workforce, inventory, workflows, and enterprise metrics.",
     "Dashboard:ExplainWithAi": "Explain with AI",
@@ -470,6 +471,13 @@
     "Permission:IntegrationConfigs:Delete": "Delete Integrations",
     "Permission:Settings:Create": "Create Settings",
     "Permission:Settings:Edit": "Edit Settings",
-    "Permission:Settings:Delete": "Delete Settings"
+    "Permission:Settings:Delete": "Delete Settings",
+    "Permission:EmployeeImport": "Employee Import",
+    "Permission:EmployeeImport:View": "View Employee Import History",
+    "Permission:EmployeeImport:Create": "Import Employees from Excel",
+    "Permission:EmployeeImport:Retry": "Retry Failed Employee Imports",
+    "Permission:EmployeeImport:Cancel": "Cancel Running Employee Imports",
+    "Permission:EmployeeImport:ViewErrors": "View Employee Import Errors",
+    "Permission:EmployeeImport:Delete": "Delete Employee Import History"
   }
 }

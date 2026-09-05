@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { WorkflowTask } from '../../../core/models/erp-models';
 import { WorkflowApiService } from '../../../core/services/api/workflow-api.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { TranslatePipe } from 'src/app/shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-my-tasks',
   standalone: true,
-  imports: [FormsModule, RouterModule],
+  imports: [FormsModule, RouterModule,TranslatePipe],
   templateUrl: './my-tasks.component.html'
 })
 export class MyTasksComponent {

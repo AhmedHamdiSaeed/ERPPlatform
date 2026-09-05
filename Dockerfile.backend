@@ -1,0 +1,79 @@
+# ============================================================
+# Stage 1 – Restore NuGet packages
+# ============================================================
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS restore
+
+WORKDIR /src
+
+# Copy solution-level files needed for restore
+COPY common.props .
+COPY NuGet.Config .
+COPY ERPPlatform.slnx .
+
+# Copy all project files (preserving directory structure)
+# ── Host ──
+COPY Host/ERPPlatform.HttpApi.Host/ERPPlatform.HttpApi.Host.csproj Host/ERPPlatform.HttpApi.Host/
+
+# ── Shared ──
+COPY Shared/ERPPlatform.Application/ERPPlatform.Application.csproj Shared/ERPPlatform.Application/
+COPY Shared/ERPPlatform.Application.Contracts/ERPPlatform.Application.Contracts.csproj Shared/ERPPlatform.Application.Contracts/
+COPY Shared/ERPPlatform.Domain/ERPPlatform.Domain.csproj Shared/ERPPlatform.Domain/
+COPY Shared/ERPPlatform.Domain.Shared/ERPPlatform.Domain.Shared.csproj Shared/ERPPlatform.Domain.Shared/
+COPY Shared/ERPPlatform.EntityFrameworkCore/ERPPlatform.EntityFrameworkCore.csproj Shared/ERPPlatform.EntityFrameworkCore/
+COPY Shared/ERPPlatform.HttpApi/ERPPlatform.HttpApi.csproj Shared/ERPPlatform.HttpApi/
+COPY Shared/ERPPlatform.HttpApi.Client/ERPPlatform.HttpApi.Client.csproj Shared/ERPPlatform.HttpApi.Client/
+COPY Shared/ERPPlatform.DbMigrator/ERPPlatform.DbMigrator.csproj Shared/ERPPlatform.DbMigrator/
+
+# ── Modules ──
+COPY Modules/HR/Domain/ERPPlatform.Modules.HR.Domain.csproj Modules/HR/Domain/
+COPY Modules/HR/Application/ERPPlatform.Modules.HR.Application.csproj Modules/HR/Application/
+COPY Modules/HR/EntityFrameworkCore/ERPPlatform.Modules.HR.EntityFrameworkCore.csproj Modules/HR/EntityFrameworkCore/
+COPY Modules/HR/HttpApi/ERPPlatform.Modules.HR.HttpApi.csproj Modules/HR/HttpApi/
+
+COPY Modules/Inventory/Domain/ERPPlatform.Modules.Inventory.Domain.csproj Modules/Inventory/Domain/
+COPY Modules/Inventory/Application/ERPPlatform.Modules.Inventory.Application.csproj Modules/Inventory/Application/
+COPY Modules/Inventory/EntityFrameworkCore/ERPPlatform.Modules.Inventory.EntityFrameworkCore.csproj Modules/Inventory/EntityFrameworkCore/
+COPY Modules/Inventory/HttpApi/ERPPlatform.Modules.Inventory.HttpApi.csproj Modules/Inventory/HttpApi/
+
+COPY Modules/Workflow/Domain/ERPPlatform.Modules.Workflow.Domain.csproj Modules/Workflow/Domain/
+COPY Modules/Workflow/Application/ERPPlatform.Modules.Workflow.Application.csproj Modules/Workflow/Application/
+COPY Modules/Workflow/EntityFrameworkCore/ERPPlatform.Modules.Workflow.EntityFrameworkCore.csproj Modules/Workflow/EntityFrameworkCore/
+COPY Modules/Workflow/HttpApi/ERPPlatform.Modules.Workflow.HttpApi.csproj Modules/Workflow/HttpApi/
+
+COPY Modules/AI/Domain/ERPPlatform.Modules.AI.Domain.csproj Modules/AI/Domain/
+COPY Modules/AI/Application/ERPPlatform.Modules.AI.Application.csproj Modules/AI/Application/
+COPY Modules/AI/EntityFrameworkCore/ERPPlatform.Modules.AI.EntityFrameworkCore.csproj Modules/AI/EntityFrameworkCore/
+COPY Modules/AI/HttpApi/ERPPlatform.Modules.AI.HttpApi.csproj Modules/AI/HttpApi/
+
+# ── Dapper ──
+COPY Dapper/Queries/ERPPlatform.Dapper.Queries.csproj Dapper/Queries/
+
+RUN dotnet restore Host/ERPPlatform.HttpApi.Host/ERPPlatform.HttpApi.Host.csproj
+
+# ============================================================
+# Stage 2 – Build & Publish
+# ============================================================
+FROM restore AS publish
+
+# Copy the full source code
+COPY . .
+
+WORKDIR /src/Host/ERPPlatform.HttpApi.Host
+
+RUN dotnet publish -c Release -o /app/publish --no-restore
+
+# ============================================================
+# Stage 3 – Runtime
+# ============================================================
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
+
+WORKDIR /app
+
+EXPOSE 8080
+
+ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_ENVIRONMENT=Production
+
+COPY --from=publish /app/publish .
+
+ENTRYPOINT ["dotnet", "ERPPlatform.HttpApi.Host.dll"]

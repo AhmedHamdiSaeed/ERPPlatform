@@ -59,6 +59,23 @@ public class ERPPlatformPermissionDefinitionProvider : PermissionDefinitionProvi
         DefinePage(myGroup, "ERPPlatform.Currencies");
         DefinePage(myGroup, "ERPPlatform.IntegrationConfigs");
         DefinePage(myGroup, "ERPPlatform.Settings");
+
+        DefineEmployeeImport(myGroup);
+    }
+
+    /// <summary>
+    /// Employee import needs more than View/Create/Edit/Delete, so it is defined
+    /// explicitly. Names mirror <see cref="ERPPlatformPermissions.EmployeeImport"/>.
+    /// </summary>
+    private static void DefineEmployeeImport(PermissionGroupDefinition group)
+    {
+        var page = group.AddPermission(ERPPlatformPermissions.EmployeeImport.Default, L("Permission:EmployeeImport"));
+        page.AddChild(ERPPlatformPermissions.EmployeeImport.View, L("Permission:EmployeeImport:View"));
+        page.AddChild(ERPPlatformPermissions.EmployeeImport.Create, L("Permission:EmployeeImport:Create"));
+        page.AddChild(ERPPlatformPermissions.EmployeeImport.Retry, L("Permission:EmployeeImport:Retry"));
+        page.AddChild(ERPPlatformPermissions.EmployeeImport.Cancel, L("Permission:EmployeeImport:Cancel"));
+        page.AddChild(ERPPlatformPermissions.EmployeeImport.ViewErrors, L("Permission:EmployeeImport:ViewErrors"));
+        page.AddChild(ERPPlatformPermissions.EmployeeImport.Delete, L("Permission:EmployeeImport:Delete"));
     }
 
     private static void DefinePage(PermissionGroupDefinition group, string key)

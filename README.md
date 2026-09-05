@@ -53,6 +53,79 @@ npm start
 
 ---
 
+## 🐳 Docker Quick Start (Recommended)
+
+Run the entire platform with a single command — no need to install .NET SDK, Node.js, or SQL Server on your machine.
+
+### Pre-requisites
+* [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
+
+---
+
+### 🧪 Testing / Development Mode (Local Database)
+
+Spins up a local SQL Server container with a fresh database:
+
+```bash
+docker compose up --build
+```
+
+This will:
+1. Start a **SQL Server 2022** container with a local database
+2. Build and start the **.NET 9 Backend API** (with auto DB migration)
+3. Build and start the **Angular 20 Frontend** served via Nginx
+
+| Service | URL |
+| :--- | :--- |
+| **Frontend App** | `http://localhost:4200` |
+| **Backend API (Swagger)** | `http://localhost:8080/swagger` |
+| **SQL Server** | `localhost:1433` (User: `sa` / Password: `ERPPlatform_Dev123!`) |
+
+```bash
+# Stop (keeps database data)
+docker compose down
+
+# Stop and DELETE database (fresh start)
+docker compose down -v
+```
+
+---
+
+### 🚀 Production Mode (Remote Database)
+
+Connects to the remote production database — no local SQL Server container needed:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build
+```
+
+```bash
+# Stop production containers
+docker compose -f docker-compose.yml -f docker-compose.prod.yml down
+```
+
+| Service | URL |
+| :--- | :--- |
+| **Frontend App** | `http://localhost:4200` |
+| **Backend API (Swagger)** | `http://localhost:8080/swagger` |
+
+---
+
+### Build Individual Containers
+
+```bash
+# Build only the backend
+docker compose build backend
+
+# Build only the frontend
+docker compose build frontend
+
+# Rebuild everything from scratch (no cache)
+docker compose build --no-cache
+```
+
+---
+
 ## 🔑 Demo & Admin Accounts
 
 You can log in using **Email Address**, **Username**, or **Mobile Phone Number**:
