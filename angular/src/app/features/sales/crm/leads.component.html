@@ -23,6 +23,12 @@
     <button (click)="statusFilter.set('Opportunity')" [class.text-blue-600]="statusFilter() === 'Opportunity'" [class.border-blue-600]="statusFilter() === 'Opportunity'" class="pb-3 border-b-2 transition-colors cursor-pointer">
       {{ 'Opportunity' | translate }}
     </button>
+    <button (click)="statusFilter.set('Converted')" [class.text-blue-600]="statusFilter() === 'Converted'" [class.border-blue-600]="statusFilter() === 'Converted'" class="pb-3 border-b-2 transition-colors cursor-pointer">
+      {{ 'Converted' | translate }}
+    </button>
+    <button (click)="statusFilter.set('Lost')" [class.text-blue-600]="statusFilter() === 'Lost'" [class.border-blue-600]="statusFilter() === 'Lost'" class="pb-3 border-b-2 transition-colors cursor-pointer">
+      {{ 'Lost' | translate }}
+    </button>
   </div>
 
   <div class="card-panel overflow-x-auto">
@@ -32,6 +38,7 @@
           <th class="p-3">{{ 'Contact Name' | translate }}</th>
           <th class="p-3">{{ 'Company' | translate }}</th>
           <th class="p-3">{{ 'Source' | translate }}</th>
+          <th class="p-3">{{ 'Score' | translate }}</th>
           <th class="p-3">{{ 'Salesperson' | translate }}</th>
           <th class="p-3">{{ 'Follow-Up Date' | translate }}</th>
           <th class="p-3">{{ 'Status' | translate }}</th>
@@ -47,22 +54,40 @@
             </td>
             <td class="p-3 font-bold text-blue-600">{{ l.companyName }}</td>
             <td class="p-3"><span class="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded-full text-[10px] font-bold">{{ l.source | translate }}</span></td>
+            <td class="p-3">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold" [class]="scoreClass(l.score)">{{ l.score }}</span>
+            </td>
             <td class="p-3 text-[var(--text-main)] font-medium">{{ l.salespersonName }}</td>
             <td class="p-3 text-amber-600 font-semibold"><i class="pi pi-calendar text-[10px]"></i> {{ l.nextFollowUp }}</td>
             <td class="p-3">
               @if (l.status === 'Opportunity') {
                 <span class="px-2.5 py-0.5 bg-emerald-100 text-emerald-800 font-bold rounded-full text-[10px]">{{ 'Opportunity' | translate }}</span>
+              } @else if (l.status === 'Converted') {
+                <span class="px-2.5 py-0.5 bg-teal-100 text-teal-800 font-bold rounded-full text-[10px]">{{ 'Converted' | translate }}</span>
+              } @else if (l.status === 'Lost') {
+                <span class="px-2.5 py-0.5 bg-rose-100 text-rose-800 font-bold rounded-full text-[10px]">{{ 'Lost' | translate }}</span>
               } @else if (l.status === 'Qualified') {
                 <span class="px-2.5 py-0.5 bg-indigo-100 text-indigo-800 font-bold rounded-full text-[10px]">{{ 'Qualified' | translate }}</span>
               } @else {
                 <span class="px-2.5 py-0.5 bg-blue-100 text-blue-800 font-bold rounded-full text-[10px]">{{ l.status | translate }}</span>
               }
+              @if (l.lostReason) {
+                <span class="block text-[10px] text-[var(--text-muted)]">{{ l.lostReason }}</span>
+              }
             </td>
-            <td class="p-3 flex items-center gap-2">
-              @if (l.status !== 'Opportunity') {
-                <button (click)="convertToOpportunity(l.id)" class="px-2 py-1 bg-emerald-50 text-emerald-700 font-bold text-[10px] rounded-lg border border-emerald-200 hover:bg-emerald-100">
-                  {{ 'Convert' | translate }}
+            <td class="p-3 flex items-center gap-2 flex-wrap">
+              @if (l.status === 'Converted' && l.convertedCustomerId) {
+                <button (click)="openAccount(l)" class="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-[10px] rounded-lg border border-[var(--border-color)] hover:bg-slate-200 dark:hover:bg-slate-700">
+                  <i class="pi pi-id-card mr-1"></i>{{ 'Open Account' | translate }}
                 </button>
+              } @else {
+                @if (l.status === 'New' || l.status === 'Contacted') {
+                  <button (click)="qualify(l.id)" class="px-2 py-1 bg-indigo-50 text-indigo-700 font-bold text-[10px] rounded-lg border border-indigo-200 hover:bg-indigo-100">{{ 'Qualify' | translate }}</button>
+                }
+                @if (l.status !== 'Lost') {
+                  <button (click)="convertToOpportunity(l.id)" class="px-2 py-1 bg-emerald-50 text-emerald-700 font-bold text-[10px] rounded-lg border border-emerald-200 hover:bg-emerald-100">{{ 'Convert' | translate }}</button>
+                  <button (click)="markUnqualified(l.id, l.name)" class="px-2 py-1 bg-rose-50 text-rose-700 font-bold text-[10px] rounded-lg border border-rose-200 hover:bg-rose-100">{{ 'Lost' | translate }}</button>
+                }
               }
               <button (click)="deleteLead(l.id)" class="text-rose-600 hover:underline text-[10px]">{{ 'Delete' | translate }}</button>
             </td>

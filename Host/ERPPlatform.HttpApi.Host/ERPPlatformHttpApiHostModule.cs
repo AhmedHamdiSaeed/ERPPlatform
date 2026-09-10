@@ -3,19 +3,29 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.RateLimiting;
+using Asp.Versioning;
+using ERPPlatform.Application.Imports;
+using ERPPlatform.Dapper.Queries;
+using ERPPlatform.Domain.Imports;
+using ERPPlatform.EntityFrameworkCore;
+using ERPPlatform.Hubs;
+using ERPPlatform.Imports;
+using ERPPlatform.Modules.AI;
+using ERPPlatform.Modules.HR;
+using ERPPlatform.Modules.Inventory;
+using ERPPlatform.Modules.Workflow;
+using ERPPlatform.MultiTenancy;
+using Hangfire;
+using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
-using Microsoft.AspNetCore.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using ERPPlatform.EntityFrameworkCore;
-using ERPPlatform.MultiTenancy;
-using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite;
-using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite.Bundling;
 using Microsoft.OpenApi.Models;
 using OpenIddict.Server;
 using OpenIddict.Validation.AspNetCore;
@@ -24,32 +34,22 @@ using Volo.Abp.Account;
 using Volo.Abp.Account.Web;
 using Volo.Abp.AspNetCore.MultiTenancy;
 using Volo.Abp.AspNetCore.Mvc;
-using Volo.Abp.AspNetCore.Mvc.UI.Bundling;
 using Volo.Abp.AspNetCore.Mvc.Libs;
+using Volo.Abp.AspNetCore.Mvc.UI.Bundling;
+using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite;
+using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite.Bundling;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.Shared;
 using Volo.Abp.AspNetCore.Serilog;
+using Volo.Abp.AspNetCore.SignalR;
 using Volo.Abp.Autofac;
+using Volo.Abp.BlobStoring;
+using Volo.Abp.BlobStoring.FileSystem;
 using Volo.Abp.Localization;
 using Volo.Abp.Modularity;
 using Volo.Abp.Security.Claims;
 using Volo.Abp.Swashbuckle;
 using Volo.Abp.UI.Navigation.Urls;
 using Volo.Abp.VirtualFileSystem;
-using Volo.Abp.AspNetCore.SignalR;
-using Volo.Abp.BlobStoring;
-using Volo.Abp.BlobStoring.FileSystem;
-using Asp.Versioning;
-
-using ERPPlatform.Modules.HR;
-using ERPPlatform.Modules.Inventory;
-using ERPPlatform.Modules.Workflow;
-using ERPPlatform.Modules.AI;
-using ERPPlatform.Dapper.Queries;
-using ERPPlatform.Hubs;
-using ERPPlatform.Imports;
-using ERPPlatform.Application.Imports;
-using Hangfire;
-using Hangfire.SqlServer;
 
 namespace ERPPlatform;
 
@@ -218,7 +218,11 @@ public class ERPPlatformHttpApiHostModule : AbpModule
         context.Services.AddHangfireServer(options =>
         {
             options.Queues = new[] { "employee-import", "default" };
-            options.WorkerCount = Math.Max(Environment.ProcessorCount, 2);
+            // Keep a single worker: the dev DB is SQL Server LocalDB, which shares one
+            // connection pool with EF. Multiple Hangfire workers were exhausting that pool
+            // (SqlException "max pool size was reached" / Named Pipes 40/53/64), starving
+            // every web request. One worker is plenty for the employee-import queue in dev.
+            options.WorkerCount = 1;
             options.ServerName = $"{Environment.MachineName}:employee-import";
         });
     }

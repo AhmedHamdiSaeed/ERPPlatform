@@ -1,6 +1,6 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { CrmApiService, Lead } from '../../../core/services/api/crm-api.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -16,6 +16,7 @@ export class LeadsComponent {
   private crmApi = inject(CrmApiService);
   private toast = inject(ToastService);
   private dialog = inject(DialogService);
+  private router = inject(Router);
 
   leads = signal<Lead[]>([]);
   statusFilter = signal<string>('ALL');
@@ -46,6 +47,12 @@ export class LeadsComponent {
     return filter === 'ALL' ? list : list.filter(l => l.status === filter);
   });
 
+  scoreClass(score: number): string {
+    if (score >= 70) return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300';
+    if (score >= 40) return 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300';
+    return 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300';
+  }
+
   openAddModal() {
     this.newLead = {
       name: '',
@@ -67,10 +74,30 @@ export class LeadsComponent {
     await this.loadLeads();
   }
 
+  async qualify(id: string) {
+    await this.crmApi.qualifyLead(id);
+    this.toast.success('Lead marked as qualified.');
+    await this.loadLeads();
+  }
+
   async convertToOpportunity(id: string) {
     await this.crmApi.convertToOpportunity(id);
     this.toast.success('Lead converted to Sales Opportunity!');
     await this.loadLeads();
+  }
+
+  async markUnqualified(id: string, name: string) {
+    const reason = window.prompt(`Why is "${name}" not a fit?`, 'Not a good fit');
+    if (reason === null) return; // cancelled
+    await this.crmApi.markUnqualified(id, reason);
+    this.toast.success('Lead marked as unqualified.');
+    await this.loadLeads();
+  }
+
+  openAccount(lead: Lead) {
+    if (lead.convertedCustomerId) {
+      this.router.navigate(['/sales/crm/customer', lead.convertedCustomerId]);
+    }
   }
 
   async deleteLead(id: string) {

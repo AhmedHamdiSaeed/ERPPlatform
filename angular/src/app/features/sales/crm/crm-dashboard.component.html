@@ -1,0 +1,230 @@
+<div class="space-y-6 animate-fade-in pb-8">
+
+  <!-- ── Header ─────────────────────────────────────────────── -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">{{ 'CRM Dashboard' | translate }}</h1>
+      <p class="text-xs text-[var(--text-muted)] mt-0.5">
+        {{ 'Pipeline health, lead conversion and sales activity in one view.' | translate }}
+      </p>
+    </div>
+    <div class="flex items-center gap-2">
+      <a routerLink="/sales/crm/leads" class="btn-primary text-xs flex items-center gap-2">
+        <i class="pi pi-user-plus"></i> {{ 'Leads' | translate }}
+      </a>
+      <button (click)="load()" [disabled]="loading()" class="btn-primary text-xs flex items-center gap-2">
+        <i class="pi pi-refresh" [class.pi-spin]="loading()"></i> {{ 'Refresh' | translate }}
+      </button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="card-panel p-10 text-center text-xs text-[var(--text-muted)]">
+      <i class="pi pi-spin pi-spinner text-lg block mb-2"></i> {{ 'Loading dashboard…' | translate }}
+    </div>
+  } @else if (error()) {
+    <div class="card-panel p-10 text-center">
+      <p class="text-xs text-rose-600 mb-3">{{ error() | translate }}</p>
+      <button (click)="load()" class="btn-primary text-xs">{{ 'Try again' | translate }}</button>
+    </div>
+  } @else {
+    @if (data(); as d) {
+
+    <!-- ── Lead KPIs ───────────────────────────────────────── -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="card-panel p-4">
+        <p class="text-[10px] font-bold uppercase text-[var(--text-muted)]">{{ 'Total Leads' | translate }}</p>
+        <p class="text-lg font-extrabold text-[var(--text-main)] mt-1">{{ d.totalLeads }}</p>
+        <p class="text-[10px] text-[var(--text-muted)]">{{ d.newLeads }} {{ 'new' | translate }} · {{ d.lostLeads }} {{ 'lost' | translate }}</p>
+      </div>
+      <div class="card-panel p-4">
+        <p class="text-[10px] font-bold uppercase text-[var(--text-muted)]">{{ 'Contacted' | translate }}</p>
+        <p class="text-lg font-extrabold text-sky-600 mt-1">{{ d.contactedLeads }}</p>
+        <p class="text-[10px] text-[var(--text-muted)]">{{ 'in conversation' | translate }}</p>
+      </div>
+      <div class="card-panel p-4">
+        <p class="text-[10px] font-bold uppercase text-[var(--text-muted)]">{{ 'Qualified Leads' | translate }}</p>
+        <p class="text-lg font-extrabold text-indigo-600 mt-1">{{ d.qualifiedLeads }}</p>
+        <p class="text-[10px] text-[var(--text-muted)]">{{ 'ready for an opportunity' | translate }}</p>
+      </div>
+      <div class="card-panel p-4">
+        <p class="text-[10px] font-bold uppercase text-[var(--text-muted)]">{{ 'Converted Leads' | translate }}</p>
+        <p class="text-lg font-extrabold text-emerald-600 mt-1">{{ d.convertedLeads }}</p>
+        <p class="text-[10px] text-[var(--text-muted)]">{{ d.leadConversionRatePercentage }}% {{ 'conversion rate' | translate }}</p>
+      </div>
+    </div>
+
+    <!-- ── Opportunity KPIs ─────────────────────────────────── -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="card-panel p-4">
+        <p class="text-[10px] font-bold uppercase text-[var(--text-muted)]">{{ 'Open Opportunities' | translate }}</p>
+        <p class="text-lg font-extrabold text-[var(--text-main)] mt-1">{{ d.openOpportunities }}</p>
+        <p class="text-[10px] text-[var(--text-muted)]">{{ 'currently in the pipeline' | translate }}</p>
+      </div>
+      <div class="card-panel p-4">
+        <p class="text-[10px] font-bold uppercase text-[var(--text-muted)]">{{ 'Pipeline Value' | translate }}</p>
+        <p class="text-lg font-extrabold text-indigo-600 mt-1">${{ money(d.pipelineValue) }}</p>
+        <p class="text-[10px] text-[var(--text-muted)]">{{ 'open deals at full value' | translate }}</p>
+      </div>
+      <div class="card-panel p-4">
+        <p class="text-[10px] font-bold uppercase text-[var(--text-muted)]">{{ 'Weighted Forecast' | translate }}</p>
+        <p class="text-lg font-extrabold text-violet-600 mt-1">${{ money(d.weightedForecast) }}</p>
+        <p class="text-[10px] text-[var(--text-muted)]">{{ 'pipeline × stage probability' | translate }}</p>
+      </div>
+      <div class="card-panel p-4">
+        <p class="text-[10px] font-bold uppercase text-[var(--text-muted)]">{{ 'Won Value' | translate }}</p>
+        <p class="text-lg font-extrabold text-emerald-600 mt-1">${{ money(d.wonValue) }}</p>
+        <p class="text-[10px] text-[var(--text-muted)]">{{ d.wonDeals }} {{ 'won' | translate }} · {{ d.lostDeals }} {{ 'lost' | translate }}</p>
+      </div>
+    </div>
+
+    <!-- ── Ratios ───────────────────────────────────────────── -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="card-panel p-4">
+        <p class="text-[10px] font-bold uppercase text-[var(--text-muted)]">{{ 'Conversion Rate' | translate }}</p>
+        <p class="text-lg font-extrabold text-[var(--text-main)] mt-1">{{ d.leadConversionRatePercentage }}%</p>
+        <p class="text-[10px] text-[var(--text-muted)]">{{ 'leads converted' | translate }}</p>
+      </div>
+      <div class="card-panel p-4">
+        <p class="text-[10px] font-bold uppercase text-[var(--text-muted)]">{{ 'Win Rate' | translate }}</p>
+        <p class="text-lg font-extrabold text-[var(--text-main)] mt-1">{{ d.winRatePercentage }}%</p>
+        <p class="text-[10px] text-[var(--text-muted)]">{{ 'of decided opportunities' | translate }}</p>
+      </div>
+      <div class="card-panel p-4">
+        <p class="text-[10px] font-bold uppercase text-[var(--text-muted)]">{{ 'Average Deal Value' | translate }}</p>
+        <p class="text-lg font-extrabold text-[var(--text-main)] mt-1">${{ money(d.averageDealValue) }}</p>
+        <p class="text-[10px] text-[var(--text-muted)]">{{ 'across all opportunities' | translate }}</p>
+      </div>
+      <div class="card-panel p-4">
+        <p class="text-[10px] font-bold uppercase text-[var(--text-muted)]">{{ 'Average Sales Cycle' | translate }}</p>
+        <p class="text-lg font-extrabold text-[var(--text-main)] mt-1">{{ d.averageSalesCycleDays }} <span class="text-xs font-bold text-[var(--text-muted)]">{{ 'days' | translate }}</span></p>
+        <p class="text-[10px] text-[var(--text-muted)]">{{ 'creation to close, won deals' | translate }}</p>
+      </div>
+    </div>
+
+    <!-- ── Charts ───────────────────────────────────────────── -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="card-panel p-4">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-xs font-bold uppercase text-[var(--text-muted)]">{{ 'Pipeline by Stage' | translate }}</h2>
+          <a routerLink="/sales/pipeline" class="text-[10px] font-bold text-blue-600">{{ 'Open board' | translate }}</a>
+        </div>
+        @if (d.pipelineByStage.length === 0) {
+          <p class="text-xs text-[var(--text-muted)] py-8 text-center">{{ 'No opportunities yet.' | translate }}</p>
+        } @else {
+          <div class="h-64">
+            <p-chart type="bar" [data]="stageChart()" [options]="barOptions" class="w-full h-full"></p-chart>
+          </div>
+        }
+      </div>
+      <div class="card-panel p-4">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-xs font-bold uppercase text-[var(--text-muted)]">{{ 'Leads by Source' | translate }}</h2>
+          <a routerLink="/sales/crm/leads" class="text-[10px] font-bold text-blue-600">{{ 'Open leads' | translate }}</a>
+        </div>
+        @if (d.leadsBySource.length === 0) {
+          <p class="text-xs text-[var(--text-muted)] py-8 text-center">{{ 'No leads yet.' | translate }}</p>
+        } @else {
+          <div class="h-64">
+            <p-chart type="doughnut" [data]="sourceChart()" [options]="doughnutOptions" class="w-full h-full"></p-chart>
+          </div>
+          @if (topSource(); as top) {
+            <p class="text-[10px] text-[var(--text-muted)] text-center mt-2">
+              {{ top.source }} · {{ top.count }} {{ 'leads' | translate }} · {{ top.convertedCount }} {{ 'converted' | translate }}
+            </p>
+          }
+        }
+      </div>
+    </div>
+
+    <!-- ── Activity KPIs ────────────────────────────────────── -->
+    <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+      <div class="card-panel p-4">
+        <p class="text-[10px] font-bold uppercase text-[var(--text-muted)]">{{ 'Open Activities' | translate }}</p>
+        <p class="text-lg font-extrabold text-[var(--text-main)] mt-1">{{ d.openActivities }}</p>
+      </div>
+      <div class="card-panel p-4">
+        <p class="text-[10px] font-bold uppercase text-[var(--text-muted)]">{{ 'Overdue' | translate }}</p>
+        <p class="text-lg font-extrabold mt-1" [class]="d.overdueActivities > 0 ? 'text-rose-600' : 'text-[var(--text-main)]'">
+          {{ d.overdueActivities }}
+        </p>
+      </div>
+      <div class="card-panel p-4">
+        <p class="text-[10px] font-bold uppercase text-[var(--text-muted)]">{{ 'Calls this month' | translate }}</p>
+        <p class="text-lg font-extrabold text-sky-600 mt-1">{{ d.callsThisMonth }}</p>
+      </div>
+      <div class="card-panel p-4">
+        <p class="text-[10px] font-bold uppercase text-[var(--text-muted)]">{{ 'Meetings this month' | translate }}</p>
+        <p class="text-lg font-extrabold text-indigo-600 mt-1">{{ d.meetingsThisMonth }}</p>
+      </div>
+      <div class="card-panel p-4">
+        <p class="text-[10px] font-bold uppercase text-[var(--text-muted)]">{{ 'Tasks this month' | translate }}</p>
+        <p class="text-lg font-extrabold text-amber-600 mt-1">{{ d.tasksThisMonth }}</p>
+      </div>
+    </div>
+
+    <!-- ── Owner breakdown + upcoming ───────────────────────── -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="card-panel overflow-x-auto">
+        <div class="p-4 pb-2">
+          <h2 class="text-xs font-bold uppercase text-[var(--text-muted)]">{{ 'Activities by Salesperson' | translate }}</h2>
+        </div>
+        @if (d.activitiesByOwner.length === 0) {
+          <p class="text-xs text-[var(--text-muted)] p-4 pt-0">{{ 'No open activities.' | translate }}</p>
+        } @else {
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 dark:bg-slate-800/50 text-[var(--text-muted)] font-bold text-[10px] uppercase">
+              <tr>
+                <th class="p-3">{{ 'Salesperson' | translate }}</th>
+                <th class="p-3">{{ 'Open' | translate }}</th>
+                <th class="p-3">{{ 'Overdue' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[var(--border-color)]">
+              @for (row of d.activitiesByOwner; track row.owner) {
+                <tr>
+                  <td class="p-3 font-bold text-[var(--text-main)]">{{ row.owner }}</td>
+                  <td class="p-3 text-[var(--text-main)]">{{ row.open }}</td>
+                  <td class="p-3" [class]="row.overdue > 0 ? 'text-rose-600 font-bold' : 'text-[var(--text-muted)]'">{{ row.overdue }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+
+      <div class="card-panel">
+        <div class="p-4 pb-2 flex items-center justify-between">
+          <h2 class="text-xs font-bold uppercase text-[var(--text-muted)]">{{ 'Upcoming Activities' | translate }}</h2>
+          <a routerLink="/sales/crm/activities" class="text-[10px] font-bold text-blue-600">{{ 'View all' | translate }}</a>
+        </div>
+        @if (d.upcomingActivities.length === 0) {
+          <p class="text-xs text-[var(--text-muted)] p-4 pt-0">{{ 'Nothing scheduled.' | translate }}</p>
+        } @else {
+          <ul class="divide-y divide-[var(--border-color)]">
+            @for (a of d.upcomingActivities; track a.id) {
+              <li class="px-4 py-3 flex items-start gap-3">
+                <span class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-[var(--text-muted)] shrink-0">
+                  <i class="pi text-[11px]" [class]="iconFor(a.type)"></i>
+                </span>
+                <div class="min-w-0 flex-1">
+                  <p class="text-xs font-bold text-[var(--text-main)] truncate">{{ a.subject }}</p>
+                  <p class="text-[10px] text-[var(--text-muted)]">
+                    {{ a.type | translate }} · {{ a.assignedTo || ('Unassigned' | translate) }}
+                  </p>
+                </div>
+                <div class="text-right shrink-0">
+                  <p class="text-[10px] font-bold" [class]="a.isOverdue ? 'text-rose-600' : 'text-[var(--text-main)]'">
+                    {{ dueLabel(a) | translate }}
+                  </p>
+                  <span class="px-1.5 py-0.5 rounded-full text-[9px] font-bold" [class]="priorityClass(a.priority)">{{ a.priority | translate }}</span>
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </div>
+    }
+  }
+</div>

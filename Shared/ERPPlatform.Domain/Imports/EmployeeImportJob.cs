@@ -11,6 +11,7 @@ namespace ERPPlatform.Domain.Imports;
 public class EmployeeImportJob : FullAuditedAggregateRoot<Guid>
 {
     public string FileName { get; set; } = string.Empty;
+    public Guid? TenantId { get; set; }
 
     public long FileSize { get; set; }
 

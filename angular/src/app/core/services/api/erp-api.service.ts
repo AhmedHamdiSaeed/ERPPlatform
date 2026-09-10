@@ -12,9 +12,17 @@ export class ErpApiService {
     return this.apiRoot;
   }
 
-  protected getList<T>(route: string): Promise<T[]> {
+  /**
+   * ABP caps a page at 10 rows by default. Every list screen in this app renders a
+   * full table with no pager, so we always ask for the server-side maximum instead of
+   * silently showing only the first ten records.
+   */
+  protected getList<T>(route: string, maxResultCount = 1000): Promise<T[]> {
+    const separator = route.includes('?') ? '&' : '?';
     return firstValueFrom(
-      this.http.get<{ items: T[] }>(`${this.apiPrefix()}/${route}`)
+      this.http.get<{ items: T[] }>(
+        `${this.apiPrefix()}/${route}${separator}MaxResultCount=${maxResultCount}`
+      )
     ).then(res => res.items ?? []);
   }
 

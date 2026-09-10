@@ -58,6 +58,18 @@ export const appRoutes: Routes = [
 
       // ─── CRM Module ───
       {
+        path: 'sales/crm/dashboard',
+        loadComponent: () => import('./features/sales/crm/crm-dashboard.component').then(m => m.CrmDashboardComponent)
+      },
+      {
+        path: 'sales/crm/contacts',
+        loadComponent: () => import('./features/sales/crm/contacts.component').then(m => m.ContactsComponent)
+      },
+      {
+        path: 'sales/crm/activities',
+        loadComponent: () => import('./features/sales/crm/activities.component').then(m => m.ActivitiesComponent)
+      },
+      {
         path: 'sales/crm/leads',
         loadComponent: () => import('./features/sales/crm/leads.component').then(m => m.LeadsComponent)
       },
@@ -65,6 +77,11 @@ export const appRoutes: Routes = [
         path: 'sales/customers',
         canActivate: [permissionGuard(PERMISSIONS.Customers)],
         loadComponent: () => import('./features/sales/customers/customer-list.component').then(m => m.CustomerListComponent)
+      },
+      {
+        // Single-customer view: contacts, opportunities, orders, invoices, timeline.
+        path: 'sales/crm/customer/:id',
+        loadComponent: () => import('./features/sales/crm/customer-360.component').then(m => m.Customer360Component)
       },
 
       // ─── Finance Module ───
@@ -127,6 +144,10 @@ export const appRoutes: Routes = [
       {
         path: 'hr/payroll',
         loadComponent: () => import('./features/hr/payroll/payroll-management.component').then(m => m.PayrollManagementComponent)
+      },
+      {
+        path: 'hr/payroll/components',
+        loadComponent: () => import('./features/hr/payroll/salary-components.component').then(m => m.SalaryComponentsComponent)
       },
       {
         path: 'hr/recruitment',

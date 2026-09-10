@@ -14,7 +14,11 @@ namespace ERPPlatform.Modules.HR.Application
             CreateMap<Currency, CurrencyDto>().ReverseMap();
             CreateMap<TaxConfig, TaxConfigDto>().ReverseMap();
             CreateMap<PaymentTerm, PaymentTermDto>().ReverseMap();
-            CreateMap<Lead, LeadDto>().ReverseMap();
+            // CreationTime is read-only from the API's point of view: letting it flow back
+            // into the entity would stamp 0001-01-01 on every update.
+            CreateMap<Lead, LeadDto>()
+                .ReverseMap()
+                .ForMember(x => x.CreationTime, o => o.Ignore());
             CreateMap<Customer, CustomerDto>().ReverseMap();
             CreateMap<Supplier, SupplierDto>().ReverseMap();
             CreateMap<SalesOrder, SalesOrderDto>().ReverseMap();

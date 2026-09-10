@@ -4,6 +4,7 @@ using ERPPlatform.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Volo.Abp.EntityFrameworkCore;
 
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace ERPPlatform.Migrations
 {
     [DbContext(typeof(ERPPlatformDbContext))]
-    partial class ERPPlatformDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260906173308_AddCrmPhase1AndPayrollComponents")]
+    partial class AddCrmPhase1AndPayrollComponents
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

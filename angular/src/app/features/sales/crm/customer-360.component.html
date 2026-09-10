@@ -1,0 +1,308 @@
+<div class="space-y-6 animate-fade-in pb-8">
+
+  @if (data(); as d) {
+
+    <!-- ── Header ─────────────────────────────────────────────── -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-extrabold text-sm">
+          {{ initials(d.customer.name) }}
+        </div>
+        <div>
+          <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight flex items-center gap-2">
+            {{ d.customer.name }}
+            @if (d.customer.isVip) {
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">VIP</span>
+            }
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold"
+              [class]="d.customer.isActive ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-slate-200 text-slate-600'">
+              {{ (d.customer.isActive ? 'Active' : 'Inactive') | translate }}
+            </span>
+          </h1>
+          <p class="text-xs text-[var(--text-muted)] mt-0.5">
+            <span class="font-mono">{{ d.customer.customerCode }}</span>
+            @if (d.customer.industry) { · {{ d.customer.industry }} }
+            @if (d.customer.ownerName) { · {{ 'Owner' | translate }}: {{ d.customer.ownerName }} }
+          </p>
+        </div>
+      </div>
+      <a routerLink="/sales/customers" class="btn-primary text-xs flex items-center gap-2">
+        <i class="pi pi-arrow-left"></i> {{ 'Customer Roster' | translate }}
+      </a>
+    </div>
+
+    <!-- ── KPI strip ──────────────────────────────────────────── -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="card-panel p-4">
+        <p class="text-[10px] font-bold uppercase text-[var(--text-muted)]">{{ 'Pipeline' | translate }}</p>
+        <p class="text-lg font-extrabold text-indigo-600 mt-1">${{ money(d.pipelineValue) }}</p>
+        <p class="text-[10px] text-[var(--text-muted)]">{{ d.openOpportunityCount }} {{ 'open opportunities' | translate }}</p>
+      </div>
+      <div class="card-panel p-4">
+        <p class="text-[10px] font-bold uppercase text-[var(--text-muted)]">{{ 'Sales' | translate }}</p>
+        <p class="text-lg font-extrabold text-blue-600 mt-1">${{ money(d.orderValue) }}</p>
+        <p class="text-[10px] text-[var(--text-muted)]">{{ d.orderCount }} {{ 'orders' | translate }}</p>
+      </div>
+      <div class="card-panel p-4">
+        <p class="text-[10px] font-bold uppercase text-[var(--text-muted)]">{{ 'Finance' | translate }}</p>
+        <p class="text-lg font-extrabold text-amber-600 mt-1">${{ money(d.outstandingValue) }}</p>
+        <p class="text-[10px] text-[var(--text-muted)]">{{ 'outstanding' | translate }} · ${{ money(d.paidValue) }} {{ 'paid' | translate }}</p>
+      </div>
+      <div class="card-panel p-4">
+        <p class="text-[10px] font-bold uppercase text-[var(--text-muted)]">{{ 'Activities' | translate }}</p>
+        <p class="text-lg font-extrabold text-sky-600 mt-1">{{ d.openActivityCount }}</p>
+        <p class="text-[10px]" [class]="d.overdueActivityCount > 0 ? 'text-rose-600 font-bold' : 'text-[var(--text-muted)]'">
+          {{ d.overdueActivityCount }} {{ 'overdue' | translate }}
+        </p>
+      </div>
+    </div>
+
+    <!-- ── Contacts + Opportunities ───────────────────────────── -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <div class="card-panel">
+        <div class="flex items-center justify-between p-3 border-b border-[var(--border-color)]">
+          <h2 class="text-xs font-extrabold text-[var(--text-main)] uppercase tracking-wide">
+            <i class="pi pi-users mr-2"></i>{{ 'Contacts' | translate }}
+          </h2>
+          <button (click)="openContactModal()" class="px-2.5 py-1 bg-indigo-50 text-indigo-700 font-bold text-[10px] rounded-lg border border-indigo-200 hover:bg-indigo-100">
+            <i class="pi pi-plus mr-1"></i>{{ 'Add' | translate }}
+          </button>
+        </div>
+        @if (d.contacts.length === 0) {
+          <p class="p-4 text-xs text-[var(--text-muted)]">{{ 'No contacts yet.' | translate }}</p>
+        } @else {
+          <ul class="divide-y divide-[var(--border-color)]">
+            @for (c of d.contacts; track c.id) {
+              <li class="p-3 flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-bold text-[var(--text-main)]">
+                    {{ c.fullName }}
+                    @if (c.isPrimary) {
+                      <span class="ml-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">PRIMARY</span>
+                    }
+                  </p>
+                  <p class="text-[10px] text-[var(--text-muted)]">{{ c.jobTitle }} · {{ c.email }} · {{ c.phone }}</p>
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+
+      <div class="card-panel">
+        <div class="flex items-center justify-between p-3 border-b border-[var(--border-color)]">
+          <h2 class="text-xs font-extrabold text-[var(--text-main)] uppercase tracking-wide">
+            <i class="pi pi-chart-line mr-2"></i>{{ 'Opportunities' | translate }}
+          </h2>
+          <a routerLink="/sales/pipeline" class="text-[10px] font-bold text-indigo-600 hover:underline">{{ 'Pipeline' | translate }}</a>
+        </div>
+        @if (d.opportunities.length === 0) {
+          <p class="p-4 text-xs text-[var(--text-muted)]">{{ 'No opportunities yet.' | translate }}</p>
+        } @else {
+          <ul class="divide-y divide-[var(--border-color)]">
+            @for (o of d.opportunities; track o.id) {
+              <li class="p-3 flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-bold text-[var(--text-main)]">{{ o.title }}</p>
+                  <p class="text-[10px] text-[var(--text-muted)]">{{ o.ownerName }} · {{ o.probability }}%</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-xs font-extrabold text-[var(--text-main)]">${{ money(o.value) }}</p>
+                  <span class="px-2 py-0.5 rounded-full text-[9px] font-bold" [class]="stageClass(o.stage)">{{ o.stage }}</span>
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </div>
+
+    <!-- ── Activities + Notes ─────────────────────────────────── -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <div class="card-panel">
+        <div class="flex items-center justify-between p-3 border-b border-[var(--border-color)]">
+          <h2 class="text-xs font-extrabold text-[var(--text-main)] uppercase tracking-wide">
+            <i class="pi pi-calendar mr-2"></i>{{ 'Activities' | translate }}
+          </h2>
+          <button (click)="openActivityModal()" class="px-2.5 py-1 bg-indigo-50 text-indigo-700 font-bold text-[10px] rounded-lg border border-indigo-200 hover:bg-indigo-100">
+            <i class="pi pi-plus mr-1"></i>{{ 'Log activity' | translate }}
+          </button>
+        </div>
+        @if (d.activities.length === 0) {
+          <p class="p-4 text-xs text-[var(--text-muted)]">{{ 'No activities yet.' | translate }}</p>
+        } @else {
+          <ul class="divide-y divide-[var(--border-color)]">
+            @for (a of d.activities; track a.id) {
+              <li class="p-3 flex items-center justify-between gap-2">
+                <div class="min-w-0">
+                  <p class="text-xs font-bold text-[var(--text-main)] truncate">
+                    <i class="pi mr-1" [class]="a.type === 'Call' ? 'pi-phone' : a.type === 'Meeting' ? 'pi-users' : a.type === 'Email' ? 'pi-envelope' : 'pi-check-circle'"></i>
+                    {{ a.subject }}
+                  </p>
+                  <p class="text-[10px]" [class]="a.isOverdue ? 'text-rose-600 font-bold' : 'text-[var(--text-muted)]'">
+                    {{ a.type }} · {{ date(a.dueDate) }}@if (a.isOverdue) { · {{ 'overdue' | translate }} } · {{ a.assignedTo }}
+                  </p>
+                </div>
+                @if (a.status === 'Open') {
+                  <button (click)="completeActivity(a)" class="shrink-0 px-2 py-1 bg-emerald-50 text-emerald-700 font-bold text-[10px] rounded-lg border border-emerald-200 hover:bg-emerald-100">
+                    {{ 'Complete' | translate }}
+                  </button>
+                }
+              </li>
+            }
+          </ul>
+        }
+      </div>
+
+      <div class="card-panel">
+        <div class="flex items-center justify-between p-3 border-b border-[var(--border-color)]">
+          <h2 class="text-xs font-extrabold text-[var(--text-main)] uppercase tracking-wide">
+            <i class="pi pi-file-edit mr-2"></i>{{ 'Notes' | translate }}
+          </h2>
+          <button (click)="openNoteModal()" class="px-2.5 py-1 bg-indigo-50 text-indigo-700 font-bold text-[10px] rounded-lg border border-indigo-200 hover:bg-indigo-100">
+            <i class="pi pi-plus mr-1"></i>{{ 'Add note' | translate }}
+          </button>
+        </div>
+        @if (d.notes.length === 0) {
+          <p class="p-4 text-xs text-[var(--text-muted)]">{{ 'No notes yet.' | translate }}</p>
+        } @else {
+          <ul class="divide-y divide-[var(--border-color)]">
+            @for (n of d.notes; track n.id) {
+              <li class="p-3 flex items-start justify-between gap-2">
+                <p class="text-xs text-[var(--text-main)]">
+                  @if (n.isPinned) { <i class="pi pi-thumbtack text-amber-500 mr-1"></i> }
+                  {{ n.content }}
+                  <span class="block text-[10px] text-[var(--text-muted)]">{{ date(n.creationTime) }}</span>
+                </p>
+                <button (click)="removeNote(n)" class="shrink-0 text-rose-500 hover:text-rose-700 text-[10px] font-bold">
+                  <i class="pi pi-trash"></i>
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </div>
+
+    <!-- ── Timeline ───────────────────────────────────────────── -->
+    <div class="card-panel">
+      <div class="p-3 border-b border-[var(--border-color)]">
+        <h2 class="text-xs font-extrabold text-[var(--text-main)] uppercase tracking-wide">
+          <i class="pi pi-history mr-2"></i>{{ 'Customer Timeline' | translate }}
+        </h2>
+      </div>
+      @if (timeline().length === 0) {
+        <p class="p-4 text-xs text-[var(--text-muted)]">{{ 'Nothing has happened yet.' | translate }}</p>
+      } @else {
+        <ol class="p-4 space-y-3">
+          @for (t of timeline(); track $index) {
+            <li class="flex gap-3">
+              <div class="w-8 text-center">
+                <i class="pi text-sm" [class]="timelineIcons[t.kind] + ' ' + kindClass(t.kind)"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-xs font-bold text-[var(--text-main)] truncate">
+                  {{ t.title }}
+                  @if (t.amount) { <span class="text-[var(--text-muted)] font-normal">· ${{ money(t.amount) }}</span> }
+                </p>
+                <p class="text-[10px] text-[var(--text-muted)]">
+                  {{ t.kind }} · {{ t.detail }} · {{ date(t.at) }}
+                </p>
+              </div>
+            </li>
+          }
+        </ol>
+      }
+    </div>
+  } @else if (loading()) {
+    <div class="card-panel p-8 text-center text-xs text-[var(--text-muted)]">
+      <i class="pi pi-spin pi-spinner mr-2"></i> {{ 'Loading customer 360…' | translate }}
+    </div>
+  } @else if (error()) {
+    <div class="card-panel p-8 text-center">
+      <p class="text-xs text-rose-600">{{ error() }}</p>
+      <a routerLink="/sales/customers" class="btn-primary text-xs mt-3 inline-block">
+        {{ 'Back to Customer Roster' | translate }}
+      </a>
+    </div>
+  } @else {
+    <div class="card-panel p-8 text-center text-xs text-[var(--text-muted)]">{{ 'Select a customer.' | translate }}</div>
+  }
+</div>
+
+<!-- ── Activity modal ───────────────────────────────────────────── -->
+@if (showActivityModal()) {
+  <div class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" (click)="showActivityModal.set(false)">
+    <div class="card-panel w-full max-w-md p-5 space-y-3" (click)="$event.stopPropagation()">
+      <h3 class="text-sm font-extrabold text-[var(--text-main)]">{{ 'Log Activity' | translate }}</h3>
+      <div>
+        <label class="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">{{ 'Type' | translate }}</label>
+        <select [(ngModel)]="newActivity.type" class="w-full p-2 text-xs border border-[var(--border-color)] rounded-lg bg-transparent text-[var(--text-main)]">
+          <option value="Call">{{ 'Call' | translate }}</option>
+          <option value="Meeting">{{ 'Meeting' | translate }}</option>
+          <option value="Task">{{ 'Task' | translate }}</option>
+          <option value="Email">{{ 'Email' | translate }}</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">{{ 'Subject' | translate }}</label>
+        <input [(ngModel)]="newActivity.subject" class="w-full p-2 text-xs border border-[var(--border-color)] rounded-lg bg-transparent text-[var(--text-main)]" />
+      </div>
+      <div>
+        <label class="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">{{ 'Due date' | translate }}</label>
+        <input type="date" [(ngModel)]="newActivity.dueDate" class="w-full p-2 text-xs border border-[var(--border-color)] rounded-lg bg-transparent text-[var(--text-main)]" />
+      </div>
+      <div>
+        <label class="block text-[10px] font-bold uppercase text-[var(--text-muted)] mb-1">{{ 'Assigned to' | translate }}</label>
+        <input [(ngModel)]="newActivity.assignedTo" class="w-full p-2 text-xs border border-[var(--border-color)] rounded-lg bg-transparent text-[var(--text-main)]" />
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button (click)="showActivityModal.set(false)" class="px-3 py-1.5 text-xs font-bold text-[var(--text-muted)]">{{ 'Cancel' | translate }}</button>
+        <button (click)="saveActivity()" class="btn-primary text-xs">{{ 'Save' | translate }}</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ── Note modal ───────────────────────────────────────────────── -->
+@if (showNoteModal()) {
+  <div class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" (click)="showNoteModal.set(false)">
+    <div class="card-panel w-full max-w-md p-5 space-y-3" (click)="$event.stopPropagation()">
+      <h3 class="text-sm font-extrabold text-[var(--text-main)]">{{ 'Add Note' | translate }}</h3>
+      <textarea [(ngModel)]="newNote.content" rows="4"
+        class="w-full p-2 text-xs border border-[var(--border-color)] rounded-lg bg-transparent text-[var(--text-main)]"></textarea>
+      <label class="flex items-center gap-2 text-xs text-[var(--text-main)]">
+        <input type="checkbox" [(ngModel)]="newNote.isPinned" /> {{ 'Pin this note' | translate }}
+      </label>
+      <div class="flex justify-end gap-2 pt-2">
+        <button (click)="showNoteModal.set(false)" class="px-3 py-1.5 text-xs font-bold text-[var(--text-muted)]">{{ 'Cancel' | translate }}</button>
+        <button (click)="saveNote()" class="btn-primary text-xs">{{ 'Save' | translate }}</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ── Contact modal ────────────────────────────────────────────── -->
+@if (showContactModal()) {
+  <div class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" (click)="showContactModal.set(false)">
+    <div class="card-panel w-full max-w-md p-5 space-y-3" (click)="$event.stopPropagation()">
+      <h3 class="text-sm font-extrabold text-[var(--text-main)]">{{ 'Add Contact' | translate }}</h3>
+      <div class="grid grid-cols-2 gap-3">
+        <input [(ngModel)]="newContact.firstName" placeholder="First name" class="p-2 text-xs border border-[var(--border-color)] rounded-lg bg-transparent text-[var(--text-main)]" />
+        <input [(ngModel)]="newContact.lastName" placeholder="Last name" class="p-2 text-xs border border-[var(--border-color)] rounded-lg bg-transparent text-[var(--text-main)]" />
+      </div>
+      <input [(ngModel)]="newContact.jobTitle" placeholder="Job title" class="w-full p-2 text-xs border border-[var(--border-color)] rounded-lg bg-transparent text-[var(--text-main)]" />
+      <input [(ngModel)]="newContact.email" placeholder="Email" class="w-full p-2 text-xs border border-[var(--border-color)] rounded-lg bg-transparent text-[var(--text-main)]" />
+      <div class="grid grid-cols-2 gap-3">
+        <input [(ngModel)]="newContact.phone" placeholder="Phone" class="p-2 text-xs border border-[var(--border-color)] rounded-lg bg-transparent text-[var(--text-main)]" />
+        <input [(ngModel)]="newContact.mobile" placeholder="Mobile" class="p-2 text-xs border border-[var(--border-color)] rounded-lg bg-transparent text-[var(--text-main)]" />
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button (click)="showContactModal.set(false)" class="px-3 py-1.5 text-xs font-bold text-[var(--text-muted)]">{{ 'Cancel' | translate }}</button>
+        <button (click)="saveContact()" class="btn-primary text-xs">{{ 'Save' | translate }}</button>
+      </div>
+    </div>
+  </div>
+}

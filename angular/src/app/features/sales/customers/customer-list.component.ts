@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { CustomerApiService, CustomerProfile } from '../../../core/services/api/customer-api.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { DialogService } from '../../../core/services/dialog.service';
@@ -18,6 +19,7 @@ export class CustomerListComponent {
   private customerApi = inject(CustomerApiService);
   private toast = inject(ToastService);
   private dialog = inject(DialogService);
+  private router = inject(Router);
   state = inject(StateService);
 
   readonly PERMISSIONS = PERMISSIONS;
@@ -60,5 +62,9 @@ export class CustomerListComponent {
   viewStatement(cust: CustomerProfile) {
     this.selectedCustomer = cust;
     this.showStatementModal.set(true);
+  }
+
+  open360(cust: CustomerProfile) {
+    this.router.navigate(['/sales/crm/customer', cust.id]);
   }
 }

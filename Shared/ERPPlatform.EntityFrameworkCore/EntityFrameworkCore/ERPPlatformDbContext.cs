@@ -89,6 +89,11 @@ public class ERPPlatformDbContext :
     public DbSet<SalesInvoice> SalesInvoices { get; set; }
     public DbSet<SalesQuotation> SalesQuotations { get; set; }
 
+    // CRM Phase 1: contacts, activities, notes
+    public DbSet<CrmContact> CrmContacts { get; set; }
+    public DbSet<CrmActivity> CrmActivities { get; set; }
+    public DbSet<CrmNote> CrmNotes { get; set; }
+
     // Workflow Module DbSets
     public DbSet<WorkflowDefinition> WorkflowDefinitions { get; set; }
     public DbSet<WorkflowTask> WorkflowTasks { get; set; }
@@ -159,6 +164,12 @@ public class ERPPlatformDbContext :
     public DbSet<EmployeeImportJob> EmployeeImportJobs { get; set; }
     public DbSet<EmployeeImportChunk> EmployeeImportChunks { get; set; }
     public DbSet<EmployeeImportError> EmployeeImportErrors { get; set; }
+
+    // Payroll: configurable components, per-employee overrides, payslip detail, anomaly list
+    public DbSet<SalaryComponent> SalaryComponents { get; set; }
+    public DbSet<EmployeeSalaryComponent> EmployeeSalaryComponents { get; set; }
+    public DbSet<PayslipLine> PayslipLines { get; set; }
+    public DbSet<PayrollAnomaly> PayrollAnomalies { get; set; }
 
     public ERPPlatformDbContext(DbContextOptions<ERPPlatformDbContext> options)
         : base(options)
@@ -372,6 +383,134 @@ public class ERPPlatformDbContext :
             b.Property(x => x.ErrorMessage).IsRequired().HasMaxLength(EmployeeImportConsts.MaxErrorMessageLength);
             b.HasIndex(x => x.ImportJobId);
             b.HasIndex(x => x.ChunkId);
+        });
+
+        // ── CRM Phase 1/2 ──────────────────────────────────────────────
+        // String columns that take part in an index must have an explicit length:
+        // SQL Server refuses to index nvarchar(max).
+        builder.Entity<Lead>(b =>
+        {
+            b.Property(x => x.Source).HasMaxLength(64);
+            b.Property(x => x.Status).HasMaxLength(32);
+            b.Property(x => x.Tags).HasMaxLength(512);
+            b.Property(x => x.LostReason).HasMaxLength(512);
+            b.HasIndex(x => x.Status);
+            b.HasIndex(x => x.Source);
+            b.HasIndex(x => x.NextFollowUp);
+        });
+
+        builder.Entity<Deal>(b =>
+        {
+            b.Property(x => x.Stage).HasMaxLength(64);
+            b.Property(x => x.Tags).HasMaxLength(512);
+            b.Property(x => x.LostReason).HasMaxLength(512);
+            b.HasIndex(x => x.Stage);
+            b.HasIndex(x => x.CustomerId);
+            b.HasIndex(x => x.LeadId);
+        });
+
+        builder.Entity<Customer>(b =>
+        {
+            b.Property(x => x.Tags).HasMaxLength(512);
+            b.Property(x => x.Industry).HasMaxLength(128);
+            b.Property(x => x.Website).HasMaxLength(256);
+            b.Property(x => x.OwnerName).HasMaxLength(128);
+            b.HasIndex(x => x.CustomerCode);
+        });
+
+        builder.Entity<CrmContact>(b =>
+        {
+            b.Property(x => x.FirstName).HasMaxLength(128);
+            b.Property(x => x.LastName).HasMaxLength(128);
+            b.Property(x => x.FullName).HasMaxLength(256);
+            b.Property(x => x.JobTitle).HasMaxLength(128);
+            b.Property(x => x.Email).HasMaxLength(256);
+            b.Property(x => x.Phone).HasMaxLength(64);
+            b.Property(x => x.Mobile).HasMaxLength(64);
+            b.HasIndex(x => x.CustomerId);
+            b.HasIndex(x => x.LeadId);
+            b.HasIndex(x => x.Email);
+        });
+
+        builder.Entity<CrmActivity>(b =>
+        {
+            b.Property(x => x.Type).HasMaxLength(32);
+            b.Property(x => x.Status).HasMaxLength(32);
+            b.Property(x => x.Priority).HasMaxLength(32);
+            b.Property(x => x.Subject).HasMaxLength(256);
+            b.Property(x => x.AssignedTo).HasMaxLength(128);
+            // Drives "my open activities" and the overdue follow-up KPI.
+            b.HasIndex(x => new { x.Status, x.DueDate });
+            b.HasIndex(x => x.AssignedToUserId);
+            b.HasIndex(x => x.LeadId);
+            b.HasIndex(x => x.CustomerId);
+            b.HasIndex(x => x.DealId);
+        });
+
+        builder.Entity<CrmNote>(b =>
+        {
+            b.Property(x => x.AttachmentName).HasMaxLength(256);
+            b.Property(x => x.AttachmentUrl).HasMaxLength(1024);
+            b.HasIndex(x => x.CustomerId);
+            b.HasIndex(x => x.LeadId);
+            b.HasIndex(x => x.DealId);
+        });
+
+        // ── Payroll ────────────────────────────────────────────────────
+        builder.Entity<SalaryComponent>(b =>
+        {
+            b.Property(x => x.Code).HasMaxLength(64);
+            b.Property(x => x.Name).HasMaxLength(128);
+            b.Property(x => x.Type).HasMaxLength(32);
+            b.Property(x => x.CalculationType).HasMaxLength(32);
+            b.Property(x => x.PercentageOfComponentCode).HasMaxLength(64);
+            b.Property(x => x.GlAccount).HasMaxLength(64);
+            b.Property(x => x.CostCenter).HasMaxLength(64);
+            // Codes are the join key for formulas and reports — keep them unique.
+            b.HasIndex(x => x.Code);
+        });
+
+        builder.Entity<EmployeeSalaryComponent>(b =>
+        {
+            b.Property(x => x.EmployeeName).HasMaxLength(128);
+            b.Property(x => x.ComponentCode).HasMaxLength(64);
+            b.HasIndex(x => x.EmployeeId);
+            b.HasIndex(x => x.ComponentCode);
+        });
+
+        builder.Entity<PayslipLine>(b =>
+        {
+            b.Property(x => x.ComponentCode).HasMaxLength(64);
+            b.Property(x => x.ComponentName).HasMaxLength(128);
+            b.Property(x => x.Type).HasMaxLength(32);
+            b.HasIndex(x => x.PayslipId);
+        });
+
+        builder.Entity<PayrollAnomaly>(b =>
+        {
+            b.Property(x => x.Period).HasMaxLength(16);
+            b.Property(x => x.EmployeeName).HasMaxLength(128);
+            b.Property(x => x.Kind).HasMaxLength(64);
+            b.Property(x => x.Severity).HasMaxLength(32);
+            b.HasIndex(x => new { x.Period, x.IsResolved });
+            b.HasIndex(x => x.EmployeeId);
+        });
+
+        builder.Entity<PayrollRun>(b =>
+        {
+            b.Property(x => x.Period).HasMaxLength(16);
+            b.Property(x => x.Status).HasMaxLength(32);
+            b.Property(x => x.ApprovedBy).HasMaxLength(128);
+            b.HasIndex(x => x.Period);
+        });
+
+        builder.Entity<Payslip>(b =>
+        {
+            b.Property(x => x.Period).HasMaxLength(16);
+            b.Property(x => x.EmployeeName).HasMaxLength(128);
+            b.Property(x => x.Department).HasMaxLength(128);
+            b.HasIndex(x => x.Period);
+            b.HasIndex(x => x.EmployeeId);
         });
     }
 }

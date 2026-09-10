@@ -323,6 +323,20 @@ namespace ERPPlatform.Domain.Entities
         public int Probability { get; set; } = 20;
         public DateTime ExpectedCloseDate { get; set; } = DateTime.UtcNow.AddDays(30);
         public string OwnerName { get; set; } = string.Empty;
+
+        // ── Opportunity enrichment (Phase 2) ───────────────────────────
+        /// <summary>The account this opportunity belongs to, once the lead is converted.</summary>
+        public Guid? CustomerId { get; set; }
+        /// <summary>Primary contact for this opportunity.</summary>
+        public Guid? ContactId { get; set; }
+        /// <summary>The lead this opportunity was created from.</summary>
+        public Guid? LeadId { get; set; }
+        public Guid? OwnerUserId { get; set; }
+        public string Competitor { get; set; } = string.Empty;
+        public string LostReason { get; set; } = string.Empty;
+        public DateTime? ClosedAt { get; set; }
+        /// <summary>Comma-separated tags, e.g. "enterprise,upsell".</summary>
+        public string Tags { get; set; } = string.Empty;
     }
 
     public class Lead : FullAuditedAggregateRoot<Guid>
@@ -336,6 +350,18 @@ namespace ERPPlatform.Domain.Entities
         public string SalespersonName { get; set; } = string.Empty;
         public DateTime NextFollowUp { get; set; } = DateTime.UtcNow.AddDays(3);
         public string Notes { get; set; } = string.Empty;
+
+        // ── Lead qualification & conversion (Phase 1/2) ────────────────
+        public Guid? OwnerUserId { get; set; }
+        /// <summary>0-100 lead score; higher means hotter.</summary>
+        public int Score { get; set; }
+        public string LostReason { get; set; } = string.Empty;
+        public DateTime? QualifiedAt { get; set; }
+        public DateTime? ConvertedAt { get; set; }
+        public Guid? ConvertedCustomerId { get; set; }
+        public Guid? ConvertedDealId { get; set; }
+        /// <summary>Comma-separated tags, e.g. "hot,referral".</summary>
+        public string Tags { get; set; } = string.Empty;
     }
 
     public class Customer : FullAuditedAggregateRoot<Guid>
@@ -352,6 +378,79 @@ namespace ERPPlatform.Domain.Entities
         public string PaymentTerms { get; set; } = "Net 30 Days";
         public string Currency { get; set; } = "USD";
         public bool IsActive { get; set; } = true;
+
+        // ── Account enrichment (Phase 1) ───────────────────────────────
+        public string Industry { get; set; } = string.Empty;
+        public string Website { get; set; } = string.Empty;
+        public string OwnerName { get; set; } = string.Empty;
+        public Guid? OwnerUserId { get; set; }
+        public bool IsVip { get; set; }
+        /// <summary>Comma-separated tags, e.g. "vip,manufacturing".</summary>
+        public string Tags { get; set; } = string.Empty;
+    }
+
+    /// <summary>
+    /// A person attached to a lead or an account. "Contacts" in the CRM roadmap.
+    /// </summary>
+    public class CrmContact : FullAuditedAggregateRoot<Guid>
+    {
+        public Guid? CustomerId { get; set; }
+        public Guid? LeadId { get; set; }
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public string JobTitle { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
+        public string Mobile { get; set; } = string.Empty;
+        /// <summary>Marks the default contact shown on the customer card.</summary>
+        public bool IsPrimary { get; set; }
+        public string Notes { get; set; } = string.Empty;
+
+        /// <summary>Denormalised "First Last" kept in sync by CrmContactAppService.</summary>
+        public string FullName { get; set; } = string.Empty;
+    }
+
+    /// <summary>
+    /// A call, meeting, task, email or follow-up. Activities are the backbone of the
+    /// customer timeline and of the "overdue follow-up" KPI.
+    /// </summary>
+    public class CrmActivity : FullAuditedAggregateRoot<Guid>
+    {
+        /// <summary>Call | Meeting | Task | Email | FollowUp</summary>
+        public string Type { get; set; } = "Task";
+        public string Subject { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public DateTime DueDate { get; set; } = DateTime.UtcNow.AddDays(1);
+        /// <summary>Open | Completed | Cancelled</summary>
+        public string Status { get; set; } = "Open";
+        public DateTime? CompletedAt { get; set; }
+        /// <summary>Low | Normal | High</summary>
+        public string Priority { get; set; } = "Normal";
+
+        // Polymorphic link — normally exactly one of these is set.
+        public Guid? LeadId { get; set; }
+        public Guid? CustomerId { get; set; }
+        public Guid? ContactId { get; set; }
+        public Guid? DealId { get; set; }
+
+        public string AssignedTo { get; set; } = string.Empty;
+        public Guid? AssignedToUserId { get; set; }
+        public string Outcome { get; set; } = string.Empty;
+    }
+
+    /// <summary>
+    /// Free-text note (optionally with one attachment) attached to any CRM record.
+    /// </summary>
+    public class CrmNote : FullAuditedAggregateRoot<Guid>
+    {
+        public Guid? LeadId { get; set; }
+        public Guid? CustomerId { get; set; }
+        public Guid? ContactId { get; set; }
+        public Guid? DealId { get; set; }
+        public string Content { get; set; } = string.Empty;
+        public bool IsPinned { get; set; }
+        public string AttachmentName { get; set; } = string.Empty;
+        public string AttachmentUrl { get; set; } = string.Empty;
     }
 
     public class SalesOrder : FullAuditedAggregateRoot<Guid>
@@ -535,15 +634,28 @@ namespace ERPPlatform.Domain.Entities
     }
 
     // Payroll Entities
+    /// <summary>
+    /// One payroll run for one period (e.g. "2026-09").
+    /// Status: Draft → Calculated → HrReview → FinanceReview → Finalized → Posted.
+    /// </summary>
     public class PayrollRun : FullAuditedAggregateRoot<Guid>
     {
         public string Period { get; set; } = string.Empty;
         public int TotalEmployees { get; set; }
         public decimal TotalGrossSalary { get; set; }
+        public decimal TotalAllowances { get; set; }
+        public decimal TotalOvertime { get; set; }
+        public decimal TotalTax { get; set; }
         public decimal TotalDeductions { get; set; }
         public decimal TotalNetSalary { get; set; }
+        /// <summary>Gross + employer contributions — what the period actually costs the company.</summary>
+        public decimal TotalEmployerCost { get; set; }
         public string Status { get; set; } = "Approved";
         public DateTime ProcessedDate { get; set; } = DateTime.UtcNow;
+        /// <summary>Set when the run is finalized; finalized runs can only be corrected by reversal.</summary>
+        public DateTime? LockedAt { get; set; }
+        public string ApprovedBy { get; set; } = string.Empty;
+        public string Notes { get; set; } = string.Empty;
     }
 
     public class Payslip : FullAuditedAggregateRoot<Guid>
@@ -553,9 +665,15 @@ namespace ERPPlatform.Domain.Entities
         public string Period { get; set; } = string.Empty;
         public decimal BaseSalary { get; set; }
         public decimal Allowances { get; set; }
+        public decimal OvertimeAmount { get; set; }
+        public decimal GrossSalary { get; set; }
+        public decimal TaxAmount { get; set; }
         public decimal Deductions { get; set; }
         public decimal NetSalary { get; set; }
+        public decimal EmployerCost { get; set; }
+        public string Department { get; set; } = string.Empty;
         public string Status { get; set; } = "Paid";
+        public Guid? PayrollRunId { get; set; }
     }
 
     // Enhanced Audit Log Entity (Module 25)
@@ -943,5 +1061,87 @@ namespace ERPPlatform.Domain.Entities
         public int ProbationPeriodMonths { get; set; } = 3; // Months before leave is available
         public bool IsActive { get; set; } = true;
         public string Description { get; set; } = string.Empty;
+    }
+
+    // ────────────────────────────────────────────────────────────────
+    // Payroll — salary components, employee overrides, payslip detail,
+    // and the pre-run anomaly list.
+    // ────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// A configurable earning, deduction or employer contribution. Nothing about pay
+    /// is hard-coded: the payroll engine reads the active components for the period.
+    /// </summary>
+    public class SalaryComponent : FullAuditedAggregateRoot<Guid>
+    {
+        /// <summary>Stable code used by formulas and reports, e.g. "BASIC", "HOUSING", "SI".</summary>
+        public string Code { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        /// <summary>Earning | Deduction | EmployerContribution</summary>
+        public string Type { get; set; } = "Earning";
+        /// <summary>Fixed | Percentage | Formula (Formula is reserved for the rule builder)</summary>
+        public string CalculationType { get; set; } = "Fixed";
+        /// <summary>Fixed amount, or the percentage value (20 means 20%).</summary>
+        public decimal Amount { get; set; }
+        /// <summary>For Percentage components: the code of the component it is calculated from.</summary>
+        public string PercentageOfComponentCode { get; set; } = "BASIC";
+        public string Formula { get; set; } = string.Empty;
+        public bool IsTaxable { get; set; } = true;
+        public bool IsRecurring { get; set; } = true;
+        public bool CountsAsEmployerCost { get; set; }
+        public bool IsActive { get; set; } = true;
+        public DateTime EffectiveFrom { get; set; } = new DateTime(2000, 1, 1);
+        public DateTime? EffectiveTo { get; set; }
+        public string GlAccount { get; set; } = string.Empty;
+        public string CostCenter { get; set; } = string.Empty;
+        public int SortOrder { get; set; }
+    }
+
+    /// <summary>
+    /// Employee-specific component value: an override of the default amount, or an
+    /// extra component (one-off bonus, loan installment) applied to one person.
+    /// </summary>
+    public class EmployeeSalaryComponent : FullAuditedAggregateRoot<Guid>
+    {
+        public Guid EmployeeId { get; set; }
+        public string EmployeeName { get; set; } = string.Empty;
+        public Guid ComponentId { get; set; }
+        public string ComponentCode { get; set; } = string.Empty;
+        public decimal Amount { get; set; }
+        public bool IsActive { get; set; } = true;
+        public DateTime EffectiveFrom { get; set; } = new DateTime(2000, 1, 1);
+        public DateTime? EffectiveTo { get; set; }
+        public string Note { get; set; } = string.Empty;
+    }
+
+    /// <summary>One row on a payslip, so the numbers are explainable rather than opaque.</summary>
+    public class PayslipLine : FullAuditedAggregateRoot<Guid>
+    {
+        public Guid PayslipId { get; set; }
+        public string ComponentCode { get; set; } = string.Empty;
+        public string ComponentName { get; set; } = string.Empty;
+        /// <summary>Earning | Deduction | EmployerContribution</summary>
+        public string Type { get; set; } = "Earning";
+        public decimal Amount { get; set; }
+        public bool IsTaxable { get; set; }
+    }
+
+    /// <summary>
+    /// Something worth a human look before payroll is finalized. Produced by the
+    /// preview/calculation pass; HR resolves or dismisses each one.
+    /// </summary>
+    public class PayrollAnomaly : FullAuditedAggregateRoot<Guid>
+    {
+        public string Period { get; set; } = string.Empty;
+        public Guid? EmployeeId { get; set; }
+        public string EmployeeName { get; set; } = string.Empty;
+        /// <summary>SalarySpike | HighOvertime | NegativeNet | MissingBankAccount | DuplicateEmployee | TerminatedButPaid | MissingAttendance | UnexpectedDeduction | HighBonus</summary>
+        public string Kind { get; set; } = string.Empty;
+        /// <summary>Warning | Critical</summary>
+        public string Severity { get; set; } = "Warning";
+        public string Message { get; set; } = string.Empty;
+        public decimal Delta { get; set; }
+        public bool IsResolved { get; set; }
+        public string ResolutionNote { get; set; } = string.Empty;
     }
 }

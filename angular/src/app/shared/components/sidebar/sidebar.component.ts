@@ -51,7 +51,10 @@ export class SidebarComponent {
       icon: 'pi-address-book',
       expanded: true,
       items: [
+        { label: 'CRM Dashboard', key: 'Menu:CrmDashboard', arLabel: 'لوحة إدارة العملاء', link: '/sales/crm/dashboard', icon: 'pi-chart-line' },
         { label: 'CRM Leads', key: 'Menu:CrmLeads', arLabel: 'عملاء محتملون', link: '/sales/crm/leads', icon: 'pi-user-plus', badge: 'CRM' },
+        { label: 'CRM Contacts', key: 'Menu:CrmContacts', arLabel: 'جهات الاتصال', link: '/sales/crm/contacts', icon: 'pi-id-card' },
+        { label: 'Activities', key: 'Menu:CrmActivities', arLabel: 'الأنشطة', link: '/sales/crm/activities', icon: 'pi-calendar' },
         { label: 'Customer Roster', key: 'Menu:CustomerRoster', arLabel: 'قائمة العملاء', link: '/sales/customers', icon: 'pi-users', permission: PERMISSIONS.Customers },
         { label: 'Sales Deal Pipeline', key: 'Menu:SalesPipeline', arLabel: 'مسار الصفقات', link: '/sales/pipeline', icon: 'pi-chart-bar' }
       ]
@@ -122,6 +125,7 @@ export class SidebarComponent {
         { label: 'Attendance', key: 'Menu:Attendance', arLabel: 'الحضور', link: '/hr/attendance', icon: 'pi-calendar' },
         { label: 'Leave Management', key: 'Menu:LeaveManagement', arLabel: 'إدارة الإجازات', link: '/hr/leave', icon: 'pi-briefcase' },
         { label: 'Payroll & Payslips', key: 'Menu:PayrollPayslips', arLabel: 'الرواتب وكشوف المرتبات', link: '/hr/payroll', icon: 'pi-dollar' },
+        { label: 'Salary Components', key: 'Menu:SalaryComponents', arLabel: 'عناصر الراتب', link: '/hr/payroll/components', icon: 'pi-sliders-h' },
         { label: 'Recruitment Kanban', key: 'Menu:RecruitmentKanban', arLabel: 'لوحة التوظيف', link: '/hr/recruitment', icon: 'pi-user-plus' }
       ]
     },

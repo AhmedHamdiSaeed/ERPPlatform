@@ -66,3 +66,14 @@
 Start with **#1 RAG AI** — it reuses the just-built LLM assistant and delivers the most
 visible customer value, or **#5 Arabic+RTL** if the immediate market is MENA. Pick one and
 the implementation can begin immediately.
+
+## CRM roadmap (added 2026-09-06)
+Full gap analysis lives in **[CRM_ROADMAP_STATUS.md](CRM_ROADMAP_STATUS.md)**. Summary:
+Phases 1–3 are ~70–90% built **on the backend** but only half-exposed in the UI; Phases 4–6
+do not exist. Three items outrank everything above in leverage-per-hour:
+
+| # | Item | Why | Effort |
+|---|------|-----|--------|
+| C1 | **CRM dashboard UI** over `crm-dashboard/kpis` | KPI service is fully built and no screen calls it | S–M | ✅ 2026-09-06 |
+| C2 | **Contacts + Activities pages** | Two complete app services with zero UI | M | ✅ 2026-09-06 (notes UI still Customer 360 only) |
+| C3 | **Deal → Quotation → Sales Order → Invoice** | Three missing links break the Lead→Cash chain | M |

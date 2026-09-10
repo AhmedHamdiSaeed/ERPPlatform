@@ -39,9 +39,14 @@
             <td class="p-3 font-extrabold text-amber-600">${{ c.outstandingBalance | number:'1.2-2' }}</td>
             <td class="p-3"><span class="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 font-bold rounded-full text-[10px]">{{ c.paymentTerms }}</span></td>
             <td class="p-3">
-              <button (click)="viewStatement(c)" class="px-2.5 py-1 bg-indigo-50 text-indigo-700 font-bold text-[10px] rounded-lg border border-indigo-200 hover:bg-indigo-100">
-                {{ 'Statement' | translate }}
-              </button>
+              <div class="flex items-center gap-2">
+                <button (click)="viewStatement(c)" class="px-2.5 py-1 bg-indigo-50 text-indigo-700 font-bold text-[10px] rounded-lg border border-indigo-200 hover:bg-indigo-100">
+                  {{ 'Statement' | translate }}
+                </button>
+                <button (click)="open360(c)" title="Customer 360" class="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-[10px] rounded-lg border border-[var(--border-color)] hover:bg-slate-200 dark:hover:bg-slate-700">
+                  <i class="pi pi-id-card"></i> 360
+                </button>
+              </div>
             </td>
           </tr>
         }

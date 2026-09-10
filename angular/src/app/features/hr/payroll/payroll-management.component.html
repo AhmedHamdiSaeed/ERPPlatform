@@ -1,4 +1,4 @@
-<div class="p-6 space-y-6">
+<div class="p-4 sm:p-6 space-y-6">
   <!-- Header -->
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
     <div>
@@ -7,139 +7,315 @@
         {{ 'Payroll & Remuneration' | translate }}
       </h1>
       <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-        {{ 'Manage monthly payroll runs, employee payslips, salary breakdowns, and tax deductions.' | translate }}
+        {{ 'Simulate a run, review flagged anomalies, approve the cycle, and publish payslips.' | translate }}
       </p>
     </div>
-    <button 
-      (click)="openProcessModal()"
-      class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium text-sm transition-all shadow hover:shadow-emerald-500/25 flex items-center gap-2">
-      <i class="pi pi-play"></i> {{ 'Process New Payroll Run' | translate }}
-    </button>
-  </div>
-
-  <!-- Payroll Runs Summary Grid -->
-  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5">
-    <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-      <i class="pi pi-history text-emerald-500"></i> {{ 'Payroll Execution History' | translate }}
-    </h2>
-    <div class="overflow-x-auto">
-      <table class="w-full text-left text-sm border-collapse">
-        <thead>
-            <tr class="border-b border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-500 uppercase">
-              <th class="py-3 px-2">{{ 'Pay Period' | translate }}</th>
-              <th class="py-3 px-2">{{ 'Employees' | translate }}</th>
-              <th class="py-3 px-2 text-right">{{ 'Gross Total' | translate }}</th>
-              <th class="py-3 px-2 text-right">{{ 'Taxes & Deductions' | translate }}</th>
-              <th class="py-3 px-2 text-right">{{ 'Net Salary Paid' | translate }}</th>
-              <th class="py-3 px-2 text-center">{{ 'Status' | translate }}</th>
-              <th class="py-3 px-2">{{ 'Processed Date' | translate }}</th>
-            </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
-          @for (run of payrollRuns(); track run.id) {
-            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50">
-              <td class="py-3 px-2 font-bold text-slate-900 dark:text-white">{{ run.period | translate }}</td>
-              <td class="py-3 px-2 text-slate-600 dark:text-slate-300">{{ run.totalEmployees }} {{ 'active' | translate }}</td>
-              <td class="py-3 px-2 text-right text-slate-900 dark:text-white font-medium">${{ run.totalGrossSalary | number:'1.0-0' }}</td>
-              <td class="py-3 px-2 text-right text-rose-600 dark:text-rose-400 font-medium">${{ run.totalDeductions | number:'1.0-0' }}</td>
-              <td class="py-3 px-2 text-right font-extrabold text-emerald-600 dark:text-emerald-400">${{ run.totalNetSalary | number:'1.0-0' }}</td>
-              <td class="py-3 px-2 text-center">
-                <span class="px-2 py-1 text-xs rounded-full font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-                  {{ run.status | translate }}
-                </span>
-              </td>
-              <td class="py-3 px-2 text-slate-500 dark:text-slate-400">{{ run.processedDate }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
+    <div class="flex items-center gap-2">
+      <a routerLink="/hr/payroll/components"
+         class="px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 rounded-lg font-medium text-sm hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2">
+        <i class="pi pi-sliders-h"></i> {{ 'Salary Components' | translate }}
+      </a>
+      <button (click)="openProcessModal()"
+        class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium text-sm transition-all shadow hover:shadow-emerald-500/25 flex items-center gap-2">
+        <i class="pi pi-play"></i> {{ 'Process New Payroll Run' | translate }}
+      </button>
     </div>
   </div>
 
-  <!-- Employee Payslips List -->
+  <!-- Simulation / Preview -->
   <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5">
-    <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-      <i class="pi pi-file-pdf text-emerald-500"></i> {{ 'August 2026 Sample Employee Payslips' | translate }}
-    </h2>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      @for (ps of payslips(); track ps.id) {
-        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 space-y-3">
-          <div class="flex justify-between items-start">
-            <div>
-              <h4 class="font-bold text-slate-900 dark:text-white">{{ ps.employeeName | translate }}</h4>
-              <p class="text-xs text-slate-500 dark:text-slate-400">{{ ps.period | translate }}</p>
-            </div>
-            <span class="px-2 py-0.5 text-xs font-semibold rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
-              {{ ps.status | translate }}
-            </span>
-          </div>
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+      <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+        <i class="pi pi-chart-line text-emerald-500"></i> {{ 'Payroll Simulation' | translate }}
+      </h2>
+      <div class="flex items-center gap-2">
+        <input type="month" [value]="simPeriod()" (input)="onSimPeriodChange($any($event.target).value)"
+          class="px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm">
+        <button (click)="simulate()" [disabled]="simulating()"
+          class="px-3 py-2 bg-slate-900 dark:bg-slate-700 text-white rounded-lg text-sm font-medium disabled:opacity-50">
+          {{ simulating() ? ('Calculating…' | translate) : ('Recalculate' | translate) }}
+        </button>
+      </div>
+    </div>
 
-          <div class="space-y-1 text-xs text-slate-600 dark:text-slate-300 pt-2 border-t border-slate-200 dark:border-slate-600">
-            <div class="flex justify-between"><span>{{ 'Base Salary:' | translate }}</span><span>${{ ps.baseSalary | number }}</span></div>
-            <div class="flex justify-between"><span>{{ 'Allowances:' | translate }}</span><span class="text-emerald-600">+${{ ps.allowances | number }}</span></div>
-            <div class="flex justify-between"><span>{{ 'Deductions:' | translate }}</span><span class="text-rose-600">-${{ ps.deductions | number }}</span></div>
-            <div class="flex justify-between font-bold text-sm text-slate-900 dark:text-white pt-1 border-t border-slate-200 dark:border-slate-600">
-              <span>{{ 'Net Pay:' | translate }}</span><span class="text-emerald-600 dark:text-emerald-400">${{ ps.netSalary | number }}</span>
-            </div>
-          </div>
-
-          <div class="flex gap-2 pt-2">
-            <button (click)="viewPayslip(ps)" class="flex-1 py-1.5 border border-slate-300 dark:border-slate-600 rounded text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100">
-              {{ 'View Slip' | translate }}
-            </button>
-            <button (click)="downloadPayslipPdf(ps.employeeName)" class="flex-1 py-1.5 bg-emerald-600 text-white rounded text-xs font-medium hover:bg-emerald-700">
-              {{ 'Download PDF' | translate }}
-            </button>
-          </div>
+    @if (preview(); as p) {
+      @if (p.usingFallback) {
+        <div class="mb-4 px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200 text-xs flex items-center gap-2">
+          <i class="pi pi-info-circle"></i>
+          {{ 'No salary components configured — showing basic salary only. Add rules under Salary Components to model earnings, deductions and employer costs.' | translate }}
         </div>
       }
-    </div>
+
+      <!-- Totals cards -->
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-5">
+        <div class="rounded-lg bg-slate-50 dark:bg-slate-700/50 p-3">
+          <div class="text-xs text-slate-500 dark:text-slate-400">{{ 'Headcount' | translate }}</div>
+          <div class="text-xl font-extrabold text-slate-900 dark:text-white">{{ p.totals.employeeCount }}</div>
+          @if (p.headcountDelta !== 0) {
+            <div class="text-xs" [class]="deltaClass(p.headcountDelta)">{{ (p.headcountDelta > 0 ? '+' : '') + p.headcountDelta }} vs prev</div>
+          }
+        </div>
+        <div class="rounded-lg bg-slate-50 dark:bg-slate-700/50 p-3">
+          <div class="text-xs text-slate-500 dark:text-slate-400">{{ 'Gross' | translate }}</div>
+          <div class="text-xl font-extrabold text-slate-900 dark:text-white">{{ money(p.totals.grossSalary) }}</div>
+        </div>
+        <div class="rounded-lg bg-slate-50 dark:bg-slate-700/50 p-3">
+          <div class="text-xs text-slate-500 dark:text-slate-400">{{ 'Tax & Insurance' | translate }}</div>
+          <div class="text-xl font-extrabold text-rose-600 dark:text-rose-400">{{ money(p.totals.taxAndInsurance) }}</div>
+        </div>
+        <div class="rounded-lg bg-slate-50 dark:bg-slate-700/50 p-3">
+          <div class="text-xs text-slate-500 dark:text-slate-400">{{ 'Deductions' | translate }}</div>
+          <div class="text-xl font-extrabold text-rose-600 dark:text-rose-400">{{ money(p.totals.deductions) }}</div>
+        </div>
+        <div class="rounded-lg bg-emerald-50 dark:bg-emerald-900/30 p-3">
+          <div class="text-xs text-emerald-700 dark:text-emerald-300">{{ 'Net Salary' | translate }}</div>
+          <div class="text-xl font-extrabold text-emerald-700 dark:text-emerald-300">{{ money(p.totals.netSalary) }}</div>
+          @if (p.netDelta !== 0) {
+            <div class="text-xs" [class]="deltaClass(p.netDelta)">{{ (p.netDelta > 0 ? '+' : '') + money(p.netDelta) }} vs prev</div>
+          }
+        </div>
+        <div class="rounded-lg bg-slate-50 dark:bg-slate-700/50 p-3">
+          <div class="text-xs text-slate-500 dark:text-slate-400">{{ 'Employer Cost' | translate }}</div>
+          <div class="text-xl font-extrabold text-slate-900 dark:text-white">{{ money(p.totals.employerCost) }}</div>
+        </div>
+      </div>
+
+      <!-- Issues to Review -->
+      <div class="mb-5">
+        <h3 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-2 flex items-center gap-2">
+          <i class="pi pi-flag text-amber-500"></i> {{ 'Issues to Review' | translate }}
+          @if (openAnomalies().length > 0) {
+            <span class="px-2 py-0.5 text-xs rounded-full bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300">{{ openAnomalies().length }}</span>
+          }
+        </h3>
+        @if (openAnomalies().length === 0) {
+          <div class="text-sm text-slate-500 dark:text-slate-400 px-3 py-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800">
+            <i class="pi pi-check-circle text-emerald-500"></i> {{ 'No anomalies detected for this period.' | translate }}
+          </div>
+        } @else {
+          <div class="space-y-2">
+            @for (a of openAnomalies(); track a.id) {
+              <div class="flex items-start gap-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/40 p-3">
+                <span class="mt-0.5 w-7 h-7 shrink-0 rounded-full flex items-center justify-center text-xs"
+                  [class]="severityClass(a.severity)">
+                  <i class="pi" [class]="anomalyIcon(a.kind)"></i>
+                </span>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200">{{ a.kind }}</span>
+                    @if (a.employeeName) {
+                      <span class="text-sm font-medium text-slate-900 dark:text-white">{{ a.employeeName }}</span>
+                    }
+                  </div>
+                  <p class="text-sm text-slate-600 dark:text-slate-300 mt-0.5">{{ a.message }}</p>
+                </div>
+                <button (click)="resolveAnomaly(a)"
+                  class="shrink-0 px-3 py-1.5 text-xs font-medium rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700">
+                  {{ 'Mark reviewed' | translate }}
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Per-employee breakdown -->
+      <h3 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">{{ 'Per-Employee Breakdown' | translate }}</h3>
+      <div class="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-lg">
+        <table class="w-full text-left text-sm border-collapse">
+          <thead>
+            <tr class="border-b border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-500 uppercase">
+              <th class="py-2 px-2"></th>
+              <th class="py-2 px-2">{{ 'Employee' | translate }}</th>
+              <th class="py-2 px-2 text-right">{{ 'Basic' | translate }}</th>
+              <th class="py-2 px-2 text-right">{{ 'Gross' | translate }}</th>
+              <th class="py-2 px-2 text-right">{{ 'Tax' | translate }}</th>
+              <th class="py-2 px-2 text-right">{{ 'Net' | translate }}</th>
+              <th class="py-2 px-2 text-right">{{ 'Δ vs prev' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+            @for (e of p.employees; track e.employeeId) {
+              <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                <td class="py-2 px-2">
+                  <button (click)="toggleEmployee(e.employeeId)" class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
+                    <i class="pi" [class]="isExpanded(e.employeeId) ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
+                  </button>
+                </td>
+                <td class="py-2 px-2">
+                  <div class="font-medium text-slate-900 dark:text-white">{{ e.employeeName || e.employeeCode }}</div>
+                  <div class="text-xs text-slate-500">{{ e.department || '—' }}</div>
+                </td>
+                <td class="py-2 px-2 text-right text-slate-700 dark:text-slate-300">{{ money(e.basic) }}</td>
+                <td class="py-2 px-2 text-right text-slate-700 dark:text-slate-300">{{ money(e.grossSalary) }}</td>
+                <td class="py-2 px-2 text-right text-rose-600 dark:text-rose-400">{{ money(e.taxAndInsurance) }}</td>
+                <td class="py-2 px-2 text-right font-bold text-emerald-700 dark:text-emerald-300">{{ money(e.netSalary) }}</td>
+                <td class="py-2 px-2 text-right text-xs" [class]="deltaClass(e.netDelta)">{{ e.netDelta === 0 ? '—' : (e.netDelta > 0 ? '+' : '') + money(e.netDelta) }}</td>
+              </tr>
+              @if (isExpanded(e.employeeId)) {
+                <tr class="bg-slate-50 dark:bg-slate-700/30">
+                  <td></td>
+                  <td colspan="6" class="py-2 px-2">
+                    <div class="flex flex-wrap gap-2">
+                      @for (l of e.lines; track l.code) {
+                        <span class="px-2 py-1 text-xs rounded-md border border-slate-200 dark:border-slate-600
+                          {{ l.type === 'Deduction' ? 'text-rose-600 dark:text-rose-300' : (l.type === 'EmployerContribution' ? 'text-slate-500 dark:text-slate-400' : 'text-emerald-700 dark:text-emerald-300') }}">
+                          {{ l.name }} ({{ l.code }}): {{ (l.amount >= 0 ? '+' : '') + money(l.amount) }}
+                          @if (l.isTaxable) { <span class="opacity-60">· taxable</span> }
+                        </span>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else if (simulating()) {
+      <div class="text-center text-slate-500 py-10"><i class="pi pi-spin pi-spinner"></i> {{ 'Calculating…' | translate }}</div>
+    }
   </div>
 
-  <!-- Run Payroll Modal -->
+  <!-- Payroll Runs -->
+  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5">
+    <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+      <i class="pi pi-history text-emerald-500"></i> {{ 'Payroll Runs' | translate }}
+    </h2>
+    @if (runs().length === 0) {
+      <p class="text-sm text-slate-500 dark:text-slate-400">{{ 'No runs yet. Process a run to calculate payslips.' | translate }}</p>
+    } @else {
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm border-collapse">
+          <thead>
+            <tr class="border-b border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-500 uppercase">
+              <th class="py-3 px-2">{{ 'Period' | translate }}</th>
+              <th class="py-3 px-2">{{ 'Employees' | translate }}</th>
+              <th class="py-3 px-2 text-right">{{ 'Gross' | translate }}</th>
+              <th class="py-3 px-2 text-right">{{ 'Tax' | translate }}</th>
+              <th class="py-3 px-2 text-right">{{ 'Net' | translate }}</th>
+              <th class="py-3 px-2 text-center">{{ 'Status' | translate }}</th>
+              <th class="py-3 px-2">{{ 'Approved by' | translate }}</th>
+              <th class="py-3 px-2 text-right">{{ 'Actions' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+            @for (run of runs(); track run.id) {
+              <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                <td class="py-3 px-2 font-bold text-slate-900 dark:text-white">{{ run.period }}</td>
+                <td class="py-3 px-2 text-slate-600 dark:text-slate-300">{{ run.totalEmployees }}</td>
+                <td class="py-3 px-2 text-right text-slate-900 dark:text-white">{{ money(run.totalGrossSalary) }}</td>
+                <td class="py-3 px-2 text-right text-rose-600 dark:text-rose-400">{{ money(run.totalTax) }}</td>
+                <td class="py-3 px-2 text-right font-extrabold text-emerald-600 dark:text-emerald-400">{{ money(run.totalNetSalary) }}</td>
+                <td class="py-3 px-2 text-center">
+                  <span class="px-2 py-1 text-xs rounded-full font-semibold" [class]="statusClass(run.status)">{{ run.status | translate }}</span>
+                </td>
+                <td class="py-3 px-2 text-slate-500 dark:text-slate-400">{{ run.approvedBy || '—' }}</td>
+                <td class="py-3 px-2 text-right">
+                  <div class="flex justify-end gap-1">
+                    @if (canAdvance(run)) {
+                      <button (click)="advance(run)" class="px-2 py-1 text-xs rounded-lg bg-indigo-600 text-white hover:bg-indigo-700">{{ nextStatusLabel(run.status) || 'Advance' | translate }}</button>
+                    }
+                    @if (!isLocked(run)) {
+                      <button (click)="reopen(run)" class="px-2 py-1 text-xs rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-100">{{ 'Reopen' | translate }}</button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+
+  <!-- Payslips -->
+  <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+      <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+        <i class="pi pi-file-pdf text-emerald-500"></i> {{ 'Payslips' | translate }}
+      </h2>
+      <input type="month" [value]="payslipPeriod()" (input)="onPayslipPeriodChange($any($event.target).value)"
+        class="px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm">
+    </div>
+    @if (payslips().length === 0) {
+      <p class="text-sm text-slate-500 dark:text-slate-400">{{ 'No payslips for this period. Process a run first.' | translate }}</p>
+    } @else {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        @for (ps of payslips(); track ps.id) {
+          <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 space-y-3">
+            <div class="flex justify-between items-start">
+              <div>
+                <h4 class="font-bold text-slate-900 dark:text-white">{{ ps.employeeName || '—' }}</h4>
+                <p class="text-xs text-slate-500 dark:text-slate-400">{{ ps.period }} · {{ ps.department || '—' }}</p>
+              </div>
+              <span class="px-2 py-0.5 text-xs font-semibold rounded bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200">{{ ps.status }}</span>
+            </div>
+            <div class="space-y-1 text-xs text-slate-600 dark:text-slate-300 pt-2 border-t border-slate-200 dark:border-slate-600">
+              <div class="flex justify-between"><span>{{ 'Base:' | translate }}</span><span>{{ money(ps.baseSalary) }}</span></div>
+              <div class="flex justify-between"><span>{{ 'Allowances:' | translate }}</span><span class="text-emerald-600">+{{ money(ps.allowances) }}</span></div>
+              <div class="flex justify-between"><span>{{ 'Overtime:' | translate }}</span><span class="text-emerald-600">+{{ money(ps.overtimeAmount) }}</span></div>
+              <div class="flex justify-between"><span>{{ 'Tax:' | translate }}</span><span class="text-rose-600">-{{ money(ps.taxAmount) }}</span></div>
+              <div class="flex justify-between"><span>{{ 'Deductions:' | translate }}</span><span class="text-rose-600">-{{ money(ps.deductions) }}</span></div>
+              <div class="flex justify-between font-bold text-sm text-slate-900 dark:text-white pt-1 border-t border-slate-200 dark:border-slate-600">
+                <span>{{ 'Net Pay:' | translate }}</span><span class="text-emerald-600 dark:text-emerald-400">{{ money(ps.netSalary) }}</span>
+              </div>
+            </div>
+            <button (click)="viewPayslip(ps)" class="w-full py-1.5 border border-slate-300 dark:border-slate-600 rounded text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+              {{ 'View Slip' | translate }}
+            </button>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Process Run Modal -->
   @if (showProcessModal()) {
     <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl max-w-md w-full p-6 space-y-4">
-        <h3 class="text-lg font-bold text-slate-900 dark:text-white">{{ 'Process Monthly Payroll' | translate }}</h3>
-        <p class="text-sm text-slate-500 dark:text-slate-400">{{ 'Calculate gross salaries, statutory deductions (15%), and net payouts for 245 active headcount.' | translate }}</p>
-
+        <h3 class="text-lg font-bold text-slate-900 dark:text-white">{{ 'Process Payroll Run' | translate }}</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400">{{ 'Calculates payslips, anomalies and employer cost for the period. The run starts in Calculated status and moves through HR / Finance review before it is finalized.' | translate }}</p>
         <div>
           <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">{{ 'Pay Period' | translate }}</label>
-          <input type="text" [(ngModel)]="selectedPeriod" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm">
+          <input type="month" [(ngModel)]="processPeriod" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm">
         </div>
-
         <div class="flex justify-end gap-2 pt-2">
           <button (click)="showProcessModal.set(false)" class="px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg text-sm">{{ 'Close' | translate }}</button>
-          <button (click)="runPayroll()" class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700">{{ 'Execute Payroll Run' | translate }}</button>
+          <button (click)="process()" [disabled]="processing()" class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 disabled:opacity-50">
+            {{ processing() ? ('Processing…' | translate) : ('Calculate Run' | translate) }}
+          </button>
         </div>
       </div>
     </div>
   }
 
-  <!-- View Payslip Modal -->
-  @if (showPayslipModal() && currentPayslip) {
+  <!-- Payslip Modal -->
+  @if (showPayslipModal() && currentPayslip; as ps) {
     <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl max-w-md w-full p-6 space-y-4">
         <div class="flex justify-between items-center border-b pb-3 border-slate-200 dark:border-slate-700">
           <div>
-            <h3 class="text-lg font-bold text-slate-900 dark:text-white">{{ 'Official Payslip Statement' | translate }}</h3>
-            <p class="text-xs text-slate-500">{{ currentPayslip.period | translate }} • {{ currentPayslip.employeeName | translate }}</p>
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">{{ 'Official Payslip' | translate }}</h3>
+            <p class="text-xs text-slate-500">{{ ps.period }} • {{ ps.employeeName }} • {{ ps.department }}</p>
           </div>
           <button (click)="showPayslipModal.set(false)" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times"></i></button>
         </div>
-
         <div class="space-y-2 text-sm text-slate-700 dark:text-slate-300">
-          <div class="flex justify-between"><span>{{ 'Base Monthly Salary' | translate }}:</span><span class="font-semibold">${{ currentPayslip.baseSalary | number }}</span></div>
-          <div class="flex justify-between"><span>{{ 'Housing & Transport Allowance' | translate }}:</span><span class="font-semibold text-emerald-600">+${{ currentPayslip.allowances | number }}</span></div>
-          <div class="flex justify-between"><span>{{ 'Income Tax Deductions' | translate }}:</span><span class="font-semibold text-rose-600">-${{ currentPayslip.deductions | number }}</span></div>
+          <div class="flex justify-between"><span>{{ 'Base Salary' | translate }}:</span><span class="font-semibold">{{ money(ps.baseSalary) }}</span></div>
+          <div class="flex justify-between"><span>{{ 'Allowances' | translate }}:</span><span class="font-semibold text-emerald-600">+{{ money(ps.allowances) }}</span></div>
+          <div class="flex justify-between"><span>{{ 'Overtime' | translate }}:</span><span class="font-semibold text-emerald-600">+{{ money(ps.overtimeAmount) }}</span></div>
+          <div class="flex justify-between"><span>{{ 'Tax & Insurance' | translate }}:</span><span class="font-semibold text-rose-600">-{{ money(ps.taxAmount) }}</span></div>
+          <div class="flex justify-between"><span>{{ 'Deductions' | translate }}:</span><span class="font-semibold text-rose-600">-{{ money(ps.deductions) }}</span></div>
           <div class="flex justify-between text-base font-extrabold text-slate-900 dark:text-white pt-2 border-t border-slate-200 dark:border-slate-700">
-            <span>{{ 'Total Net Transfer' | translate }}:</span><span class="text-emerald-600 dark:text-emerald-400">${{ currentPayslip.netSalary | number }}</span>
+            <span>{{ 'Net Pay' | translate }}:</span><span class="text-emerald-600 dark:text-emerald-400">{{ money(ps.netSalary) }}</span>
+          </div>
+          <div class="flex justify-between text-xs text-slate-500 pt-1">
+            <span>{{ 'Employer Cost' | translate }}:</span><span>{{ money(ps.employerCost) }}</span>
           </div>
         </div>
-
-        <div class="flex justify-end gap-2 pt-2">
-          <button (click)="showPayslipModal.set(false)" class="px-4 py-2 border border-slate-300 text-slate-700 dark:text-slate-300 rounded-lg text-sm">{{ 'Close' | translate }}</button>
-          <button (click)="downloadPayslipPdf(currentPayslip.employeeName)" class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium">{{ 'Download PDF' | translate }}</button>
+        <div class="flex justify-end pt-2">
+          <button (click)="showPayslipModal.set(false)" class="px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg text-sm">{{ 'Close' | translate }}</button>
         </div>
       </div>
     </div>
