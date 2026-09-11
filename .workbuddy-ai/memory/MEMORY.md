@@ -1,113 +1,36 @@
 # ERPPlatform — Project Conventions
 
-## Session & Authentication
+## Build & run
+- Backend: `cd Host/ERPPlatform.HttpApi.Host && dotnet run --launch-profile "ERPPlatform.HttpApi.Host"` (https://localhost:44327). **Never `--no-launch-profile`** → binds :5000 + env=Production → `/api/abp/application-configuration` "0 Unknown Error".
+- Angular prod: `npm run build:prod` (output `angular/dist/ERPPlatform`). Dev: `ng build --configuration development --no-delete-output-path` (CLI dist cleanup trips sandbox bulk-delete guard).
+- `dotnet build` fails MSB3021/MSB3027 while host runs (locks its own DLLs) → build with `-o <temp>`. Stale host on 44327 → kill PID from MSB3027 / `netstat -ano | grep 44327`. CS2012 Access denied = stale Roslyn node → `dotnet build-server shutdown`.
+- Sandbox blocks `tasklist/Get-Process/wmic/reg`; `ConvertTo-SecureString -AsPlainText` blocked.
 
-| Scope | Lifetime |
-|---|---|
-| Desktop / web browser | 3 hours (absolute, from login) |
-| Phone / tablet (incl. mobile browser + PWA) | 6 months = 180 days |
-| Server access token (OpenIddict) | 30 minutes |
-| Server refresh token (OpenIddict) | 180 days |
+## Prod deploy — SAME-ORIGIN SPA (current plan, since 2026-09-11)
+- Serve SPA from `https://erpplatform.runasp.net` (same origin as API → no CORS, no redirect-URI, no Netlify SSL issues). `environment.prod.ts` reverted so `baseUrl/issuer/apis.default.url` all = `https://erpplatform.runasp.net`.
+- .NET host must serve `wwwroot` SPA + fallback: `app.UseStaticFiles()` + `app.UseRouting()` + `endpoints.MapFallbackToFile("index.html")` (after `UseConfiguredEndpoints()`). Build Angular into `Host/ERPPlatform.HttpApi.Host/wwwroot`.
+- Netlify experiment abandoned: all 3 sites returned 502 (account `ssl:false`, no API fix). Revoke PAT `nfp_DJVjJ9P7wj29DTD7yQUJEKYyvUeHCFz141c2` at app.netlify.com/user/applications.
 
-- Sessions are **absolute**, not idle-based: activity does not extend them, and after expiry any
-  action (click, navigation, API call) forces a redirect to `/auth/login?returnUrl=<page>`.
-  After re-login the user returns to that exact page (query params included).
-- The long mobile session works because the SPA silently exchanges its refresh token for a new
-  access token; the refresh token lifetime must stay >= the longest client session (180 days).
-- Config knobs live in `Host/.../appsettings.json` under `Auth:` and are read by
-  `ConfigureTokenLifetimes()` in `ERPPlatformHttpApiHostModule`.
-- Dev testing hook: append `?sessionSeconds=20` to the login URL to shrink the session
-  (ignored in production builds).
+## Prod config precedence & gotchas
+- `AddAppSettingsSecretsJson()` appends `appsettings.secrets.json` **last** → overrides env/production/args. Never put `ConnectionStrings` there; use gitignored `appsettings.Production.json`.
+- `web.config` sets no ASPNETCORE_ENVIRONMENT → IIS defaults to **Production** (loads appsettings.Production.json).
+- Verify deploy: `dotnet publish -c Release -o C:/tmp/pubtestN` (fresh N), then `ASPNETCORE_ENVIRONMENT=Production ASPNETCORE_URLS=http://localhost:5055 dotnet ERPPlatform.HttpApi.Host.dll` → `/` 302 /swagger, `/api/abp/application-configuration` 200, swagger.json 339 paths.
+- WebDeploy not drivable from here — user must Publish in Visual Studio.
 
-## Build verification gotchas
+## OpenIddict (IIS 500 on every URL)
+- Dev cert opens Windows store → `CryptographicException: Access denied` under app-pool identity. Fix in `PreConfigureServices` (non-Dev only): `AbpOpenIddictAspNetCoreOptions.AddDevelopmentEncryptionAndSigningCertificate=false` + `AddEncryptionCertificate`/`AddSigningCertificate` (real RSA cert). Cert: `Host/.../openiddict.pfx` RSA2048 20y, pass `Erp2026-OpenIddict-Pfx`, or base64 in `OpenIddict:CertificatePfxBase64` (preferred). Load with `X509KeyStorageFlags.MachineKeySet|EphemeralKeySet` via `X509CertificateLoader.LoadPkcs12`.
 
-- Angular: `ng build --configuration development --no-delete-output-path` — the CLI's cleanup of
-  `dist` trips the sandbox bulk-delete guard.
-- .NET: `dotnet build` fails with MSB3021/MSB3027 while `ERPPlatform.HttpApi.Host` is running
-  (locks its own DLLs). Build with `-o <temp dir>` to verify compilation, then restart the host.
-- **Pitfall:** `dotnet run --no-build` after `dotnet build -o <tempdir>` silently runs **stale**
-  binaries from `bin/` — the `-o` build never updates `bin/`. To run fresh code, stop the host and
-  let `dotnet run` build itself (no `-o`, no `--no-build`).
-- A stale host keeps serving an old Swagger doc. Before re-verifying routes, free the port:
-  `netstat -ano | grep 44327` → `Stop-Process -Id <pid> -Force`.
-- `wmic.exe` is blocked by the sandbox — use `netstat`/`tasklist` or PowerShell instead.
+## HTTPS / origins
+- `http://erpplatform.runasp.net` 307→https. All `App:SelfUrl/ClientUrl/CorsOrigins/RedirectAllowedUrls`, `AuthServer:Authority` must be **https**; `RequireHttpsMetadata=true`. `inprocess` forwards scheme — no `UseForwardedHeaders`. `DisableTransportSecurityRequirement()` self-disables under https.
+- Redirect URIs seeded from DbMigrator `OpenIddict:Applications:ERPPlatform_App:RootUrl` + `AdditionalRedirectUris` (prod+dev). Running DbMigrator resets to RootUrl unless `AdditionalRedirectUris` present.
 
-## IIS Express port-squat on 44327 (silent login hangs)
+## DB / migrations
+- `dotnet-ef` unavailable (no Design pkg) → `cd Shared/ERPPlatform.DbMigrator && dotnet run`. Unapplied migration → endpoints 500 `Invalid object name`.
+- Split-horizon DB: server-side `db66804.databaseasp.net` (10.0.0.31), dev `db66804.public.databaseasp.net` (5.9.179.197). sqlcmd at `/c/Program Files/Microsoft SQL Server/Client SDK/ODBC/170/Tools/Binn/SQLCMD.EXE` (`-C`).
 
-- **`iisexpress.exe` left over from a Visual Studio debug session can hold port 44327.**
-  Symptom: `dotnet run` succeeds but Kestrel silently fails to bind (look for it in the background
-  task — no "Now listening on https://localhost:44327" line). Angular keeps hitting whatever is
-  on the port (IIS Express), not Kestrel.
-- User-visible symptom: `token` and `application-configuration` return 200 through the IIS proxy,
-  but the protected `/api/app/notification/notifications` (and other API routes) hang forever as
-  "pending" in DevTools → Network → the SPA is stuck on "Authenticating…" / "session expired".
-- Fix: `tasklist | findstr iis` → `taskkill /PID <iisexpress_pid> /F` (and tray), then
-  `cd Host/ERPPlatform.HttpApi.Host && dotnet run`. Confirm Kestrel with
-  `curl -skI https://localhost:44327/swagger/v1/swagger.json` — must show `Server: Kestrel`.
-- Detect quickly: if port 44327 is held but `tasklist` shows no `ERPPlatform.HttpApi.Host`,
-  something else (IIS Express, ServiceHub, debugger proxy) owns it.
+## Logins / tenants
+- Multi-tenancy on. Tenants: `Acme, AlAmal, TechFlow` (host=TenantId NULL). Admin `admin`/`admin@abp.io`/`1q2w3E*` valid host + all tenants. `ERPPlatform_App` client: `gt:password`+`gt:refresh_token`, scope `offline_access ERPPlatform`. Tenant via `__tenant` header.
+- Data issue: 4 duplicate rows in `AbpUsers` for several users — clean before mobile bind.
 
-## Database / migrations
-
-- `dotnet-ef` refuses to run because `ERPPlatform.HttpApi.Host` does not reference
-  `Microsoft.EntityFrameworkCore.Design`. Use the migrator app instead:
-  `cd Shared/ERPPlatform.DbMigrator && dotnet run`.
-- A generated migration is not applied until the DbMigrator runs. Symptom of an unapplied
-  migration: routes and services look fine but endpoints 500 with `Invalid object name '<Table>'`.
-
-## ABP routing conventions (verified against live Swagger)
-
-- Conventional controllers are registered in `ConfigureConventionalControllers()`; root paths are
-  `app` (Shared assembly), `hr`, `inventory`, `workflow`, `ai`. All entities/services live in the
-  Shared assembly regardless of which module folder they sit in.
-- ABP strips the HTTP-verb prefix from the method name: `UpdateStageAsync` → `/stage`,
-  `GetActiveProvidersAsync` → `/active-providers`, `PassQualityCheckAsync` → `/pass-quality-check`.
-- **Do not assume parameters bind from the query string.** In ABP 9.3 conventional controllers,
-  simple-type params (`id`, `conversationId`, `otherUserId`, `userId`, `messageId`) are placed in the
-  **path**, not the query. Guessing query binding has caused repeated 404s
-  (e.g. `check-in/{employeeId}`, `check-out/{attendanceId}`, `convert-to-invoice/{quotationId}`,
-  `start-direct/{otherUserId}`, `history/{conversationId}`, `toggle-reaction/{messageId}` are path
-  params; `candidate/{id}/stage` uses `?newStage=` in the query). Always read Swagger.
-- **Verb-inference quirk:** `Create/Add`→POST, `Update`→PUT, `Remove`→DELETE, `Get`→GET — but
-  **`Edit*` maps to POST, not PUT**. `EditMessageAsync` → `POST /chat-message/{id}/edit-message`.
-- **Application layer has no `Microsoft.AspNetCore.Mvc` reference.** You cannot put
-  `[FromQuery]`/`[FromRoute]` on app-service params (build fails CS0234). Keep backend binding as
-  ABP defaults and align the frontend service instead.
-- A service can end up mounted at the bare root (`/api/app`) if its controller segment is dropped —
-  renaming `IntegrationAppService` → `IntegrationConfigAppService` restored the expected
-  `/api/app/integration-config`. Always confirm the actual route in Swagger.
-- API versioning is query/header based (`QueryStringApiVersionReader` + `HeaderApiVersionReader`),
-  so versioning never changes URLs.
-- In ABP 9 the CRUD filtering hook is `CreateFilteredQueryAsync` (not `CreateFilteredQuery`).
-  To add a filter, declare a DTO deriving from `PagedAndSortedResultRequestDto`, use it as the
-  4th generic argument of `CrudAppService<,,TGetListInput,>`, and override that hook.
-
-## Localization (en / ar)
-
-- Dictionaries: `angular/src/assets/i18n/{en,ar}.json`, flat `"English key": "translation"` maps.
-  `TranslationService` (`core/services/translation.service.ts`) is **not** ngx-translate — `get(key)`
-  returns the key itself when there is no entry, so **an untranslated UI string means a missing
-  ar.json key**, not a broken pipe.
-- Two consumption paths, both fed by the same dictionary:
-  1. `TranslatePipe` for `{{ 'Key' | translate }}`.
-  2. A `MutationObserver` DOM walker that translates **raw text nodes** and `input[placeholder]`
-     after every DOM mutation. Toasts (`toast-container`) and confirm dialogs (`confirm-dialog`)
-     render as plain text, so they are translated by path 2 — no pipe needed.
-- **Text nodes that mix Arabic and English can never be fixed by a dictionary entry.**
-  `processTextNode` returns early when the node already contains an Arabic char, so
-  `{{ 'HR:AnnualLeave' | translate }} Balance` stays "إجازة سنوية Balance" forever. Split it into
-  separate interpolations, or better, use one whole-sentence key (Arabic word order differs).
-- Interpolated/template-literal messages (`Are you sure you want to delete ${name}? ...`) need a
-  regex in `matchDynamicToast()` — add both the to-Arabic and the reverse Arabic→English branch.
-- Non-English keys (`HR:Attendance`, `Menu:*`, `Permission:*`) need an `en.json` entry too.
-- Helpers: `C:\tmp\scan_missing.py` (report untranslated strings per component),
-  `C:\tmp\add_translations.py` (merge new keys without overwriting).
-
-## Verifying frontend ↔ API wiring
-
-Swagger is the source of truth. Workflow:
-1. Start the host, fetch `https://localhost:44327/swagger/v1/swagger.json` (263 paths).
-2. Diff every route literal in `angular/src/app` against it (scripts: `C:\tmp\route_diff.py`,
-   `C:\tmp\svc_check.py`). Normalize `${...}` and `{...}` to a single placeholder before comparing.
-3. Cross-check all `*AppService` classes against Swagger to catch services mounted at the wrong
-   path. Ignore `ERPPlatformAppService` — it is abstract and intentionally not exposed.
+## Localization (en/ar)
+- `angular/src/assets/i18n/{en,ar}.json`. `get(key)` returns key → missing Arabic = missing ar.json key. Mixed AR/EN text nodes untranslatable; split them.

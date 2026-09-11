@@ -46,6 +46,17 @@
     <ProjectReference Include="..\..\Dapper\Queries\ERPPlatform.Dapper.Queries.csproj" />
   </ItemGroup>
 
+  <!-- Production OpenIddict signing/encryption certificate (contains a private key - see .gitignore).
+       Loaded by ERPPlatformHttpApiHostModule when the environment is not Development. "None Update"
+       rather than "Content Include" because the Web SDK already globs every non-code file as None;
+       adding it again as Content would raise NETSDK1022 (duplicate items). -->
+  <ItemGroup>
+    <None Update="openiddict.pfx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </None>
+  </ItemGroup>
+
   <ItemGroup>
     <Compile Remove="Logs\**" />
     <Content Remove="Logs\**" />

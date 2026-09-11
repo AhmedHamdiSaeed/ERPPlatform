@@ -100,7 +100,8 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
                 scopes: commonScopes,
                 redirectUri: consoleAndAngularClientRootUrl,
                 clientUri: consoleAndAngularClientRootUrl,
-                postLogoutRedirectUri: consoleAndAngularClientRootUrl
+                postLogoutRedirectUri: consoleAndAngularClientRootUrl,
+                additionalRedirectUris: GetAdditionalRedirectUris(configurationSection, "ERPPlatform_App")
             );
         }
 
@@ -122,9 +123,34 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
                 grantTypes: new List<string> { OpenIddictConstants.GrantTypes.AuthorizationCode, },
                 scopes: commonScopes,
                 redirectUri: $"{swaggerRootUrl}/swagger/oauth2-redirect.html",
-                clientUri: swaggerRootUrl
+                clientUri: swaggerRootUrl,
+                additionalRedirectUris: GetAdditionalRedirectUris(
+                    configurationSection, "ERPPlatform_Swagger", "/swagger/oauth2-redirect.html")
             );
         }
+    }
+
+    /// <summary>
+    /// Reads extra redirect URIs (OpenIddict:Applications:{clientId}:AdditionalRedirectUris) that
+    /// are registered alongside RootUrl.
+    ///
+    /// This exists because the seeder REPLACES a client's redirect URIs whenever they differ from
+    /// configuration, so a single RootUrl means every migration wipes any URI that was registered
+    /// for another environment. Listing the deployment URLs here keeps dev and production valid at
+    /// the same time - see <see cref="CreateApplicationAsync" />.
+    /// </summary>
+    private static List<string> GetAdditionalRedirectUris(
+        IConfigurationSection configurationSection,
+        string clientId,
+        string? suffix = null)
+    {
+        var values = configurationSection.GetSection($"{clientId}:AdditionalRedirectUris").Get<string[]>();
+
+        return values == null
+            ? new List<string>()
+            : values.Where(x => !x.IsNullOrWhiteSpace())
+                    .Select(x => x.TrimEnd('/') + suffix)
+                    .ToList();
     }
 
     private async Task CreateApplicationAsync(
@@ -138,7 +164,8 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
         string? clientUri = null,
         string? redirectUri = null,
         string? postLogoutRedirectUri = null,
-        List<string>? permissions = null)
+        List<string>? permissions = null,
+        List<string>? additionalRedirectUris = null)
     {
         if (!string.IsNullOrEmpty(secret) && string.Equals(type, OpenIddictConstants.ClientTypes.Public,
                 StringComparison.OrdinalIgnoreCase))
@@ -287,6 +314,23 @@ public class OpenIddictDataSeedContributor : IDataSeedContributor, ITransientDep
                 {
                     application.RedirectUris.Add(uri);
                 }
+            }
+        }
+
+        // Extra URIs for the other environments this same client is used from. Without them the
+        // HasSameRedirectUris check below would rewrite the client on every migration and drop
+        // whichever environment is not listed in RootUrl.
+        foreach (var additionalRedirectUri in additionalRedirectUris ?? new List<string>())
+        {
+            if (!Uri.TryCreate(additionalRedirectUri, UriKind.Absolute, out var uri) ||
+                !uri.IsWellFormedOriginalString())
+            {
+                throw new BusinessException(L["InvalidRedirectUri", additionalRedirectUri]);
+            }
+
+            if (application.RedirectUris.All(x => x != uri))
+            {
+                application.RedirectUris.Add(uri);
             }
         }
 

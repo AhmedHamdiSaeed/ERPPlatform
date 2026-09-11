@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.RateLimiting;
 using Asp.Versioning;
 using ERPPlatform.Application.Imports;
@@ -46,6 +47,7 @@ using Volo.Abp.BlobStoring;
 using Volo.Abp.BlobStoring.FileSystem;
 using Volo.Abp.Localization;
 using Volo.Abp.Modularity;
+using Volo.Abp.OpenIddict;
 using Volo.Abp.Security.Claims;
 using Volo.Abp.Swashbuckle;
 using Volo.Abp.UI.Navigation.Urls;
@@ -77,8 +79,18 @@ namespace ERPPlatform;
 )]
 public class ERPPlatformHttpApiHostModule : AbpModule
 {
+    // Pass phrase of Host/ERPPlatform.HttpApi.Host/openiddict.pfx and of the base64 copy in
+    // appsettings.Production.json. Both must match or the certificate fails to load.
+    private const string OpenIddictCertificatePassPhrase = "Erp2026-OpenIddict-Pfx";
+
+    // File name of the production certificate inside the content root. Only used when
+    // OpenIddict:CertificatePfxBase64 is not configured.
+    private const string OpenIddictCertificateFileName = "openiddict.pfx";
+
     public override void PreConfigureServices(ServiceConfigurationContext context)
     {
+        var hostingEnvironment = context.Services.GetHostingEnvironment();
+
         PreConfigure<OpenIddictBuilder>(builder =>
         {
             builder.AddValidation(options =>
@@ -88,6 +100,81 @@ public class ERPPlatformHttpApiHostModule : AbpModule
                 options.UseAspNetCore();
             });
         });
+
+        // ABP registers a *development* encryption + signing certificate by default, and that code
+        // path calls X509Store.Open(...) to persist/read a user-scoped certificate. On IIS the app
+        // pool identity has no Windows user profile, so X509Store.Open throws
+        // "CryptographicException: Access is denied". Because OpenIddict resolves its credentials
+        // lazily from OpenIddictValidationServerIntegrationConfiguration.Configure(...), the throw
+        // escapes from AuthenticationMiddleware - which runs on EVERY request - so every URL,
+        // /swagger/index.html included, returns a 500. It never happens on a dev machine because
+        // the developer's own account can open the store.
+        //
+        // Outside Development we therefore disable the development certificate and supply a real
+        // one. See https://abp.io/docs/latest/deployment/configuring-openIddict
+        if (!hostingEnvironment.IsDevelopment())
+        {
+            PreConfigure<AbpOpenIddictAspNetCoreOptions>(options =>
+            {
+                options.AddDevelopmentEncryptionAndSigningCertificate = false;
+            });
+
+            PreConfigure<OpenIddictServerBuilder>(serverBuilder =>
+            {
+                var certificate = LoadOpenIddictCertificate(context.Services);
+
+                serverBuilder.AddEncryptionCertificate(certificate);
+                serverBuilder.AddSigningCertificate(certificate);
+
+                // OpenIddict refuses to issue tokens over plain http unless told otherwise:
+                //   error "invalid_request" - "This server only accepts HTTPS requests." (ID2083)
+                // erpplatform.runasp.net now has a TLS binding, so this branch is inactive there -
+                // it is kept as a safety net for any http-only deployment (staging, or running the
+                // Release build locally). It only trips when App:SelfUrl really is "http://", so
+                // switching to HTTPS automatically restores the requirement.
+                var configuration = context.Services.GetConfiguration();
+                var publicUrl = configuration["App:SelfUrl"] ?? configuration["AuthServer:Authority"];
+                if (!string.IsNullOrEmpty(publicUrl) &&
+                    publicUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
+                {
+                    serverBuilder.UseAspNetCore().DisableTransportSecurityRequirement();
+                }
+            });
+        }
+    }
+
+    /// <summary>
+    /// Loads the production OpenIddict certificate. Prefers the base64 copy embedded in
+    /// configuration (OpenIddict:CertificatePfxBase64) because on shared hosting a loose .pfx file
+    /// in the content root can be blocked by ACLs or reported as "file not found"; falls back to
+    /// openiddict.pfx on disk.
+    /// </summary>
+    private static X509Certificate2 LoadOpenIddictCertificate(IServiceCollection services)
+    {
+        var configuration = services.GetConfiguration();
+        var environment = services.GetHostingEnvironment();
+
+        var passPhrase = configuration["OpenIddict:CertificatePassPhrase"]
+                         ?? OpenIddictCertificatePassPhrase;
+
+        byte[] bytes;
+        var base64 = configuration["OpenIddict:CertificatePfxBase64"];
+        if (!string.IsNullOrWhiteSpace(base64))
+        {
+            bytes = Convert.FromBase64String(base64.Trim());
+        }
+        else
+        {
+            var path = Path.Combine(environment.ContentRootPath, OpenIddictCertificateFileName);
+            bytes = File.ReadAllBytes(path);
+        }
+
+        // MachineKeySet | EphemeralKeySet keeps the private key out of any user profile, which is
+        // exactly what an IIS app pool without "Load User Profile" needs.
+        return X509CertificateLoader.LoadPkcs12(
+            bytes,
+            passPhrase,
+            X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.EphemeralKeySet);
     }
 
     public override void ConfigureServices(ServiceConfigurationContext context)
@@ -410,8 +497,16 @@ public class ERPPlatformHttpApiHostModule : AbpModule
     {
         var app = context.GetApplicationBuilder();
         var env = context.GetEnvironment();
+        var configuration = context.ServiceProvider.GetRequiredService<IConfiguration>();
 
-        if (env.IsDevelopment())
+        // On shared hosting the app's own log file is not reachable, so a 500 arrives as a blank
+        // page with no clue. Setting "DetailedErrors": true in appsettings.Production.json switches
+        // on the full stack trace in the browser for a deployed environment.
+        // MUST BE REGISTERED FIRST: ABP's UseErrorPage() is added further down and can only catch
+        // exceptions thrown after it, so anything failing earlier would otherwise surface as an
+        // empty 500 with no audit-log entry.
+        // Keep it false in production - it exposes stack and source details publicly.
+        if (env.IsDevelopment() || configuration.GetValue<bool>("DetailedErrors", false))
         {
             app.UseDeveloperExceptionPage();
         }
@@ -424,6 +519,21 @@ public class ERPPlatformHttpApiHostModule : AbpModule
         }
 
         app.UseCorrelationId();
+
+        // Serve the Angular SPA at the site root "/". ABP's Swagger wiring registers a redirect from
+        // "/" to "/swagger", which would bounce first-time visitors away from the app. Rewrite the bare
+        // root path to index.html (served from wwwroot by MapAbpStaticAssets below) so the SPA loads
+        // instead. Only "/" is affected; "/swagger" and every API route are untouched.
+        app.Use(async (context, next) =>
+        {
+            if (context.Request.Path == "/")
+            {
+                context.Request.Path = "/index.html";
+            }
+
+            await next();
+        });
+
         app.MapAbpStaticAssets();
         app.UseRouting();
         app.UseCors();
@@ -439,15 +549,56 @@ public class ERPPlatformHttpApiHostModule : AbpModule
         app.UseDynamicClaims();
         app.UseAuthorization();
 
-        app.UseSwagger();
-        app.UseAbpSwaggerUI(c =>
+        // Enabled by default - Swagger is this host's API documentation. On a public deployment it
+        // also publishes the full endpoint list to anyone who finds the URL, so set
+        // "Swagger": { "Enabled": false } in appsettings.Production.json to switch it off without
+        // a rebuild. Both the JSON document and the UI are gated together, so a disabled Swagger
+        // returns 404 instead of rendering an empty page.
+        if (configuration.GetValue<bool>("Swagger:Enabled", true))
         {
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", "ERPPlatform API");
+            app.UseSwagger(options =>
+            {
+                // This host *is* the OpenIddict server, so /connect/authorize and /connect/token
+                // always live on whatever origin the Swagger page is being served from.
+                // `AuthServer:Authority` in appsettings.json is a localhost default; leaving it
+                // baked into the document means a deployed Swagger page sends the browser back to
+                // the developer's machine and "Authorize" fails silently. Deriving the URLs from the
+                // live request keeps Swagger working unmodified on localhost, in Docker, and behind
+                // any reverse proxy or IIS application alias.
+                options.PreSerializeFilters.Add((swaggerDoc, httpRequest) =>
+                {
+                    if (swaggerDoc.Components?.SecuritySchemes is null)
+                    {
+                        return;
+                    }
 
-            var configuration = context.ServiceProvider.GetRequiredService<IConfiguration>();
-            c.OAuthClientId(configuration["AuthServer:SwaggerClientId"]);
-            c.OAuthScopes("ERPPlatform");
-        });
+                    var baseUrl = $"{httpRequest.Scheme}://{httpRequest.Host}{httpRequest.PathBase}";
+
+                    foreach (var scheme in swaggerDoc.Components.SecuritySchemes.Values)
+                    {
+                        if (scheme.Type != SecuritySchemeType.OAuth2 || scheme.Flows?.AuthorizationCode is null)
+                        {
+                            continue;
+                        }
+
+                        scheme.Flows.AuthorizationCode.AuthorizationUrl =
+                            new Uri($"{baseUrl}/connect/authorize", UriKind.Absolute);
+                        scheme.Flows.AuthorizationCode.TokenUrl =
+                            new Uri($"{baseUrl}/connect/token", UriKind.Absolute);
+                    }
+                });
+            });
+
+            app.UseAbpSwaggerUI(c =>
+            {
+                // Relative on purpose: an absolute "/swagger/..." breaks when the app is deployed
+                // under an IIS application alias or a reverse-proxy sub-path.
+                c.SwaggerEndpoint("v1/swagger.json", "ERPPlatform API");
+
+                c.OAuthClientId(configuration["AuthServer:SwaggerClientId"]);
+                c.OAuthScopes("ERPPlatform");
+            });
+        }
 
         if (env.IsDevelopment())
         {
@@ -460,6 +611,18 @@ public class ERPPlatformHttpApiHostModule : AbpModule
         app.UseAuditing();
         app.UseAbpSerilogEnrichers();
         app.UseConfiguredEndpoints();
+
+        // Serve the Angular SPA from THIS same origin. MapAbpStaticAssets() above already serves the
+        // physical files out of wwwroot (index.html, main.*.js, assets/...). This fallback rewrites any
+        // unmatched request (the root "/" and client-side routes like /dashboard) to index.html so deep
+        // links and refreshes work instead of 404-ing. It is the lowest-priority endpoint, so /api/*,
+        // /connect/* and every ABP controller still win. Build the Angular app into wwwroot.
+        // MapFallbackToFile is an extension on IEndpointRouteBuilder (not IApplicationBuilder), so it
+        // must be registered inside UseEndpoints.
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapFallbackToFile("index.html");
+        });
     }
 }
 

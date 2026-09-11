@@ -9,7 +9,6 @@ import { REFRESH_TOKEN_KEY, TOKEN_KEY } from '../constants/session.constants';
 const RETRY_HEADER = 'X-Auth-Retry';
 
 export const authInterceptorFn: HttpInterceptorFn = (req, next) => {
-  const session = inject(SessionTimeoutService);
   const injector = inject(Injector);
   const token = typeof localStorage !== 'undefined' ? localStorage.getItem(TOKEN_KEY) : null;
   const tenant = typeof localStorage !== 'undefined' ? localStorage.getItem(TENANT_KEY) : null;
@@ -20,16 +19,23 @@ export const authInterceptorFn: HttpInterceptorFn = (req, next) => {
                          req.url.includes('/connect/token') ||
                          req.url.includes('/connect/revocation');
 
-  if (!isAuthEndpoint && session.isExpired()) {
-    session.expire('timeout');
-    return throwError(
-      () =>
-        new HttpErrorResponse({
-          status: 401,
-          statusText: 'Session expired',
-          url: req.url
-        })
-    );
+  if (!isAuthEndpoint) {
+    try {
+      const session = injector.get(SessionTimeoutService, null, { optional: true });
+      if (session && session.isExpired()) {
+        session.expire('timeout');
+        return throwError(
+          () =>
+            new HttpErrorResponse({
+              status: 401,
+              statusText: 'Session expired',
+              url: req.url
+            })
+        );
+      }
+    } catch {
+      /* ignore if DI is initializing */
+    }
   }
 
   let headersConfig: Record<string, string> = {};
@@ -55,7 +61,11 @@ export const authInterceptorFn: HttpInterceptorFn = (req, next) => {
 
       const canRefresh = !!(typeof localStorage !== 'undefined' && localStorage.getItem(REFRESH_TOKEN_KEY)) && !req.headers.has(RETRY_HEADER);
       if (!canRefresh) {
-        session.expire('unauthorized');
+        try {
+          injector.get(SessionTimeoutService, null, { optional: true })?.expire('unauthorized');
+        } catch {
+          /* ignore */
+        }
         return throwError(() => error);
       }
 
@@ -63,7 +73,11 @@ export const authInterceptorFn: HttpInterceptorFn = (req, next) => {
       return from(injector.get(AuthService).refreshSession()).pipe(
         switchMap(refreshed => {
           if (!refreshed) {
-            session.expire('unauthorized');
+            try {
+              injector.get(SessionTimeoutService, null, { optional: true })?.expire('unauthorized');
+            } catch {
+              /* ignore */
+            }
             return throwError(() => error);
           }
 

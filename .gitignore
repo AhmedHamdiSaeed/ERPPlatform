@@ -257,6 +257,7 @@ Shared/ERPPlatform.DbMigrator/Logs/*
 
 # ── Secrets & Environment (NEVER commit) ──
 **/appsettings.secrets.json
+**/appsettings.Production.json
 .env
 .env.*
 !.env.example

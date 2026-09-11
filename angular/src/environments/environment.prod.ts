@@ -1,6 +1,9 @@
 import { Environment } from '@abp/ng.core';
 
-const baseUrl = 'http://localhost:4200';
+// Same-origin production config. The SPA is served from the SAME origin as the API
+// (https://erpplatform.runasp.net), so the SPA's own origin, the issuer, and the API base URL
+// are all identical. No CORS, no redirect-URI, and no separate-host configuration is needed.
+const baseUrl = 'https://erpplatform.runasp.net';
 
 export const environment = {
   production: true,
@@ -10,7 +13,7 @@ export const environment = {
     logoUrl: '',
   },
   oAuthConfig: {
-    issuer: 'https://localhost:44364/',
+    issuer: baseUrl + '/',
     redirectUri: baseUrl,
     clientId: 'ERPPlatform_App',
     responseType: 'code',
@@ -19,7 +22,7 @@ export const environment = {
   },
   apis: {
     default: {
-      url: 'https://localhost:44364',
+      url: baseUrl,
       rootNamespace: 'ERPPlatform',
     },
   },

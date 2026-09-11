@@ -4,6 +4,7 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { CoreModule } from '@abp/ng.core';
 import { ThemeSharedModule } from '@abp/ng.theme.shared';
+import { provideAbpOAuth } from '@abp/ng.oauth';
 import { appRoutes } from './app.routes';
 import { authInterceptorFn } from './core/interceptors/auth.interceptor';
 import { SessionTimeoutService } from './core/services/session-timeout.service';
@@ -19,6 +20,7 @@ export const appConfig: ApplicationConfig = {
       })
     ),
     importProvidersFrom(ThemeSharedModule.forRoot()),
+    provideAbpOAuth(),
     provideRouter(appRoutes),
     provideAnimations(),
     provideHttpClient(withInterceptors([authInterceptorFn])),

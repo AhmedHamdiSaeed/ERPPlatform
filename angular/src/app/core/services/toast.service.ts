@@ -1,4 +1,4 @@
-import { Injectable, signal, inject } from '@angular/core';
+import { Injectable, signal, inject, Injector } from '@angular/core';
 import { TranslationService } from './translation.service';
 import { StateService } from './state.service';
 
@@ -17,20 +17,29 @@ export interface ToastItem {
   providedIn: 'root'
 })
 export class ToastService {
-  private translation = inject(TranslationService, { optional: true });
-  private state = inject(StateService, { optional: true });
+  private injector = inject(Injector);
 
   toasts = signal<ToastItem[]>([]);
 
   show(message: string, type: ToastType = 'info', title?: string, duration: number = 4000) {
     const id = `toast-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`;
-    const isAr = this.state ? this.state.lang() === 'ar' : false;
+    
+    let isAr = false;
+    let translationService: TranslationService | null = null;
+    try {
+      const state = this.injector.get(StateService, null, { optional: true });
+      if (state) isAr = state.lang() === 'ar';
+      translationService = this.injector.get(TranslationService, null, { optional: true });
+    } catch {
+      /* Fallback if DI in transition */
+    }
+
     const defaultTitle = title || this.getDefaultTitle(type, isAr);
     const timestamp = new Date().toLocaleTimeString(isAr ? 'ar-EG' : 'en-US', { hour: '2-digit', minute: '2-digit' });
 
     // Localize message and title according to current language
-    const localizedMessage = this.translation ? this.translation.get(message) : message;
-    const localizedTitle = this.translation ? this.translation.get(defaultTitle) : defaultTitle;
+    const localizedMessage = translationService ? translationService.get(message) : message;
+    const localizedTitle = translationService ? translationService.get(defaultTitle) : defaultTitle;
 
     const newToast: ToastItem = {
       id,

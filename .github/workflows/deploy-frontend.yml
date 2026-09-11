@@ -1,0 +1,58 @@
+name: Deploy Angular Frontend
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'angular/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'angular/package-lock.json'
+
+      - name: Install Dependencies
+        working-directory: ./angular
+        run: npm ci --legacy-peer-deps
+
+      - name: Build Angular for GitHub Pages
+        working-directory: ./angular
+        run: npm run build:pages
+
+      - name: Prepare GitHub Pages SPA Routing
+        run: |
+          cp angular/dist/ERPPlatform/index.html angular/dist/ERPPlatform/404.html
+          touch angular/dist/ERPPlatform/.nojekyll
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './angular/dist/ERPPlatform'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

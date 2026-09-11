@@ -2,14 +2,14 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
-import { AppDatePipe } from '../../../shared/pipes/app-date.pipe';
+
 import { IntegrationApiService, IntegrationConfig } from '../../../core/services/api/integration-api.service';
 import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-integrations',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslatePipe, AppDatePipe],
+  imports: [CommonModule, FormsModule, TranslatePipe],
   templateUrl: './integrations.component.html'
 })
 export class IntegrationsComponent {
