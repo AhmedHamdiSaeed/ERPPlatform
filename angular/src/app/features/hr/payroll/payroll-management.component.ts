@@ -164,9 +164,17 @@ export class PayrollManagementComponent {
 
   // ── Anomalies ──
   async resolveAnomaly(a: PayrollAnomalyDto): Promise<void> {
-    const note = window.prompt(`Resolution note for "${a.kind}" (${a.employeeName})?`, '') ?? '';
+    const note = await this.dialog.prompt({
+      title: 'Resolve Anomaly',
+      message: `Resolution note for "${a.kind}" (${a.employeeName})?`,
+      placeholder: 'Resolution Note',
+      confirmText: 'Submit',
+      type: 'info',
+      icon: 'pi-check-circle'
+    });
+    if (note === null) return;
     try {
-      await this.api.resolveAnomaly(a.id, note);
+      await this.api.resolveAnomaly(a.id, note || '');
       this.toast.success('Anomaly marked as reviewed.');
       await this.simulate();
       await this.loadRuns();

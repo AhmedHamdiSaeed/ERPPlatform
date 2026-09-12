@@ -1,6 +1,11 @@
-# ERPPlatform
+# ERPPlatform Angular Frontend
 
-This is a startup project based on the ABP framework. For more information, visit <a href="https://abp.io/" target="_blank">abp.io</a>
+Enterprise SaaS ERP Angular 20 SPA with Tailwind CSS & PrimeNG.
+
+- **Live Demo**: [https://erpplatform-one.vercel.app](https://erpplatform-one.vercel.app)
+- **Backend API**: [https://erpplatform.runasp.net](https://erpplatform.runasp.net)
+
+---
 
 ## Development server
 

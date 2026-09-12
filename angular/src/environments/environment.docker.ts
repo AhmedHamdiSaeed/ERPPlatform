@@ -23,5 +23,9 @@ export const environment = {
       url: apiUrl,
       rootNamespace: 'ERPPlatform',
     },
+    abp: {
+      url: apiUrl,
+      rootNamespace: 'ERPPlatform',
+    },
   },
 } as Environment;

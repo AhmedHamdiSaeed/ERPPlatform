@@ -475,17 +475,38 @@ public class ERPPlatformHttpApiHostModule : AbpModule
 
     private void ConfigureCors(ServiceConfigurationContext context, IConfiguration configuration)
     {
+        var configuredOrigins = (configuration["App:CorsOrigins"] ?? "")
+            .Split(new[] { ',', ' ', ';' }, StringSplitOptions.RemoveEmptyEntries)
+            .Select(o => o.Trim().RemovePostFix("/"))
+            .Where(o => !string.IsNullOrEmpty(o))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
         context.Services.AddCors(options =>
         {
             options.AddDefaultPolicy(builder =>
             {
                 builder
-                    .WithOrigins(configuration["App:CorsOrigins"]?
-                        .Split(",", StringSplitOptions.RemoveEmptyEntries)
-                        .Select(o => o.RemovePostFix("/"))
-                        .ToArray() ?? Array.Empty<string>())
+                    .SetIsOriginAllowed(origin =>
+                    {
+                        if (string.IsNullOrWhiteSpace(origin)) return false;
+                        if (configuredOrigins.Contains(origin.RemovePostFix("/"))) return true;
+
+                        try
+                        {
+                            var host = new Uri(origin).Host.ToLowerInvariant();
+                            return host.EndsWith(".vercel.app")
+                                   || host.EndsWith(".netlify.app")
+                                   || host.EndsWith(".github.io")
+                                   || host.EndsWith("runasp.net")
+                                   || host == "localhost"
+                                   || host == "127.0.0.1";
+                        }
+                        catch
+                        {
+                            return false;
+                        }
+                    })
                     .WithAbpExposedHeaders()
-                    .SetIsOriginAllowedToAllowWildcardSubdomains()
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials();
@@ -515,22 +536,25 @@ public class ERPPlatformHttpApiHostModule : AbpModule
 
         if (!env.IsDevelopment())
         {
-            app.UseErrorPage();
+            // Simple JSON error handler — no LeptonX static assets needed (frontend is separate).
+            app.UseExceptionHandler(errApp => errApp.Run(async ctx =>
+            {
+                ctx.Response.ContentType = "application/json";
+                ctx.Response.StatusCode = 500;
+                await ctx.Response.WriteAsync("{\"error\":\"An unexpected error occurred.\"}");
+            }));
         }
 
         app.UseCorrelationId();
 
-        // Serve the Angular SPA at the site root "/". ABP's Swagger wiring registers a redirect from
-        // "/" to "/swagger", which would bounce first-time visitors away from the app. Rewrite the bare
-        // root path to index.html (served from wwwroot by MapAbpStaticAssets below) so the SPA loads
-        // instead. Only "/" is affected; "/swagger" and every API route are untouched.
-        app.Use(async (context, next) =>
+        // Redirect bare "/" to Swagger — the SPA is now deployed separately.
+        app.Use(async (ctx, next) =>
         {
-            if (context.Request.Path == "/")
+            if (ctx.Request.Path == "/")
             {
-                context.Request.Path = "/index.html";
+                ctx.Response.Redirect("/swagger");
+                return;
             }
-
             await next();
         });
 
@@ -612,16 +636,15 @@ public class ERPPlatformHttpApiHostModule : AbpModule
         app.UseAbpSerilogEnrichers();
         app.UseConfiguredEndpoints();
 
-        // Serve the Angular SPA from THIS same origin. MapAbpStaticAssets() above already serves the
-        // physical files out of wwwroot (index.html, main.*.js, assets/...). This fallback rewrites any
-        // unmatched request (the root "/" and client-side routes like /dashboard) to index.html so deep
-        // links and refreshes work instead of 404-ing. It is the lowest-priority endpoint, so /api/*,
-        // /connect/* and every ABP controller still win. Build the Angular app into wwwroot.
-        // MapFallbackToFile is an extension on IEndpointRouteBuilder (not IApplicationBuilder), so it
-        // must be registered inside UseEndpoints.
+        // Return a clean 404 JSON for any unmatched route — the SPA is deployed separately.
         app.UseEndpoints(endpoints =>
         {
-            endpoints.MapFallbackToFile("index.html");
+            endpoints.MapFallback(async ctx =>
+            {
+                ctx.Response.StatusCode = 404;
+                ctx.Response.ContentType = "application/json";
+                await ctx.Response.WriteAsync("{\"error\":\"Not found\",\"status\":404}");
+            });
         });
     }
 }

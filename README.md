@@ -4,6 +4,15 @@ Enterprise SaaS ERP Platform built with ABP Framework, .NET 9, Angular 20, and O
 
 ---
 
+## 🌐 Live Production Deployments
+
+| Component | URL | Description |
+| :--- | :--- | :--- |
+| **Live Frontend (Vercel)** | [https://erpplatform-one.vercel.app](https://erpplatform-one.vercel.app) | Angular 20 Enterprise SPA |
+| **Live Backend API (Swagger)** | [https://erpplatform.runasp.net/swagger](https://erpplatform.runasp.net/swagger) | ASP.NET Core & OpenIddict Host |
+
+---
+
 ## 🚀 Quick Start Guide (Run from Terminal / CLI)
 
 ### Pre-requisites

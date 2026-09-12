@@ -122,7 +122,15 @@ export class ActivitiesComponent {
   }
 
   async complete(a: CrmActivity): Promise<void> {
-    const outcome = window.prompt(`Outcome for "${a.subject}"?`, '') ?? '';
+    const outcome = await this.dialog.prompt({
+      title: 'Complete Activity',
+      message: `Outcome for "${a.subject}"?`,
+      placeholder: 'Outcome / Notes',
+      confirmText: 'Complete',
+      type: 'success',
+      icon: 'pi-check-circle'
+    });
+    if (outcome === null) return;
     await this.crmApi.completeActivity(a.id, outcome);
     this.toast.success('Activity completed.');
     await this.load();

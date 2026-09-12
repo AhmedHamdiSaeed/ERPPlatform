@@ -4,7 +4,7 @@ import { Environment } from '@abp/ng.core';
 // - The SPA is served from Vercel (spaUrl).
 // - The API / OpenIddict issuer lives on runasp.net (apiUrl).
 // - CORS is configured on the backend to allow the Vercel origin.
-const spaUrl = 'https://erpplatform-rose.vercel.app';
+const spaUrl = typeof window !== 'undefined' ? window.location.origin : 'https://erpplatform-one.vercel.app';
 const apiUrl = 'https://erpplatform.runasp.net';
 
 export const environment = {
@@ -24,6 +24,10 @@ export const environment = {
   },
   apis: {
     default: {
+      url: apiUrl,
+      rootNamespace: 'ERPPlatform',
+    },
+    abp: {
       url: apiUrl,
       rootNamespace: 'ERPPlatform',
     },

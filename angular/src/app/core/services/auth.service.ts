@@ -67,7 +67,7 @@ export class AuthService {
 
   /**
    * Automatically extracts tenant name from URL query parameters (?tenant=... or ?__tenant=...)
-   * or from subdomain (e.g. acme.erpplatform.com).
+   * or from custom domain subdomains (e.g. acme.erpplatform.com).
    */
   extractTenantFromUrl(): string | null {
     if (typeof window === 'undefined') return null;
@@ -80,14 +80,39 @@ export class AuthService {
         return tenantParam.trim();
       }
 
-      // Check subdomain if not localhost/ip
-      const host = window.location.hostname;
-      const parts = host.split('.');
-      if (parts.length > 2 && !host.includes('localhost') && !/^\d+\.\d+\.\d+\.\d+$/.test(host)) {
-        const subdomain = parts[0];
-        if (subdomain && subdomain !== 'www' && subdomain !== 'app') {
-          this.setTenant(subdomain);
-          return subdomain;
+      // Check subdomain if not localhost/ip and not a cloud hosting provider domain (e.g. vercel.app, netlify.app)
+      const host = window.location.hostname.toLowerCase();
+      const ignoredDomains = [
+        'localhost',
+        '127.0.0.1',
+        'vercel.app',
+        'netlify.app',
+        'github.io',
+        'runasp.net',
+        'azurewebsites.net',
+        'onrender.com',
+        'pages.dev',
+        'firebaseapp.com',
+        'web.app'
+      ];
+      const isCloudHost = ignoredDomains.some(d => host.endsWith(d) || host === d);
+
+      if (!isCloudHost && !/^\d+\.\d+\.\d+\.\d+$/.test(host)) {
+        const parts = host.split('.');
+        if (parts.length > 2) {
+          const subdomain = parts[0];
+          if (subdomain && subdomain !== 'www' && subdomain !== 'app' && subdomain !== 'api') {
+            this.setTenant(subdomain);
+            return subdomain;
+          }
+        }
+      } else {
+        // If on cloud hosting (e.g. erpplatform-one.vercel.app) and no query param was given,
+        // purge any mistakenly saved tenant name matching the cloud subdomain
+        const currentStored = this.getTenant();
+        if (currentStored && (ignoredDomains.some(d => currentStored.includes(d)) || currentStored.startsWith('erpplatform-') || currentStored === 'erpplatform')) {
+          this.setTenant('');
+          return null;
         }
       }
     } catch {

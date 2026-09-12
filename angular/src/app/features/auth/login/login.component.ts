@@ -8,7 +8,7 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterModule],
+  imports: [ReactiveFormsModule, RouterModule, TranslatePipe],
   templateUrl: './login.component.html'
 })
 export class LoginComponent implements OnInit {
@@ -45,12 +45,15 @@ export class LoginComponent implements OnInit {
       );
     }
 
-    // Extract tenant from URL query or subdomain or local storage
-    const detectedTenant = queryParams.get('tenant') || queryParams.get('__tenant') || queryParams.get('tenantName') || this.authService.getTenant() || '';
+    // Extract tenant from URL query or verified subdomain
+    const detectedTenant = queryParams.get('tenant') || queryParams.get('__tenant') || queryParams.get('tenantName') || this.authService.extractTenantFromUrl() || '';
     if (detectedTenant) {
       this.tenantName.set(detectedTenant);
       this.loginForm.patchValue({ tenant: detectedTenant });
       this.authService.setTenant(detectedTenant);
+    } else {
+      this.tenantName.set('');
+      this.loginForm.patchValue({ tenant: '' });
     }
   }
 
@@ -95,18 +98,25 @@ export class LoginComponent implements OnInit {
     'sara.mansour@erpplatform.com': 'Manager123!',
     'omar.khaled@erpplatform.com': 'Employee123!',
     'lina.nasser@erpplatform.com': 'Staff123!',
-    'admin@abp.io': '1q2w3E*'
+    'admin@abp.io': '1q2w3E*',
+    'admin@acme.com': 'Admin123!',
+    'admin@alamal.com': 'Admin123!',
+    'admin@techflow.com': 'Admin123!'
   };
 
-  fillDemo(email: string) {
+  fillDemo(email: string, tenant: string = '') {
     this.loginForm.patchValue({
       email: email,
-      password: this.demoCredentials[email] ?? this.loginForm.value.password ?? ''
+      password: this.demoCredentials[email] ?? this.loginForm.value.password ?? '',
+      tenant: tenant
     });
+    if (tenant) {
+      this.tenantName.set(tenant);
+    }
   }
 
-  async loginAs(email: string) {
-    this.fillDemo(email);
+  async loginAs(email: string, tenant: string = '') {
+    this.fillDemo(email, tenant);
     await this.onSubmit();
   }
 }

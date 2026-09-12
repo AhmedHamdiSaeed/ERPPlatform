@@ -316,6 +316,42 @@ export class TranslationService {
       if (noMatchMatch) {
         return `لم يتم العثور على عناصر مطابقة لـ "${noMatchMatch[1]}".`;
       }
+
+      // "Why is \"X\" not a fit?" (leads mark unqualified prompt)
+      const whyNotFitMatch = trimmed.match(/^Why is\s+["']?(.*?)["']?\s+not a fit\??$/i);
+      if (whyNotFitMatch) {
+        return `لماذا لا يعتبر "${whyNotFitMatch[1]}" مناسباً؟`;
+      }
+
+      // "Outcome for \"X\"?" (activities outcome prompt)
+      const outcomeMatch = trimmed.match(/^Outcome for\s+["']?(.*?)["']?\??$/i);
+      if (outcomeMatch) {
+        return `ما هي نتيجة النشاط "${outcomeMatch[1]}"؟`;
+      }
+
+      // "Resolution note for \"X\" (Y)?" (payroll anomaly prompt)
+      const resNoteMatch = trimmed.match(/^Resolution note for\s+["']?(.*?)["']?\s+\((.*?)\)\??$/i);
+      if (resNoteMatch) {
+        return `ملاحظة المعالجة لـ "${resNoteMatch[1]}" (${resNoteMatch[2]})؟`;
+      }
+
+      // "Are you sure you want to delete \"X\"?"
+      const delSubjectMatch = trimmed.match(/^Are you sure you want to delete\s+["']?(.*?)["']?\??$/i);
+      if (delSubjectMatch) {
+        return `هل أنت متأكد من حذف "${delSubjectMatch[1]}"؟`;
+      }
+
+      // "in X days"
+      const inDaysMatch = trimmed.match(/^in\s+(\d+)\s+days?$/i);
+      if (inDaysMatch) {
+        return `خلال ${inDaysMatch[1]} أيام`;
+      }
+
+      // "X days overdue"
+      const daysOverdueMatch = trimmed.match(/^(\d+)\s+days?\s+overdue$/i);
+      if (daysOverdueMatch) {
+        return `متأخر ${daysOverdueMatch[1]} أيام`;
+      }
     } else {
       // Reverse: Arabic -> English
       const subMatch = trimmed.match(/^تمت ترقية الاشتراك إلى (.*?)!$/);

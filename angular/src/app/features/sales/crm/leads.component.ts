@@ -87,9 +87,17 @@ export class LeadsComponent {
   }
 
   async markUnqualified(id: string, name: string) {
-    const reason = window.prompt(`Why is "${name}" not a fit?`, 'Not a good fit');
+    const reason = await this.dialog.prompt({
+      title: 'Mark Lead as Lost',
+      message: `Why is "${name}" not a fit?`,
+      placeholder: 'Reason for Loss',
+      defaultValue: 'Not a good fit',
+      confirmText: 'Submit',
+      type: 'warning',
+      icon: 'pi-times-circle'
+    });
     if (reason === null) return; // cancelled
-    await this.crmApi.markUnqualified(id, reason);
+    await this.crmApi.markUnqualified(id, reason || 'Not a good fit');
     this.toast.success('Lead marked as unqualified.');
     await this.loadLeads();
   }

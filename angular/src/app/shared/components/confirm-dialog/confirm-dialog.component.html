@@ -20,7 +20,7 @@
 
         <div class="flex-1 min-w-0">
           <h3 class="font-extrabold text-base text-[var(--text-main)] leading-tight">{{ active.options.title | translate }}</h3>
-          <p class="text-xs text-[var(--text-muted)] mt-1.5 leading-relaxed leading-normal">{{ active.options.message | translate }}</p>
+          <p class="text-xs text-[var(--text-muted)] mt-1.5 leading-relaxed">{{ active.options.message | translate }}</p>
         </div>
       </div>
 
@@ -28,7 +28,7 @@
       <div class="pt-4 border-t border-[var(--border-color)] flex items-center justify-end gap-3">
         <button 
           (click)="dialogService.handleCancel()"
-          class="px-4 py-2 text-xs font-semibold rounded-xl border border-[var(--border-color)] text-[var(--text-main)] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+          class="px-4 py-2 text-xs font-semibold rounded-xl border border-[var(--border-color)] text-[var(--text-main)] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer">
           {{ active.options.cancelText | translate }}
         </button>
 
@@ -38,8 +38,77 @@
           [class.bg-amber-600]="active.options.type === 'warning'" [class.hover:bg-amber-700]="active.options.type === 'warning'"
           [class.bg-emerald-600]="active.options.type === 'success'" [class.hover:bg-emerald-700]="active.options.type === 'success'"
           [class.bg-blue-600]="active.options.type === 'info'" [class.hover:bg-blue-700]="active.options.type === 'info'"
-          class="px-4 py-2 text-xs font-bold text-white rounded-xl shadow-md transition-colors flex items-center gap-2">
+          class="px-4 py-2 text-xs font-bold text-white rounded-xl shadow-md transition-colors flex items-center gap-2 cursor-pointer">
           <span>{{ active.options.confirmText | translate }}</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+}
+
+@if (dialogService.activePrompt(); as activePrompt) {
+  <div 
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in"
+    (click)="dialogService.handlePromptCancel()">
+    
+    <div 
+      class="w-full max-w-md bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl overflow-hidden p-6 space-y-5 animate-scale-in"
+      (click)="$event.stopPropagation()">
+      
+      <!-- Header -->
+      <div class="flex items-start gap-4">
+        <div 
+          class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl shrink-0 shadow-sm"
+          [class.bg-rose-100]="activePrompt.options.type === 'danger'" [class.text-rose-600]="activePrompt.options.type === 'danger'"
+          [class.bg-amber-100]="activePrompt.options.type === 'warning'" [class.text-amber-600]="activePrompt.options.type === 'warning'"
+          [class.bg-emerald-100]="activePrompt.options.type === 'success'" [class.text-emerald-600]="activePrompt.options.type === 'success'"
+          [class.bg-blue-100]="activePrompt.options.type === 'info'" [class.text-blue-600]="activePrompt.options.type === 'info'">
+          <i [class]="'pi ' + (activePrompt.options.icon || getIcon(activePrompt.options.type))"></i>
+        </div>
+
+        <div class="flex-1 min-w-0">
+          <h3 class="font-extrabold text-base text-[var(--text-main)] leading-tight">{{ activePrompt.options.title | translate }}</h3>
+          <p class="text-xs text-[var(--text-muted)] mt-1.5 leading-relaxed">{{ activePrompt.options.message | translate }}</p>
+        </div>
+      </div>
+
+      <!-- Input Field -->
+      <div>
+        @if (activePrompt.options.multiline) {
+          <textarea 
+            [ngModel]="activePrompt.value"
+            (ngModelChange)="dialogService.setPromptValue($event)"
+            [placeholder]="activePrompt.options.placeholder | translate"
+            rows="3"
+            class="w-full p-3 text-xs rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] text-[var(--text-main)] focus:outline-hidden focus:ring-2 focus:ring-blue-500 transition-all"></textarea>
+        } @else {
+          <input 
+            type="text" 
+            [ngModel]="activePrompt.value"
+            (ngModelChange)="dialogService.setPromptValue($event)"
+            (keydown.enter)="dialogService.handlePromptConfirm()"
+            [placeholder]="activePrompt.options.placeholder | translate"
+            autofocus
+            class="w-full p-3 text-xs rounded-xl border border-[var(--border-color)] bg-[var(--bg-main)] text-[var(--text-main)] focus:outline-hidden focus:ring-2 focus:ring-blue-500 transition-all" />
+        }
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="pt-2 border-t border-[var(--border-color)] flex items-center justify-end gap-3">
+        <button 
+          (click)="dialogService.handlePromptCancel()"
+          class="px-4 py-2 text-xs font-semibold rounded-xl border border-[var(--border-color)] text-[var(--text-main)] hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer">
+          {{ activePrompt.options.cancelText | translate }}
+        </button>
+
+        <button 
+          (click)="dialogService.handlePromptConfirm()"
+          [class.bg-rose-600]="activePrompt.options.type === 'danger'" [class.hover:bg-rose-700]="activePrompt.options.type === 'danger'"
+          [class.bg-amber-600]="activePrompt.options.type === 'warning'" [class.hover:bg-amber-700]="activePrompt.options.type === 'warning'"
+          [class.bg-emerald-600]="activePrompt.options.type === 'success'" [class.hover:bg-emerald-700]="activePrompt.options.type === 'success'"
+          [class.bg-blue-600]="activePrompt.options.type === 'info'" [class.hover:bg-blue-700]="activePrompt.options.type === 'info'">
+          <span>{{ activePrompt.options.confirmText | translate }}</span>
         </button>
       </div>
 

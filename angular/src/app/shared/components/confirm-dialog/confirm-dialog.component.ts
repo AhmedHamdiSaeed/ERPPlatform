@@ -1,12 +1,13 @@
 import { Component, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { DialogService } from '../../../core/services/dialog.service';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-confirm-dialog',
   standalone: true,
-  imports: [CommonModule, TranslatePipe],
+  imports: [CommonModule, FormsModule, TranslatePipe],
   templateUrl: './confirm-dialog.component.html'
 })
 export class ConfirmDialogComponent {
@@ -14,7 +15,9 @@ export class ConfirmDialogComponent {
 
   @HostListener('window:keydown.escape')
   onEscape() {
-    if (this.dialogService.activeDialog()) {
+    if (this.dialogService.activePrompt()) {
+      this.dialogService.handlePromptCancel();
+    } else if (this.dialogService.activeDialog()) {
       this.dialogService.handleCancel();
     }
   }

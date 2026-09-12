@@ -28,7 +28,7 @@
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "allowedCommonJsDependencies": ["chart.js", "js-sha256"],
-            "assets": ["src/favicon.ico", "src/assets"],
+            "assets": ["src/favicon.ico", "src/assets", "src/vercel.json"],
             "styles": [
               "src/styles.scss"
             ],
