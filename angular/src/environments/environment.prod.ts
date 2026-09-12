@@ -1,28 +1,30 @@
 import { Environment } from '@abp/ng.core';
 
-// Same-origin production config. The SPA is served from the SAME origin as the API
-// (https://erpplatform.runasp.net), so the SPA's own origin, the issuer, and the API base URL
-// are all identical. No CORS, no redirect-URI, and no separate-host configuration is needed.
-const baseUrl = 'https://erpplatform.runasp.net';
+// Split-host production config.
+// - The SPA is served from Vercel (spaUrl).
+// - The API / OpenIddict issuer lives on runasp.net (apiUrl).
+// - CORS is configured on the backend to allow the Vercel origin.
+const spaUrl = 'https://erpplatform-rose.vercel.app';
+const apiUrl = 'https://erpplatform.runasp.net';
 
 export const environment = {
   production: true,
   application: {
-    baseUrl,
+    baseUrl: spaUrl,
     name: 'ERPPlatform',
     logoUrl: '',
   },
   oAuthConfig: {
-    issuer: baseUrl + '/',
-    redirectUri: baseUrl,
+    issuer: apiUrl + '/',
+    redirectUri: spaUrl,
     clientId: 'ERPPlatform_App',
     responseType: 'code',
     scope: 'offline_access ERPPlatform',
-    requireHttps: true
+    requireHttps: true,
   },
   apis: {
     default: {
-      url: baseUrl,
+      url: apiUrl,
       rootNamespace: 'ERPPlatform',
     },
   },
