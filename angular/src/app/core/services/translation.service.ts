@@ -179,6 +179,12 @@ export class TranslationService {
         return `تم استيراد الملف "${fileMatch[1]}" بنجاح.`;
       }
 
+      // "The file \"abc\" is no longer available in server storage."
+      const noStoreMatch = trimmed.match(/^The file\s+["']?(.*?)["']?\s+is no longer available in server storage\.?$/i);
+      if (noStoreMatch) {
+        return `الملف "${noStoreMatch[1]}" لم يعد متوفراً في تخزين الخادم.`;
+      }
+
       // "Check-in logged for Ahmed at 09:30"
       const checkinMatch = trimmed.match(/^Check-in logged for (.*?) at (.*?)$/i);
       if (checkinMatch) {

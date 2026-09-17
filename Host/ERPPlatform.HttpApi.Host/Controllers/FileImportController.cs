@@ -39,7 +39,7 @@ public class FileImportController : AbpControllerBase
     public const int MaxChunkBytes = 20_000_000; // safety cap per chunk
 
     private static readonly HashSet<string> AllowedExtensions =
-        new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ".xlsx", ".xls", ".csv" };
+        new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ".xlsx", ".xls" };
 
     private readonly IBlobContainer<FileImportContainer> _blobContainer;
     private readonly IBackgroundJobManager _jobManager;

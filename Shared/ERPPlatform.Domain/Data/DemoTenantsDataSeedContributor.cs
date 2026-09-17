@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -82,7 +82,7 @@ public class DemoTenantsDataSeedContributor : IDataSeedContributor, ITransientDe
                     var adminRole = await _roleManager.FindByNameAsync("admin");
                     if (adminRole == null)
                     {
-                        var created = new IdentityRole(Guid.NewGuid(), "admin");
+                        var created = new IdentityRole(Guid.NewGuid(), "admin", tenant.Id);
                         var roleResult = await _roleManager.CreateAsync(created);
                         adminRole = roleResult.Succeeded
                             ? created

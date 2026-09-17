@@ -22,10 +22,10 @@
           </div>
 
           <div class="flex items-center gap-2">
-            <button class="px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-semibold backdrop-blur-xs transition-colors">
+            <button (click)="sendEmail()" class="px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-semibold backdrop-blur-xs transition-colors">
               <i class="pi pi-envelope"></i> {{ 'HR:SendEmail' | translate }}
             </button>
-            <button class="px-3 py-2 bg-white text-blue-900 hover:bg-blue-50 rounded-xl text-xs font-bold shadow-md transition-colors">
+            <button (click)="openEditModal()" class="px-3 py-2 bg-white text-blue-900 hover:bg-blue-50 rounded-xl text-xs font-bold shadow-md transition-colors">
               <i class="pi pi-pencil"></i> {{ 'HR:EditProfile' | translate }}
             </button>
           </div>
@@ -131,7 +131,7 @@
         @if (activeTab() === 'HR:Leave') {
           <div class="space-y-3 text-xs">
             <p class="text-slate-500">{{ 'Leave history for' | translate }} {{ employee()?.name }}:</p>
-            @for (lv of mockLeave; track lv.id) {
+            @for (lv of leaveRequests(); track lv.id) {
               <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl flex items-center justify-between">
                 <div>
                   <span class="font-bold block">{{ lv.leaveType | translate }} {{ 'Leave' | translate }} ({{ lv.daysCount }} {{ 'days' | translate }})</span>
@@ -177,5 +177,53 @@
         }
 
       </div>
+
+      <!-- Edit Employee Profile Modal -->
+      @if (showEditModal()) {
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
+          <div class="w-full max-w-lg bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl overflow-hidden p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
+              <h3 class="font-bold text-sm text-[var(--text-main)]">{{ 'HR:EditEmployeeProfile' | translate }}</h3>
+              <button (click)="showEditModal.set(false)" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times"></i></button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 text-xs">
+              <div>
+                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:FullName' | translate }}</label>
+                <input type="text" [(ngModel)]="editEmp.name" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
+              </div>
+              <div>
+                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:EmailAddress' | translate }}</label>
+                <input type="email" [(ngModel)]="editEmp.email" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
+              </div>
+              <div>
+                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:Phone' | translate }}</label>
+                <input type="text" [(ngModel)]="editEmp.phone" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
+              </div>
+              <div>
+                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:Department' | translate }}</label>
+                <input type="text" [(ngModel)]="editEmp.departmentName" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
+              </div>
+              <div>
+                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:Position' | translate }}</label>
+                <input type="text" [(ngModel)]="editEmp.position" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
+              </div>
+              <div>
+                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:Status' | translate }}</label>
+                <select [(ngModel)]="editEmp.status" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg">
+                  <option value="Active">{{ 'HR:Active' | translate }}</option>
+                  <option value="On Leave">{{ 'HR:OnLeave' | translate }}</option>
+                  <option value="Inactive">{{ 'HR:Inactive' | translate }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="pt-3 border-t border-[var(--border-color)] flex justify-end gap-2">
+              <button (click)="showEditModal.set(false)" class="btn-outline text-xs">{{ 'UI:Cancel' | translate }}</button>
+              <button (click)="saveEmployee()" class="btn-primary text-xs">{{ 'HR:SaveEmployee' | translate }}</button>
+            </div>
+          </div>
+        </div>
+      }
 
     </div>

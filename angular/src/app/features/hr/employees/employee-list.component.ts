@@ -7,24 +7,36 @@ import { Employee } from '../../../core/models/erp-models';
 import { HrApiService } from '../../../core/services/api/hr-api.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { DialogService } from '../../../core/services/dialog.service';
+import { FileImportService } from '../../../core/services/file-import.service';
+
+import { EmployeeImportModalComponent } from './employee-import-modal.component';
 
 @Component({
   selector: 'app-employee-list',
   standalone: true,
-  imports: [FormsModule, RouterModule, TranslatePipe, AppDatePipe],
+  imports: [FormsModule, RouterModule, TranslatePipe, AppDatePipe, EmployeeImportModalComponent],
   templateUrl: './employee-list.component.html'
 })
 export class EmployeeListComponent {
   private toast = inject(ToastService);
   private dialog = inject(DialogService);
   private hrApi = inject(HrApiService);
+  public fileImport = inject(FileImportService);
 
   employees = signal<Employee[]>([]);
+  totalCount = signal(0);
+  loading = signal(false);
   searchQuery = '';
   statusFilter = 'ALL';
   departmentFilter = 'ALL';
 
+  // DB Pagination State
+  currentPage = 1;
+  pageSize = 50;
+  pageSizeOptions = [50, 100, 200];
+
   showModal = signal(false);
+  showImportModal = signal(false);
   isEditMode = false;
   currentEmp: Partial<Employee> = {};
 
@@ -33,26 +45,58 @@ export class EmployeeListComponent {
   }
 
   async loadEmployees() {
+    this.loading.set(true);
     try {
-      this.employees.set(await this.hrApi.getEmployees());
+      const skipCount = (this.currentPage - 1) * this.pageSize;
+      const res = await this.hrApi.getEmployeesPaged(
+        skipCount,
+        this.pageSize,
+        this.searchQuery,
+        this.statusFilter,
+        this.departmentFilter
+      );
+      this.employees.set(res.items);
+      this.totalCount.set(res.totalCount);
     } catch (e) {
       console.error('Failed to load employees', e);
       this.toast.error('Could not load employees from the server.');
+    } finally {
+      this.loading.set(false);
     }
   }
 
-  filteredEmployees() {
-    return this.employees().filter(emp => {
-      const matchQuery = !this.searchQuery ||
-        emp.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        emp.email.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        emp.employeeCode.toLowerCase().includes(this.searchQuery.toLowerCase());
+  onSearchChange() {
+    this.currentPage = 1;
+    this.loadEmployees();
+  }
 
-      const matchStatus = this.statusFilter === 'ALL' || emp.status === this.statusFilter;
-      const matchDept = this.departmentFilter === 'ALL' || emp.departmentName === this.departmentFilter;
+  onFilterChange() {
+    this.currentPage = 1;
+    this.loadEmployees();
+  }
 
-      return matchQuery && matchStatus && matchDept;
-    });
+  onPageSizeChange(newSize: number) {
+    this.pageSize = Number(newSize);
+    this.currentPage = 1;
+    this.loadEmployees();
+  }
+
+  goToPage(page: number) {
+    if (page < 1 || page > this.totalPages()) return;
+    this.currentPage = page;
+    this.loadEmployees();
+  }
+
+  totalPages(): number {
+    return Math.max(1, Math.ceil(this.totalCount() / this.pageSize));
+  }
+
+  get startIndex(): number {
+    return this.totalCount() === 0 ? 0 : (this.currentPage - 1) * this.pageSize + 1;
+  }
+
+  get endIndex(): number {
+    return Math.min(this.currentPage * this.pageSize, this.totalCount());
   }
 
   openAddModal() {

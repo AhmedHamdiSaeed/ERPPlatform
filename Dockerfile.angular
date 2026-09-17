@@ -8,13 +8,13 @@ WORKDIR /app
 # Copy package files first for cached npm install
 COPY angular/package.json angular/package-lock.json ./
 
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 # Copy the rest of the Angular source
 COPY angular/ .
 
 # Build with the docker-specific environment configuration
-RUN npm run build:prod
+RUN npm run build:docker
 
 # ============================================================
 # Stage 2 – Serve with Nginx

@@ -400,18 +400,32 @@ public class ERPPlatformHttpApiHostModule : AbpModule
         {
             Configure<AbpVirtualFileSystemOptions>(options =>
             {
-                options.FileSets.ReplaceEmbeddedByPhysical<ERPPlatformDomainSharedModule>(
-                    Path.Combine(hostingEnvironment.ContentRootPath,
-                        $"..{Path.DirectorySeparatorChar}..{Path.DirectorySeparatorChar}Shared{Path.DirectorySeparatorChar}ERPPlatform.Domain.Shared"));
-                options.FileSets.ReplaceEmbeddedByPhysical<ERPPlatformDomainModule>(
-                    Path.Combine(hostingEnvironment.ContentRootPath,
-                        $"..{Path.DirectorySeparatorChar}..{Path.DirectorySeparatorChar}Shared{Path.DirectorySeparatorChar}ERPPlatform.Domain"));
-                options.FileSets.ReplaceEmbeddedByPhysical<ERPPlatformApplicationContractsModule>(
-                    Path.Combine(hostingEnvironment.ContentRootPath,
-                        $"..{Path.DirectorySeparatorChar}..{Path.DirectorySeparatorChar}Shared{Path.DirectorySeparatorChar}ERPPlatform.Application.Contracts"));
-                options.FileSets.ReplaceEmbeddedByPhysical<ERPPlatformApplicationModule>(
-                    Path.Combine(hostingEnvironment.ContentRootPath,
-                        $"..{Path.DirectorySeparatorChar}..{Path.DirectorySeparatorChar}Shared{Path.DirectorySeparatorChar}ERPPlatform.Application"));
+                var sharedDir = Path.Combine(hostingEnvironment.ContentRootPath,
+                    $"..{Path.DirectorySeparatorChar}..{Path.DirectorySeparatorChar}Shared");
+
+                var domainSharedPath = Path.Combine(sharedDir, "ERPPlatform.Domain.Shared");
+                if (Directory.Exists(domainSharedPath))
+                {
+                    options.FileSets.ReplaceEmbeddedByPhysical<ERPPlatformDomainSharedModule>(domainSharedPath);
+                }
+
+                var domainPath = Path.Combine(sharedDir, "ERPPlatform.Domain");
+                if (Directory.Exists(domainPath))
+                {
+                    options.FileSets.ReplaceEmbeddedByPhysical<ERPPlatformDomainModule>(domainPath);
+                }
+
+                var appContractsPath = Path.Combine(sharedDir, "ERPPlatform.Application.Contracts");
+                if (Directory.Exists(appContractsPath))
+                {
+                    options.FileSets.ReplaceEmbeddedByPhysical<ERPPlatformApplicationContractsModule>(appContractsPath);
+                }
+
+                var appPath = Path.Combine(sharedDir, "ERPPlatform.Application");
+                if (Directory.Exists(appPath))
+                {
+                    options.FileSets.ReplaceEmbeddedByPhysical<ERPPlatformApplicationModule>(appPath);
+                }
             });
         }
     }

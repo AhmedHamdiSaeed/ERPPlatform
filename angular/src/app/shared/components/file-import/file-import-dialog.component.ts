@@ -96,7 +96,7 @@ export class FileImportDialogComponent {
       this.resumeAvailable.set(false);
       this.percent.set(0);
       this.state.set('invalid');
-      this.errorMsg.set('Only Excel (.xlsx, .xls) or CSV files can be imported.');
+      this.errorMsg.set('Only Excel files (.xlsx, .xls) can be imported.');
       return;
     }
 

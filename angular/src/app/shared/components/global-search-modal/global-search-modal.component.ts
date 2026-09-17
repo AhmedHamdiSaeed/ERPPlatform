@@ -28,6 +28,8 @@ export class GlobalSearchModalComponent {
   }
 
   close() {
+    this.query = '';
+    this.results.set([]);
     this.state.toggleGlobalSearch(false);
   }
 }

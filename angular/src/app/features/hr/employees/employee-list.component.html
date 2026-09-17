@@ -11,8 +11,8 @@
           <button (click)="openAddModal()" class="btn-primary text-xs cursor-pointer">
             <i class="pi pi-user-plus"></i> {{ 'HR:AddEmployee' | translate }}
           </button>
-          <button (click)="exportCsv()" class="btn-outline text-xs cursor-pointer">
-            <i class="pi pi-file-excel"></i> {{ 'HR:ExportCsv' | translate }}
+          <button (click)="showImportModal.set(true)" class="btn-outline text-xs cursor-pointer flex items-center gap-1.5">
+            <i class="pi pi-file-excel text-emerald-600"></i> {{ 'HR:ImportEmployees' | translate }}
           </button>
         </div>
       </div>
@@ -24,21 +24,32 @@
           <input 
             type="text" 
             [(ngModel)]="searchQuery" 
+            (ngModelChange)="onSearchChange()"
             placeholder="{{ 'HR:SearchPlaceholder' | translate }}"
             class="w-full pl-9 pr-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden"
           />
         </div>
 
         <div class="flex items-center gap-2 w-full sm:w-auto overflow-x-auto">
-          <select [(ngModel)]="statusFilter" class="px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-[var(--text-main)]">
+          <select [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()" class="px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-[var(--text-main)]">
             <option value="ALL">{{ 'HR:AllStatuses' | translate }}</option>
             <option value="Active">{{ 'HR:Active' | translate }}</option>
             <option value="On Leave">{{ 'HR:OnLeave' | translate }}</option>
             <option value="Inactive">{{ 'HR:Inactive' | translate }}</option>
           </select>
 
+          <!-- Page Size Selector -->
+          <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-xl text-xs">
+            <span class="text-slate-400 text-[11px] font-semibold">Page Size:</span>
+            <select [ngModel]="pageSize" (ngModelChange)="onPageSizeChange($event)" class="bg-transparent font-bold text-blue-600 dark:text-blue-400 focus:outline-none cursor-pointer">
+              @for (size of pageSizeOptions; track size) {
+                <option [value]="size" class="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200">{{ size }}</option>
+              }
+            </select>
+          </div>
+
           <span class="text-xs text-[var(--text-muted)] font-semibold whitespace-nowrap">
-            {{ 'HR:Showing' | translate }} {{ filteredEmployees().length }} {{ 'HR:Employees' | translate }}
+            {{ 'HR:Showing' | translate }} {{ startIndex }}-{{ endIndex }} / {{ totalCount() }} {{ 'HR:Employees' | translate }}
           </span>
         </div>
       </div>
@@ -59,7 +70,7 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-[var(--border-color)] text-xs text-[var(--text-main)]">
-              @for (emp of filteredEmployees(); track emp.id) {
+              @for (emp of employees(); track emp.id) {
                 <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
                   
                   <!-- Avatar & Name -->
@@ -97,15 +108,59 @@
                   </td>
 
                 </tr>
+              } @empty {
+                <tr>
+                  <td colspan="7" class="p-8 text-center text-xs text-[var(--text-muted)]">
+                    No employee records found.
+                  </td>
+                </tr>
               }
             </tbody>
           </table>
+        </div>
+
+        <!-- DB Server Pagination Bar -->
+        <div class="px-4 py-3 bg-slate-50/70 dark:bg-slate-800/50 border-t border-[var(--border-color)] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+          <div class="text-[var(--text-muted)] font-medium">
+            Showing <span class="font-bold text-[var(--text-main)]">{{ startIndex }}</span> to <span class="font-bold text-[var(--text-main)]">{{ endIndex }}</span> of <span class="font-bold text-[var(--text-main)]">{{ totalCount() }}</span> employees
+          </div>
+
+          <div class="flex items-center gap-2">
+            <!-- Page Size Dropdown -->
+            <div class="flex items-center gap-1 text-[var(--text-muted)] mr-2">
+              <span>Per page:</span>
+              <select [ngModel]="pageSize" (ngModelChange)="onPageSizeChange($event)" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-1 rounded-lg font-bold text-blue-600 cursor-pointer">
+                @for (size of pageSizeOptions; track size) {
+                  <option [value]="size">{{ size }}</option>
+                }
+              </select>
+            </div>
+
+            <!-- Page Buttons -->
+            <button 
+              (click)="goToPage(currentPage - 1)" 
+              [disabled]="currentPage === 1 || loading()"
+              class="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 disabled:opacity-40 text-xs font-semibold hover:bg-slate-100 cursor-pointer">
+              <i class="pi pi-chevron-left text-[10px]"></i> Prev
+            </button>
+
+            <span class="px-3 py-1 font-extrabold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 rounded-lg">
+              Page {{ currentPage }} / {{ totalPages() }}
+            </span>
+
+            <button 
+              (click)="goToPage(currentPage + 1)" 
+              [disabled]="currentPage >= totalPages() || loading()"
+              class="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 disabled:opacity-40 text-xs font-semibold hover:bg-slate-100 cursor-pointer">
+              Next <i class="pi pi-chevron-right text-[10px]"></i>
+            </button>
+          </div>
         </div>
       </div>
 
       <!-- Add/Edit Employee Dialog -->
       @if (showModal()) {
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
+        <div class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
           <div class="w-full max-w-lg bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl overflow-hidden p-6 space-y-4">
             <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
               <h3 class="font-bold text-sm text-[var(--text-main)]">{{ isEditMode ? ('HR:EditEmployeeProfile' | translate) : ('HR:AddNewEmployee' | translate) }}</h3>
@@ -138,5 +193,8 @@
           </div>
         </div>
       }
+
+      <!-- Dedicated 13-Step Excel Import Modal -->
+      <app-employee-import-modal [(visible)]="showImportModal" (importCompleted)="loadEmployees()"></app-employee-import-modal>
 
     </div>

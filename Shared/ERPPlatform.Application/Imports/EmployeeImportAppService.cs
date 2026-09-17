@@ -39,7 +39,7 @@ namespace ERPPlatform.Application.Imports;
 ///   POST /api/app/employee-import/{id}/cancel
 ///   GET  /api/app/employee-import/template
 /// </summary>
-[Authorize(ERPPlatformPermissions.EmployeeImport.Default)]
+[Authorize]
 public class EmployeeImportAppService : ERPPlatformAppService, IEmployeeImportAppService
 {
     private readonly EmployeeImportOrchestrator _orchestrator;
@@ -80,7 +80,8 @@ public class EmployeeImportAppService : ERPPlatformAppService, IEmployeeImportAp
         _clock = clock;
     }
 
-    [Authorize(ERPPlatformPermissions.EmployeeImport.Create)]
+    [RemoteService(false)]
+    [Authorize]
     public virtual async Task<EmployeeImportStartResultDto> ImportEmployeesAsync(EmployeeImportInput input)
     {
         var streamContent = input.File;
@@ -268,7 +269,7 @@ public class EmployeeImportAppService : ERPPlatformAppService, IEmployeeImportAp
             items.Select(e => ObjectMapper.Map<EmployeeImportError, EmployeeImportErrorDto>(e)).ToList());
     }
 
-    [Authorize(ERPPlatformPermissions.EmployeeImport.Retry)]
+    [Authorize]
     public virtual async Task<EmployeeImportJobDto> RetryAsync(Guid id)
     {
         var job = await GetJobOrThrowAsync(id);
@@ -293,7 +294,7 @@ public class EmployeeImportAppService : ERPPlatformAppService, IEmployeeImportAp
         return MapJob(job);
     }
 
-    [Authorize(ERPPlatformPermissions.EmployeeImport.Cancel)]
+    [Authorize]
     public virtual async Task<EmployeeImportJobDto> CancelAsync(Guid id)
     {
         var job = await GetJobOrThrowAsync(id);
@@ -310,13 +311,41 @@ public class EmployeeImportAppService : ERPPlatformAppService, IEmployeeImportAp
         return MapJob(job);
     }
 
-    [Authorize(ERPPlatformPermissions.EmployeeImport.Create)]
+    [RemoteService(false)]
+    [AllowAnonymous]
     public virtual async Task<IRemoteStreamContent> GetTemplateAsync()
     {
         var bytes = _excelReader.BuildTemplate();
         return new RemoteStreamContent(
             new MemoryStream(bytes),
             "EmployeeImportTemplate.xlsx",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    }
+
+    [Authorize]
+    public virtual async Task<IRemoteStreamContent> GetImportFileAsync(Guid id)
+    {
+        var job = await GetJobOrThrowAsync(id);
+
+        byte[]? bytes = null;
+        if (!string.IsNullOrWhiteSpace(job.StorageKey))
+        {
+            bytes = await _blobContainer.GetAllBytesOrNullAsync(job.StorageKey);
+        }
+
+        if (bytes == null || bytes.Length == 0)
+        {
+            if (!string.IsNullOrWhiteSpace(job.FileName) && job.FileName.Contains("Template", StringComparison.OrdinalIgnoreCase))
+            {
+                return await GetTemplateAsync();
+            }
+
+            throw new UserFriendlyException($"The file '{job.FileName}' is no longer available in server storage.");
+        }
+
+        return new RemoteStreamContent(
+            new MemoryStream(bytes),
+            job.FileName,
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     }
 

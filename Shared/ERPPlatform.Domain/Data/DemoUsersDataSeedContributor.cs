@@ -58,6 +58,11 @@ public class DemoUsersDataSeedContributor : IDataSeedContributor, ITransientDepe
 
     public async Task SeedAsync(DataSeedContext context)
     {
+        if (context.TenantId != null)
+        {
+            return;
+        }
+
         // The admin account must be in the admin role for the RBAC module to work.
         await EnsureInRoleAsync("admin@abp.io", "admin");
 

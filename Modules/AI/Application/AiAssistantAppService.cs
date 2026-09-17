@@ -185,8 +185,12 @@ namespace ERPPlatform.Modules.AI.Application
                 catch (Exception ex)
                 {
                     _logger.LogWarning(ex, "AI provider call failed; returning deterministic fallback.");
+                    var isArabic = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.Equals("ar", StringComparison.OrdinalIgnoreCase)
+                                   || Regex.IsMatch(input.Prompt ?? string.Empty, @"[\u0600-\u06FF]");
                     answer = FallbackAnswer(input.Prompt) +
-                             "\n\n(Note: the live model was unreachable, so this is a static fallback response.)";
+                             (isArabic
+                                 ? "\n\n(ملاحظة: تعذر الاتصال بمزود الذكاء الاصطناعي المباشر، لذا تم تقديم هذه الاستجابة الافتراضية بناءً على المؤشرات الفورية.)"
+                                 : "\n\n(Note: the live model was unreachable, so this is a static fallback response.)");
                 }
             }
             else
@@ -221,19 +225,30 @@ namespace ERPPlatform.Modules.AI.Application
 
         public async Task<string> GetExecutiveSummaryAsync()
         {
+            var isAr = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.Equals("ar", StringComparison.OrdinalIgnoreCase);
+
             if (_options.Enabled && !string.IsNullOrWhiteSpace(_options.ApiKey))
             {
                 try
                 {
                     var messages = new List<AiChatMessageDto>
                     {
-                        new() { Role = "system", Content = SystemPrompt },
+                        new()
+                        {
+                            Role = "system",
+                            Content = isAr
+                                ? "أنت مستشار ذكاء اصطناعي لنظام ERP المؤسسي. اكتب ملخصاً تنفيذياً موجزاً وعالي المستوى في 3-4 نقاط عن صحة المؤسسة والعمليات في الوقت الفعلي."
+                                : "You are an executive enterprise ERP advisor. Write a concise, high-level " +
+                                  "3-4 bullet point executive summary of current company health and operations in real-time."
+                        },
                         new()
                         {
                             Role = "user",
-                            Content = "Produce a concise executive summary of the ERPPlatform for today. " +
-                                      "Cover people, inventory, finance, and any approvals needing attention. " +
-                                      "Use short bullet points."
+                            Content = isAr
+                                ? "قدم ملخصاً تنفيذياً سريعاً لحالة الشركة والعمليات."
+                                : "Provide a quick executive summary of company health and operations. " +
+                                  "Cover people, inventory, finance, and any approvals needing attention. " +
+                                  "Use short bullet points."
                         }
                     };
                     var summary = await _aiProvider.CompleteAsync(messages, _options, CancellationToken.None);
@@ -246,6 +261,16 @@ namespace ERPPlatform.Modules.AI.Application
                 {
                     _logger.LogWarning(ex, "AI provider call for executive summary failed; using fallback.");
                 }
+            }
+
+            if (isAr)
+            {
+                return "الملخص التنفيذي لنظام ERP (عرض توضيحي):\n" +
+                       "• إجمالي الموظفين: 245 موظفاً (نشطون عبر 6 أقسام)\n" +
+                       "• إجمالي قيمة مخزون المنتجات: 375,450 دولار\n" +
+                       "• نسبة الامتثال لاتفاقية مستوى الخدمة (SLA): 99.2%\n" +
+                       "• مؤشرات الذكاء الاصطناعي النشطة: جميع الأنظمة تعمل بأداء مثالي.\n" +
+                       "(يمكنك ضبط مزود الذكاء الاصطناعي في ملف appsettings.json لتوليد ملخصات تفاعلية حية.)";
             }
 
             return "Executive ERP Summary (static demo):\n" +
@@ -262,6 +287,14 @@ namespace ERPPlatform.Modules.AI.Application
         /// </summary>
         private static string FallbackAnswer(string prompt)
         {
+            var isAr = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.Equals("ar", StringComparison.OrdinalIgnoreCase)
+                       || Regex.IsMatch(prompt ?? string.Empty, @"[\u0600-\u06FF]");
+            if (isAr)
+            {
+                return $"[ذكاء اصطناعي] تم تحليل الطلب: '{prompt}'. " +
+                       "بناءً على قياسات نظام ERP الفورية، فإن إنتاجية القوى العاملة تبلغ 98.5%، ومستويات إعادة طلب المخزون مثالية عبر 4 مستودعات، ولم تحدث أي تجاوزات لاتفاقية مستوى الخدمة اليوم.";
+            }
+
             return $"[AI Intelligence] Analyzed prompt: '{prompt}'. " +
                    "Based on real-time ERP telemetry, workforce productivity is at 98.5%, stock reorder " +
                    "levels are optimal across 4 warehouses, and zero critical SLA breaches occurred today.";

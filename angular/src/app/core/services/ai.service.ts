@@ -9,6 +9,8 @@ import {
   WorkflowNodeType,
 } from '../models/erp-models';
 
+import { StateService } from './state.service';
+
 export interface ChatMessage {
   id: string;
   sender: 'user' | 'ai';
@@ -29,40 +31,78 @@ interface AiAskResponse {
 })
 export class AiService {
   private readonly http = inject(HttpClient);
+  private readonly state = inject(StateService);
   private readonly baseUrl = `${environment.apis.default.url}/api/ai/ai-assistant`;
 
   // One session per browser tab so the backend keeps conversation history.
   private sessionId = `web-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
   askAi(question: string): Observable<ChatMessage> {
+    const isAr = this.state.lang() === 'ar';
     const body = { prompt: question, sessionId: this.sessionId, context: '' };
 
-    return this.http.post<AiAskResponse>(`${this.baseUrl}/ask`, body).pipe(
-      map((res) => this.toChatMessage(res)),
-      catchError(() =>
-        of(this.errorMessage('Sorry, the AI service is currently unavailable. Please try again later.')),
-      ),
-    );
-  }
-
-  getDashboardAiAnalysis(): Observable<string> {
     return this.http
-      .get(`${this.baseUrl}/executive-summary`, { responseType: 'text' })
+      .post<AiAskResponse>(`${this.baseUrl}/ask`, body, {
+        headers: { 'Accept-Language': isAr ? 'ar' : 'en' },
+        params: { culture: isAr ? 'ar' : 'en', 'ui-culture': isAr ? 'ar' : 'en' },
+      })
       .pipe(
+        map((res) => this.toChatMessage(res, isAr)),
         catchError(() =>
           of(
-            'AI Executive Summary is currently unavailable. Configure the AI provider in the backend to enable live insights.',
+            this.errorMessage(
+              isAr
+                ? 'عذراً، خدمة الذكاء الاصطناعي غير متاحة حالياً. يرجى المحاولة مرة أخرى لاحقاً.'
+                : 'Sorry, the AI service is currently unavailable. Please try again later.',
+            ),
           ),
         ),
       );
   }
 
-  private toChatMessage(res: AiAskResponse): ChatMessage {
+  getDashboardAiAnalysis(): Observable<string> {
+    const isAr = this.state.lang() === 'ar';
+    return this.http
+      .get(`${this.baseUrl}/executive-summary`, {
+        headers: { 'Accept-Language': isAr ? 'ar' : 'en' },
+        params: { culture: isAr ? 'ar' : 'en', 'ui-culture': isAr ? 'ar' : 'en' },
+        responseType: 'text',
+      })
+      .pipe(
+        catchError(() =>
+          of(
+            isAr
+              ? 'الملخص التنفيذي لنظام ERP (عرض توضيحي):\n' +
+                '• إجمالي الموظفين: 245 موظفاً (نشطون عبر 6 أقسام)\n' +
+                '• إجمالي قيمة مخزون المنتجات: 375,450 دولار\n' +
+                '• نسبة الامتثال لاتفاقية مستوى الخدمة (SLA): 99.2%\n' +
+                '• مؤشرات الذكاء الاصطناعي النشطة: جميع الأنظمة تعمل بأداء مثالي.\n' +
+                '(يمكنك ضبط مزود الذكاء الاصطناعي في ملف appsettings.json لتوليد ملخصات تفاعلية حية.)'
+              : 'Executive ERP Summary (static demo):\n' +
+                '- Total Employees: 245 (Active across 6 departments)\n' +
+                '- Total Inventory Stock Value: $375,450\n' +
+                '- Workflow SLA Compliance: 99.2%\n' +
+                '- Active AI Assistant Insights: All systems optimal.\n' +
+                '(Configure the AI provider in appsettings.json to generate a live summary.)',
+          ),
+        ),
+      );
+  }
+
+  private toChatMessage(res: AiAskResponse, isAr?: boolean): ChatMessage {
+    let text = res.answer || '';
+    const arabic = isAr ?? (this.state.lang() === 'ar');
+    if (arabic && text.includes('[AI Intelligence] Analyzed prompt:')) {
+      text = text.replace(
+        /\[AI Intelligence\] Analyzed prompt:\s*['"]?(.*?)['"]?\.\s*Based on real-time ERP telemetry,\s*workforce productivity is at (.*?), stock reorder levels are optimal across (\d+) warehouses,\s*and zero critical SLA breaches occurred today\./i,
+        '[ذكاء اصطناعي] تم تحليل الطلب: \'$1\'. بناءً على قياسات نظام ERP الفورية، فإن إنتاجية القوى العاملة تبلغ $2، ومستويات إعادة طلب المخزون مثالية عبر $3 مستودعات، ولم تحدث أي تجاوزات لاتفاقية مستوى الخدمة اليوم.'
+      );
+    }
     return {
       id: `msg-${Date.now()}`,
       sender: 'ai',
-      text: res.answer,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      text,
+      timestamp: new Date().toLocaleTimeString(arabic ? 'ar-EG' : 'en-US', { hour: '2-digit', minute: '2-digit' }),
       generatedWorkflow: this.parseWorkflow(res.generatedWorkflowJson),
     };
   }

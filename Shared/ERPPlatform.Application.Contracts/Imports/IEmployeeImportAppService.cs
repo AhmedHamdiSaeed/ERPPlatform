@@ -50,4 +50,7 @@ public interface IEmployeeImportAppService : IApplicationService
 
     /// <summary>Downloads a ready-to-fill sample workbook.</summary>
     Task<IRemoteStreamContent> GetTemplateAsync();
+
+    /// <summary>Downloads the original uploaded Excel file for a past import job.</summary>
+    Task<IRemoteStreamContent> GetImportFileAsync(Guid id);
 }

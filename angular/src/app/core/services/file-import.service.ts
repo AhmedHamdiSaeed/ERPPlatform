@@ -32,9 +32,9 @@ export class FileImportService {
   readonly open = signal(false);
   readonly CHUNK_SIZE = 1024 * 1024; // 1 MB
 
-  /** File types the import accepts. Keep in sync with the backend allow-list. */
-  readonly ALLOWED_EXTENSIONS = ['.xlsx', '.xls', '.csv'] as const;
-  readonly ACCEPT_ATTR = '.xlsx,.xls,.csv';
+  /** File types the import accepts (Excel only). */
+  readonly ALLOWED_EXTENSIONS = ['.xlsx', '.xls'] as const;
+  readonly ACCEPT_ATTR = '.xlsx,.xls';
 
   private baseUrl = `${environment.apis.default.url}/api/file-import`;
   private importFinished = new Subject<string>();

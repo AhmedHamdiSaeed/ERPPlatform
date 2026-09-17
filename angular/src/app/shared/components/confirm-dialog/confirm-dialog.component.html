@@ -107,7 +107,8 @@
           [class.bg-rose-600]="activePrompt.options.type === 'danger'" [class.hover:bg-rose-700]="activePrompt.options.type === 'danger'"
           [class.bg-amber-600]="activePrompt.options.type === 'warning'" [class.hover:bg-amber-700]="activePrompt.options.type === 'warning'"
           [class.bg-emerald-600]="activePrompt.options.type === 'success'" [class.hover:bg-emerald-700]="activePrompt.options.type === 'success'"
-          [class.bg-blue-600]="activePrompt.options.type === 'info'" [class.hover:bg-blue-700]="activePrompt.options.type === 'info'">
+          [class.bg-blue-600]="activePrompt.options.type === 'info'" [class.hover:bg-blue-700]="activePrompt.options.type === 'info'"
+          class="px-4 py-2 text-xs font-bold text-white rounded-xl shadow-md transition-colors flex items-center justify-center gap-2 cursor-pointer">
           <span>{{ activePrompt.options.confirmText | translate }}</span>
         </button>
       </div>

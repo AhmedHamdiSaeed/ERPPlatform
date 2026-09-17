@@ -39,6 +39,15 @@ export interface LoginResponseData {
     tenantId?: string;
     tenantName?: string;
     logoUrl?: string;
+    tenantLogo?: string;
+  };
+  tenant?: {
+    tenantId?: string;
+    tenantName: string;
+    logoUrl: string;
+    supportEmail?: string;
+    websiteUrl?: string;
+    primaryColor?: string;
   };
 }
 
@@ -47,6 +56,8 @@ export interface RefreshResponseData {
   refreshToken: string;
   tokenType: string;
   expiresIn: number;
+  user?: LoginResponseData['user'];
+  tenant?: LoginResponseData['tenant'];
 }
 
 @Injectable({
@@ -253,17 +264,19 @@ export class AuthService {
     if (data.user) {
       const userRoles = data.user.roles || [];
       const isAdmin = userRoles.some(r => r.toLowerCase() === 'admin');
+      const resolvedTenantLogo = data.tenant?.logoUrl || data.user.tenantLogo || data.user.logoUrl || '';
+      const resolvedTenantName = data.tenant?.tenantName || data.user.tenantName || tenantName || '';
 
       this.state.setCurrentUser({
         id: data.user.id,
         name: data.user.name || data.user.userName || 'User',
         email: data.user.email || '',
         role: isAdmin ? 'Admin' : (userRoles[0] as any) || 'Employee',
-        avatar: data.user.logoUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+        avatar: data.user.logoUrl || resolvedTenantLogo || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
         permissions: data.user.permissions?.length ? data.user.permissions : (isAdmin ? ['*'] : []),
-        tenantId: data.user.tenantId,
-        tenantName: data.user.tenantName || tenantName,
-        tenantLogo: data.user.logoUrl
+        tenantId: data.user.tenantId || data.tenant?.tenantId,
+        tenantName: resolvedTenantName,
+        tenantLogo: resolvedTenantLogo
       });
     }
 

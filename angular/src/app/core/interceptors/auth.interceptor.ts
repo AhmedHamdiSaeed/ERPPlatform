@@ -2,6 +2,7 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { Injector, inject } from '@angular/core';
 import { catchError, from, switchMap, throwError } from 'rxjs';
 import { AuthService, TENANT_KEY } from '../services/auth.service';
+import { BackendStatusService } from '../services/backend-status.service';
 import { SessionTimeoutService } from '../services/session-timeout.service';
 import { REFRESH_TOKEN_KEY, TOKEN_KEY } from '../constants/session.constants';
 
@@ -55,6 +56,19 @@ export const authInterceptorFn: HttpInterceptorFn = (req, next) => {
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
+      // If backend server is unreachable (status 0) or gateway failure (502/503/504)
+      if (error.status === 0 || (error.status >= 502 && error.status <= 504)) {
+        try {
+          injector.get(BackendStatusService, null, { optional: true })?.reportError(
+            req.url,
+            error.status,
+            error.message || 'Cannot reach the backend server'
+          );
+        } catch {
+          /* ignore */
+        }
+      }
+
       if (error.status !== 401 || isAuthEndpoint) {
         return throwError(() => error);
       }

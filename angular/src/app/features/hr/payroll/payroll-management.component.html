@@ -52,7 +52,7 @@
           <div class="text-xs text-slate-500 dark:text-slate-400">{{ 'Headcount' | translate }}</div>
           <div class="text-xl font-extrabold text-slate-900 dark:text-white">{{ p.totals.employeeCount }}</div>
           @if (p.headcountDelta !== 0) {
-            <div class="text-xs" [class]="deltaClass(p.headcountDelta)">{{ (p.headcountDelta > 0 ? '+' : '') + p.headcountDelta }} vs prev</div>
+            <div class="text-xs" [class]="deltaClass(p.headcountDelta)">{{ (p.headcountDelta > 0 ? '+' : '') + p.headcountDelta }} {{ 'vs prev' | translate }}</div>
           }
         </div>
         <div class="rounded-lg bg-slate-50 dark:bg-slate-700/50 p-3">
@@ -71,7 +71,7 @@
           <div class="text-xs text-emerald-700 dark:text-emerald-300">{{ 'Net Salary' | translate }}</div>
           <div class="text-xl font-extrabold text-emerald-700 dark:text-emerald-300">{{ money(p.totals.netSalary) }}</div>
           @if (p.netDelta !== 0) {
-            <div class="text-xs" [class]="deltaClass(p.netDelta)">{{ (p.netDelta > 0 ? '+' : '') + money(p.netDelta) }} vs prev</div>
+            <div class="text-xs" [class]="deltaClass(p.netDelta)">{{ (p.netDelta > 0 ? '+' : '') + money(p.netDelta) }} {{ 'vs prev' | translate }}</div>
           }
         </div>
         <div class="rounded-lg bg-slate-50 dark:bg-slate-700/50 p-3">
@@ -102,12 +102,12 @@
                 </span>
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center gap-2 flex-wrap">
-                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200">{{ a.kind }}</span>
+                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200">{{ a.kind | translate }}</span>
                     @if (a.employeeName) {
                       <span class="text-sm font-medium text-slate-900 dark:text-white">{{ a.employeeName }}</span>
                     }
                   </div>
-                  <p class="text-sm text-slate-600 dark:text-slate-300 mt-0.5">{{ a.message }}</p>
+                  <p class="text-sm text-slate-600 dark:text-slate-300 mt-0.5">{{ a.message | translate }}</p>
                 </div>
                 <button (click)="resolveAnomaly(a)"
                   class="shrink-0 px-3 py-1.5 text-xs font-medium rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700">
@@ -161,7 +161,7 @@
                         <span class="px-2 py-1 text-xs rounded-md border border-slate-200 dark:border-slate-600
                           {{ l.type === 'Deduction' ? 'text-rose-600 dark:text-rose-300' : (l.type === 'EmployerContribution' ? 'text-slate-500 dark:text-slate-400' : 'text-emerald-700 dark:text-emerald-300') }}">
                           {{ l.name }} ({{ l.code }}): {{ (l.amount >= 0 ? '+' : '') + money(l.amount) }}
-                          @if (l.isTaxable) { <span class="opacity-60">· taxable</span> }
+                          @if (l.isTaxable) { <span class="opacity-60">· {{ 'taxable' | translate }}</span> }
                         </span>
                       }
                     </div>
@@ -214,7 +214,7 @@
                 <td class="py-3 px-2 text-right">
                   <div class="flex justify-end gap-1">
                     @if (canAdvance(run)) {
-                      <button (click)="advance(run)" class="px-2 py-1 text-xs rounded-lg bg-indigo-600 text-white hover:bg-indigo-700">{{ nextStatusLabel(run.status) || 'Advance' | translate }}</button>
+                      <button (click)="advance(run)" class="px-2 py-1 text-xs rounded-lg bg-indigo-600 text-white hover:bg-indigo-700">{{ (nextStatusLabel(run.status) || 'Advance') | translate }}</button>
                     }
                     @if (!isLocked(run)) {
                       <button (click)="reopen(run)" class="px-2 py-1 text-xs rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-100">{{ 'Reopen' | translate }}</button>
@@ -249,7 +249,7 @@
                 <h4 class="font-bold text-slate-900 dark:text-white">{{ ps.employeeName || '—' }}</h4>
                 <p class="text-xs text-slate-500 dark:text-slate-400">{{ ps.period }} · {{ ps.department || '—' }}</p>
               </div>
-              <span class="px-2 py-0.5 text-xs font-semibold rounded bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200">{{ ps.status }}</span>
+              <span class="px-2 py-0.5 text-xs font-semibold rounded bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-200">{{ ps.status | translate }}</span>
             </div>
             <div class="space-y-1 text-xs text-slate-600 dark:text-slate-300 pt-2 border-t border-slate-200 dark:border-slate-600">
               <div class="flex justify-between"><span>{{ 'Base:' | translate }}</span><span>{{ money(ps.baseSalary) }}</span></div>

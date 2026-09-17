@@ -7,9 +7,11 @@ using ERPPlatform.Imports;
 using Microsoft.Extensions.Options;
 using Volo.Abp;
 using Volo.Abp.BlobStoring;
+using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Guids;
+using Volo.Abp.MultiTenancy;
 using Volo.Abp.Timing;
 using Volo.Abp.Uow;
 
@@ -34,6 +36,7 @@ public class EmployeeImportOrchestrator : ITransientDependency
     private readonly IGuidGenerator _guidGenerator;
     private readonly IClock _clock;
     private readonly EmployeeImportOptions _options;
+    private readonly IDataFilter _dataFilter;
 
     public EmployeeImportOrchestrator(
         IRepository<EmployeeImportJob, Guid> jobRepository,
@@ -46,7 +49,8 @@ public class EmployeeImportOrchestrator : ITransientDependency
         IUnitOfWorkManager unitOfWorkManager,
         IGuidGenerator guidGenerator,
         IClock clock,
-        IOptions<EmployeeImportOptions> options)
+        IOptions<EmployeeImportOptions> options,
+        IDataFilter dataFilter)
     {
         _jobRepository = jobRepository;
         _chunkRepository = chunkRepository;
@@ -59,6 +63,7 @@ public class EmployeeImportOrchestrator : ITransientDependency
         _guidGenerator = guidGenerator;
         _clock = clock;
         _options = options.Value;
+        _dataFilter = dataFilter;
     }
 
     // ── Start ───────────────────────────────────────────────────
@@ -183,7 +188,8 @@ public class EmployeeImportOrchestrator : ITransientDependency
 
             foreach (var chunk in chunks.Where(c =>
                          c.Status == EmployeeImportChunkStatus.Failed ||
-                         c.Status == EmployeeImportChunkStatus.Cancelled))
+                         c.Status == EmployeeImportChunkStatus.Cancelled ||
+                         c.Status == EmployeeImportChunkStatus.Processing))
             {
                 if (resetFailedChunks)
                 {
@@ -257,55 +263,60 @@ public class EmployeeImportOrchestrator : ITransientDependency
     /// incomplete chunk of every still-active job. Safe to run concurrently: the
     /// atomic claim in the chunk processor decides who actually runs a chunk.
     /// </summary>
-    public async Task<int> RecoverStalledJobsAsync(IEmployeeImportScheduleArgsFactory argsFactory)
+    public async Task<int> RecoverStalledJobsAsync(IEmployeeImportScheduleArgsFactory argsFactory, bool isStartupRecovery = false)
     {
         var recovered = 0;
         var cutoff = _clock.Now.AddMinutes(-Math.Max(1, _options.StuckChunkTimeoutMinutes));
 
-        List<Guid> activeJobIds;
-        using (var uow = _unitOfWorkManager.Begin(requiresNew: true))
+        using (_dataFilter.Disable<IMultiTenant>())
         {
-            activeJobIds = (await _jobRepository.GetListAsync(j =>
-                    j.Status == EmployeeImportStatus.Queued || j.Status == EmployeeImportStatus.Processing))
-                .Select(j => j.Id)
-                .ToList();
-            await uow.CompleteAsync();
-        }
-
-        foreach (var jobId in activeJobIds)
-        {
-            using (var uow = _unitOfWorkManager.Begin(new AbpUnitOfWorkOptions { IsTransactional = true }, requiresNew: true))
+            List<Guid> activeJobIds;
+            using (var uow = _unitOfWorkManager.Begin(requiresNew: true))
             {
-                var chunks = await _chunkRepository.GetListAsync(c => c.ImportJobId == jobId);
-
-                var stuck = chunks.Where(c =>
-                        c.Status == EmployeeImportChunkStatus.Processing &&
-                        c.StartedAt.HasValue && c.StartedAt.Value < cutoff)
+                activeJobIds = (await _jobRepository.GetListAsync(j =>
+                        j.Status == EmployeeImportStatus.Queued || j.Status == EmployeeImportStatus.Processing))
+                    .Select(j => j.Id)
                     .ToList();
-
-                foreach (var chunk in stuck)
-                {
-                    chunk.Status = EmployeeImportChunkStatus.Pending;
-                    chunk.LastError = "Released by the recovery watchdog: the previous attempt did not report back.";
-                    await _chunkRepository.UpdateAsync(chunk);
-                }
-
                 await uow.CompleteAsync();
             }
 
-            var next = await _progress.GetNextPendingChunkAsync(jobId);
-            if (next != null)
+            foreach (var jobId in activeJobIds)
             {
-                var args = await argsFactory.CreateAsync(jobId);
-                if (args != null)
+                using (var uow = _unitOfWorkManager.Begin(new AbpUnitOfWorkOptions { IsTransactional = true }, requiresNew: true))
                 {
-                    await _scheduler.EnqueueChunkAsync(args, next.Value);
-                    recovered++;
+                    var chunks = await _chunkRepository.GetListAsync(c => c.ImportJobId == jobId);
+
+                    // On startup recovery, ANY chunk left in Processing state belonged to a dead host process.
+                    // On periodic sweeps, any chunk in Processing state older than cutoff was stalled.
+                    var stuck = chunks.Where(c =>
+                            c.Status == EmployeeImportChunkStatus.Processing &&
+                            (isStartupRecovery || !c.StartedAt.HasValue || c.StartedAt.Value < cutoff))
+                        .ToList();
+
+                    foreach (var chunk in stuck)
+                    {
+                        chunk.Status = EmployeeImportChunkStatus.Pending;
+                        chunk.LastError = "Released by the recovery watchdog: the previous attempt did not report back.";
+                        await _chunkRepository.UpdateAsync(chunk);
+                    }
+
+                    await uow.CompleteAsync();
                 }
-            }
-            else
-            {
-                await _progress.RecomputeAsync(jobId);
+
+                var next = await _progress.GetNextPendingChunkAsync(jobId);
+                if (next != null)
+                {
+                    var args = await argsFactory.CreateAsync(jobId);
+                    if (args != null)
+                    {
+                        await _scheduler.EnqueueChunkAsync(args, next.Value);
+                        recovered++;
+                    }
+                }
+                else
+                {
+                    await _progress.RecomputeAsync(jobId);
+                }
             }
         }
 
@@ -322,42 +333,45 @@ public class EmployeeImportOrchestrator : ITransientDependency
     {
         var cutoff = _clock.Now.AddDays(-Math.Max(1, _options.SourceFileRetentionDays));
 
-        List<EmployeeImportJob> finished;
-        using (var uow = _unitOfWorkManager.Begin(requiresNew: true))
+        using (_dataFilter.Disable<IMultiTenant>())
         {
-            finished = (await _jobRepository.GetListAsync(j => j.CompletedAt != null && j.CompletedAt < cutoff))
-                .Where(j => !string.IsNullOrWhiteSpace(j.StorageKey))
-                .ToList();
-            await uow.CompleteAsync();
-        }
-
-        var deleted = 0;
-        foreach (var job in finished)
-        {
-            // Keep the source file while a cancelled import could still be resumed.
-            if (job.Status == EmployeeImportStatus.Cancelled && job.FailedChunks == 0)
+            List<EmployeeImportJob> finished;
+            using (var uow = _unitOfWorkManager.Begin(requiresNew: true))
             {
-                continue;
+                finished = (await _jobRepository.GetListAsync(j => j.CompletedAt != null && j.CompletedAt < cutoff))
+                    .Where(j => !string.IsNullOrWhiteSpace(j.StorageKey))
+                    .ToList();
+                await uow.CompleteAsync();
             }
 
-            try
+            var deleted = 0;
+            foreach (var job in finished)
             {
-                if (await _blobContainer.ExistsAsync(job.StorageKey))
+                // Keep the source file while a cancelled import could still be resumed.
+                if (job.Status == EmployeeImportStatus.Cancelled && job.FailedChunks == 0)
                 {
-                    await _blobContainer.DeleteAsync(job.StorageKey);
+                    continue;
                 }
 
-                job.StorageKey = string.Empty;
-                await _jobRepository.UpdateAsync(job, autoSave: true);
-                deleted++;
-            }
-            catch
-            {
-                // A missing or locked blob must never break the cleanup sweep.
-            }
-        }
+                try
+                {
+                    if (await _blobContainer.ExistsAsync(job.StorageKey))
+                    {
+                        await _blobContainer.DeleteAsync(job.StorageKey);
+                    }
 
-        return deleted;
+                    job.StorageKey = string.Empty;
+                    await _jobRepository.UpdateAsync(job, autoSave: true);
+                    deleted++;
+                }
+                catch
+                {
+                    // A missing or locked blob must never break the cleanup sweep.
+                }
+            }
+
+            return deleted;
+        }
     }
 
     private static string? Truncate(string? value, int max)

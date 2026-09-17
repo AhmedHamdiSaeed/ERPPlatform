@@ -57,6 +57,25 @@ export class HrApiService extends ErpApiService {
     return this.getList<EmployeeDto>('employee').then(items => items.map(mapEmployee));
   }
 
+  getEmployeesPaged(
+    skipCount: number = 0,
+    maxResultCount: number = 50,
+    filter?: string,
+    status?: string,
+    departmentName?: string
+  ): Promise<{ totalCount: number; items: Employee[] }> {
+    let params = `skipCount=${skipCount}&maxResultCount=${maxResultCount}`;
+    if (filter) params += `&filter=${encodeURIComponent(filter)}`;
+    if (status && status !== 'ALL') params += `&status=${encodeURIComponent(status)}`;
+    if (departmentName && departmentName !== 'ALL') params += `&departmentName=${encodeURIComponent(departmentName)}`;
+
+    return this.get<{ totalCount: number; items: EmployeeDto[] }>(`employee?${params}`)
+      .then(res => ({
+        totalCount: res.totalCount || 0,
+        items: (res.items || []).map(mapEmployee)
+      }));
+  }
+
   getEmployee(id: string): Promise<Employee> {
     return this.get<EmployeeDto>(`employee/${id}`).then(mapEmployee);
   }

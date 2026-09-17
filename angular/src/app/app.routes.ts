@@ -18,6 +18,14 @@ export const appRoutes: Routes = [
     path: 'auth/reset-password',
     loadComponent: () => import('./features/auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent)
   },
+  {
+    path: 'offline',
+    loadComponent: () => import('./shared/components/backend-offline/backend-offline.component').then(m => m.BackendOfflineComponent)
+  },
+  {
+    path: 'server-error',
+    loadComponent: () => import('./shared/components/backend-offline/backend-offline.component').then(m => m.BackendOfflineComponent)
+  },
 
   // ERP Application routes (wrapped in layout shell & protected by authGuard)
   {

@@ -52,7 +52,7 @@ public class EmployeeImportProgressService : ITransientDependency
         if (chunks.Count == 0) return null;
 
         var pending = chunks
-            .Where(c => c.Status is EmployeeImportChunkStatus.Pending or EmployeeImportChunkStatus.Processing)
+            .Where(c => c.Status == EmployeeImportChunkStatus.Pending)
             .OrderBy(c => c.ChunkNumber)
             .Select(c => c.ChunkNumber)
             .ToList();

@@ -1,0 +1,471 @@
+@if (visible) {
+  <div class="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-slate-900/70 backdrop-blur-sm animate-fade-in"
+       [attr.dir]="state.isRtl() ? 'rtl' : 'ltr'"
+       (click)="close()">
+
+    <div class="w-[95vw] max-w-6xl h-[88vh] max-h-[88vh] my-auto bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+         (click)="$event.stopPropagation()">
+
+      <!-- Dialog Header -->
+      <div class="px-6 py-4 border-b border-[var(--border-color)] flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/30">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg shadow-xs">
+            <i class="pi pi-file-excel"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-extrabold text-[var(--text-main)] leading-tight">
+              {{ 'HR:ImportEmployees' | translate }}
+            </h3>
+            <p class="text-xs text-[var(--text-muted)]">
+              {{ 'HR:ImportPipelineDesc' | translate }}
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <!-- Tab Navigation -->
+          <div class="flex p-1 bg-slate-200/60 dark:bg-slate-700/60 rounded-xl text-xs font-semibold">
+            <button (click)="activeTab = 'wizard'"
+                    [class.bg-white]="activeTab === 'wizard'"
+                    [class.dark:bg-slate-800]="activeTab === 'wizard'"
+                    [class.shadow-xs]="activeTab === 'wizard'"
+                    [class.text-blue-600]="activeTab === 'wizard'"
+                    class="px-3 py-1.5 rounded-lg transition-all cursor-pointer">
+              <i class="pi pi-upload mr-1 rtl:mr-0 rtl:ml-1"></i> {{ 'HR:ImportWizard' | translate }}
+            </button>
+            <button (click)="activeTab = 'history'; loadHistory()"
+                    [class.bg-white]="activeTab === 'history'"
+                    [class.dark:bg-slate-800]="activeTab === 'history'"
+                    [class.shadow-xs]="activeTab === 'history'"
+                    [class.text-blue-600]="activeTab === 'history'"
+                    class="px-3 py-1.5 rounded-lg transition-all cursor-pointer">
+              <i class="pi pi-history mr-1 rtl:mr-0 rtl:ml-1"></i> {{ 'HR:HistoryAuditLog' | translate }}
+            </button>
+          </div>
+
+          <button (click)="close()" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-[var(--text-muted)] cursor-pointer">
+            <i class="pi pi-times"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Dialog Body -->
+      <div class="p-6 overflow-y-auto flex-1 space-y-6">
+
+        <!-- TAB 1: IMPORT WIZARD -->
+        @if (activeTab === 'wizard') {
+
+          <!-- Step Indicator -->
+          <div class="grid grid-cols-4 gap-2 text-center text-xs font-bold border-b border-[var(--border-color)] pb-4">
+            <div class="flex items-center gap-2 justify-center" [class.text-blue-600]="step === 'upload'">
+              <span class="w-6 h-6 rounded-full flex items-center justify-center text-[11px]"
+                    [class.bg-blue-600]="step === 'upload'"
+                    [class.text-white]="step === 'upload'"
+                    [class.bg-slate-100]="step !== 'upload'"
+                    [class.text-slate-500]="step !== 'upload'">1</span>
+              <span>{{ 'HR:StepUpload' | translate }}</span>
+            </div>
+            <div class="flex items-center gap-2 justify-center" [class.text-blue-600]="step === 'preview'">
+              <span class="w-6 h-6 rounded-full flex items-center justify-center text-[11px]"
+                    [class.bg-blue-600]="step === 'preview'"
+                    [class.text-white]="step === 'preview'"
+                    [class.bg-slate-100]="step !== 'preview'"
+                    [class.text-slate-500]="step !== 'preview'">2</span>
+              <span>{{ 'HR:StepValidate' | translate }}</span>
+            </div>
+            <div class="flex items-center gap-2 justify-center" [class.text-blue-600]="step === 'importing'">
+              <span class="w-6 h-6 rounded-full flex items-center justify-center text-[11px]"
+                    [class.bg-blue-600]="step === 'importing'"
+                    [class.text-white]="step === 'importing'"
+                    [class.bg-slate-100]="step !== 'importing'"
+                    [class.text-slate-500]="step !== 'importing'">3</span>
+              <span>{{ 'HR:StepProcessing' | translate }}</span>
+            </div>
+            <div class="flex items-center gap-2 justify-center" [class.text-emerald-600]="step === 'result'">
+              <span class="w-6 h-6 rounded-full flex items-center justify-center text-[11px]"
+                    [class.bg-emerald-600]="step === 'result'"
+                    [class.text-white]="step === 'result'"
+                    [class.bg-slate-100]="step !== 'result'"
+                    [class.text-slate-500]="step !== 'result'">4</span>
+              <span>{{ 'HR:StepResult' | translate }}</span>
+            </div>
+          </div>
+
+          <!-- STEP 1: UPLOAD & TEMPLATE DOWNLOAD -->
+          @if (step === 'upload') {
+            <div class="space-y-4 animate-fade-in">
+              
+              <!-- Download Template Banner -->
+              <div class="p-4 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-start gap-3">
+                  <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-base shrink-0 mt-0.5">
+                    <i class="pi pi-download"></i>
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-bold text-emerald-900 dark:text-emerald-200">{{ 'HR:DownloadTemplateTitle' | translate }}</h4>
+                    <p class="text-[11px] text-emerald-700 dark:text-emerald-400 mt-0.5">
+                      {{ 'HR:DownloadTemplateDesc' | translate }}
+                    </p>
+                  </div>
+                </div>
+                <button (click)="downloadTemplate()"
+                        class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-colors shrink-0 flex items-center gap-1.5 cursor-pointer">
+                  <i class="pi pi-file-excel"></i> {{ 'HR:DownloadXlsxTemplate' | translate }}
+                </button>
+              </div>
+
+              <!-- Excel Only Dropzone -->
+              <label
+                class="flex flex-col items-center justify-center gap-3 px-6 py-12 rounded-2xl border-2 border-dashed border-[var(--border-color)] hover:border-emerald-500 bg-slate-50/50 dark:bg-slate-800/30 hover:bg-emerald-50/20 transition-all cursor-pointer"
+                [class.ring-2]="dragOver"
+                [class.ring-emerald-500]="dragOver"
+                (dragover)="onDragOver($event)"
+                (dragleave)="onDragLeave()"
+                (drop)="onDrop($event)">
+                <div class="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl shadow-inner">
+                  <i class="pi pi-cloud-upload"></i>
+                </div>
+                <div class="text-center">
+                  <p class="text-sm font-bold text-[var(--text-main)]">{{ 'HR:UploadExcelFile' | translate }}</p>
+                  <p class="text-xs text-[var(--text-muted)] mt-1">{{ 'HR:UploadExcelFileDesc' | translate }}</p>
+                  <span class="inline-block mt-2 px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
+                    {{ 'HR:ExcelOnlyLimit' | translate }}
+                  </span>
+                </div>
+                <input type="file" class="hidden" accept=".xlsx,.xls" (change)="onFileChange($event)" />
+              </label>
+
+              @if (fileError) {
+                <div class="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 text-rose-700 dark:text-rose-400 text-xs flex items-center gap-2">
+                  <i class="pi pi-exclamation-triangle"></i>
+                  <span>{{ fileError }}</span>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- STEP 2: PREVIEW & VALIDATION SUMMARY -->
+          @if (step === 'preview') {
+            <div class="space-y-4 animate-fade-in">
+              
+              <!-- File info & Validation metrics -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 border border-[var(--border-color)]">
+                  <span class="text-[10px] font-bold uppercase text-[var(--text-muted)] block">{{ 'HR:TotalRows' | translate }}</span>
+                  <span class="text-lg font-extrabold text-[var(--text-main)]">{{ totalRowsCount() }}</span>
+                </div>
+                <div class="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40">
+                  <span class="text-[10px] font-bold uppercase text-emerald-700 dark:text-emerald-400 block">{{ 'HR:ValidRows' | translate }}</span>
+                  <span class="text-lg font-extrabold text-emerald-700 dark:text-emerald-400">{{ validRowsCount() }}</span>
+                </div>
+                <div class="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/40">
+                  <span class="text-[10px] font-bold uppercase text-amber-700 dark:text-amber-400 block">{{ 'HR:WarningRows' | translate }}</span>
+                  <span class="text-lg font-extrabold text-amber-700 dark:text-amber-400">{{ warningRowsCount() }}</span>
+                </div>
+                <div class="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40">
+                  <span class="text-[10px] font-bold uppercase text-rose-700 dark:text-rose-400 block">{{ 'HR:InvalidRows' | translate }}</span>
+                  <span class="text-lg font-extrabold text-rose-700 dark:text-rose-400">{{ invalidRowsCount() }}</span>
+                </div>
+              </div>
+
+              <!-- Selected File Bar -->
+              <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-[var(--border-color)]">
+                <div class="flex items-center gap-2.5">
+                  <i class="pi pi-file-excel text-emerald-600 text-xl"></i>
+                  <div>
+                    <p class="text-xs font-bold text-[var(--text-main)]">{{ selectedFile?.name }}</p>
+                    <p class="text-[11px] text-[var(--text-muted)]">{{ (selectedFile?.size || 0) / 1024 | number:'1.0-1' }} KB</p>
+                  </div>
+                </div>
+                <button (click)="resetWizard()" class="text-xs text-slate-500 hover:text-red-600 underline cursor-pointer">{{ 'HR:ChangeFile' | translate }}</button>
+              </div>
+
+              <!-- Preview Table -->
+              <div class="border border-[var(--border-color)] rounded-xl overflow-hidden shadow-2xs">
+                <div class="p-2.5 bg-slate-100/70 dark:bg-slate-800/70 border-b border-[var(--border-color)] flex items-center justify-between">
+                  <span class="text-xs font-bold text-[var(--text-main)]">{{ 'HR:SpreadsheetPreview' | translate }} ({{ previewRows().length }})</span>
+                  <span class="text-[11px] text-[var(--text-muted)]">{{ 'HR:SpreadsheetPreviewDesc' | translate }}</span>
+                </div>
+                <div class="max-h-[380px] overflow-y-auto">
+                  <table class="w-full text-left text-xs border-collapse">
+                    <thead class="bg-slate-50 dark:bg-slate-900/50 text-[10px] uppercase font-bold text-slate-500">
+                      <tr class="border-b border-[var(--border-color)]">
+                        <th class="p-2.5">{{ 'HR:Row' | translate }}</th>
+                        <th class="p-2.5">{{ 'HR:Code' | translate }}</th>
+                        <th class="p-2.5">{{ 'HR:Name' | translate }}</th>
+                        <th class="p-2.5">{{ 'HR:Email' | translate }}</th>
+                        <th class="p-2.5">{{ 'HR:Department' | translate }}</th>
+                        <th class="p-2.5">{{ 'HR:Position' | translate }}</th>
+                        <th class="p-2.5">{{ 'HR:Status' | translate }}</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[var(--border-color)]">
+                      @for (r of previewRows(); track r.rowNumber) {
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                          <td class="p-2.5 font-mono text-[11px] text-slate-400">#{{ r.rowNumber }}</td>
+                          <td class="p-2.5 font-semibold text-[var(--text-main)]">{{ r.code }}</td>
+                          <td class="p-2.5 text-[var(--text-main)]">{{ r.name }}</td>
+                          <td class="p-2.5 text-[var(--text-muted)]">{{ r.email }}</td>
+                          <td class="p-2.5 text-[var(--text-muted)]">{{ r.department }}</td>
+                          <td class="p-2.5 text-[var(--text-muted)]">{{ r.position }}</td>
+                          <td class="p-2.5">
+                            @if (r.status === 'valid') {
+                              <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">{{ 'HR:Valid' | translate }}</span>
+                            } @else if (r.status === 'warning') {
+                              <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">{{ 'HR:Update' | translate }}</span>
+                            } @else {
+                              <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-300">{{ 'HR:Error' | translate }}</span>
+                            }
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Action Bar -->
+              <div class="flex items-center justify-between pt-2 border-t border-[var(--border-color)]">
+                <button (click)="resetWizard()"
+                        class="px-4 py-2 text-xs font-semibold rounded-xl border border-[var(--border-color)] text-[var(--text-main)] hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
+                  {{ 'HR:Back' | translate }}
+                </button>
+                <button (click)="startImport()"
+                        class="px-5 py-2.5 text-xs font-bold rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-md flex items-center gap-2 cursor-pointer transition-colors">
+                  <i class="pi pi-check-circle"></i> {{ 'HR:ConfirmStartImport' | translate }}
+                </button>
+              </div>
+
+            </div>
+          }
+
+          <!-- STEP 3: BATCH PROCESSING PROGRESS -->
+          @if (step === 'importing') {
+            <div class="py-8 space-y-6 text-center animate-fade-in">
+              <div class="w-16 h-16 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center text-3xl mx-auto shadow-inner animate-pulse">
+                <i class="pi pi-spin pi-spinner"></i>
+              </div>
+              <div>
+                <h4 class="text-sm font-extrabold text-[var(--text-main)]">{{ 'HR:ProcessingBatchTransactions' | translate }}</h4>
+                <p class="text-xs text-[var(--text-muted)] mt-1">{{ progressMessage() }}</p>
+              </div>
+
+              <!-- Progress Bar -->
+              <div class="max-w-md mx-auto space-y-2">
+                <div class="flex items-center justify-between text-xs font-semibold text-[var(--text-muted)]">
+                  <span>{{ 'HR:Progress' | translate }}</span>
+                  <span class="text-blue-600">{{ progressPercent() }}%</span>
+                </div>
+                <div class="w-full h-3 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden shadow-inner">
+                  <div class="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-300"
+                       [style.width.%]="progressPercent()"></div>
+                </div>
+              </div>
+
+              <div class="p-3 max-w-md mx-auto rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-[var(--border-color)] text-left rtl:text-right text-xs space-y-1">
+                <div class="flex justify-between">
+                  <span class="text-slate-400">{{ 'HR:BatchSize' | translate }}</span>
+                  <span class="font-semibold text-[var(--text-main)]">{{ 'HR:BatchSizeDesc' | translate }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-400">{{ 'HR:IdempotentUpsert' | translate }}</span>
+                  <span class="font-semibold text-emerald-600">{{ 'HR:IdempotentUpsertDesc' | translate }}</span>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- STEP 4: IMPORT RESULT & ERROR REPORT -->
+          @if (step === 'result') {
+            <div class="space-y-6 animate-fade-in">
+              
+              <!-- Result Banner -->
+              <div class="text-center py-4">
+                <div class="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl mx-auto mb-2 shadow-xs">
+                  <i class="pi pi-check"></i>
+                </div>
+                <h4 class="text-base font-extrabold text-[var(--text-main)]">{{ 'HR:ImportCompleted' | translate }}</h4>
+                <p class="text-xs text-[var(--text-muted)] mt-0.5">
+                  {{ 'HR:ImportCompletedDesc' | translate }}
+                </p>
+              </div>
+
+              <!-- Metrics Summary -->
+              <div class="grid grid-cols-3 gap-3 text-center">
+                <div class="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40">
+                  <span class="text-[10px] font-bold uppercase text-emerald-700 dark:text-emerald-400 block">{{ 'HR:CreatedUpdated' | translate }}</span>
+                  <span class="text-xl font-extrabold text-emerald-700 dark:text-emerald-400">{{ currentJob()?.successfulRows || 0 }}</span>
+                </div>
+                <div class="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40">
+                  <span class="text-[10px] font-bold uppercase text-rose-700 dark:text-rose-400 block">{{ 'HR:FailedRows' | translate }}</span>
+                  <span class="text-xl font-extrabold text-rose-700 dark:text-rose-400">{{ currentJob()?.failedRows || 0 }}</span>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 border border-[var(--border-color)]">
+                  <span class="text-[10px] font-bold uppercase text-slate-500 block">{{ 'HR:TotalProcessed' | translate }}</span>
+                  <span class="text-xl font-extrabold text-[var(--text-main)]">{{ currentJob()?.processedRows || 0 }}</span>
+                </div>
+              </div>
+
+              <!-- Errors List & Download Button -->
+              @if ((currentJob()?.failedRows || 0) > 0 || jobErrors().length > 0) {
+                <div class="p-4 rounded-xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/30 space-y-3">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2 text-rose-700 dark:text-rose-400 text-xs font-bold">
+                      <i class="pi pi-exclamation-circle"></i>
+                      <span>{{ 'HR:SomeRowsFailed' | translate }}</span>
+                    </div>
+                    <button (click)="downloadErrorReport()"
+                            class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs flex items-center gap-1.5 cursor-pointer">
+                      <i class="pi pi-download"></i> {{ 'HR:DownloadErrorReport' | translate }}
+                    </button>
+                  </div>
+
+                  @if (jobErrors().length > 0) {
+                    <div class="max-h-36 overflow-y-auto text-xs space-y-1">
+                      @for (err of jobErrors(); track err.id) {
+                        <div class="p-2 rounded-lg bg-white dark:bg-slate-800 border border-rose-100 dark:border-rose-900/40 flex justify-between">
+                          <span class="font-semibold text-rose-700 dark:text-rose-400">{{ 'HR:Row' | translate }} #{{ err.rowNumber }} ({{ err.columnName || ('HR:Field' | translate) }}):</span>
+                          <span class="text-[var(--text-muted)]">{{ err.errorMessage }}</span>
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+
+              <!-- Actions -->
+              <div class="flex items-center justify-end gap-3 pt-2 border-t border-[var(--border-color)]">
+                <button (click)="resetWizard()"
+                        class="px-4 py-2 text-xs font-semibold rounded-xl border border-[var(--border-color)] text-[var(--text-main)] hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
+                  {{ 'HR:ImportAnotherFile' | translate }}
+                </button>
+                <button (click)="close()"
+                        class="px-5 py-2 text-xs font-bold rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-md cursor-pointer">
+                  {{ 'HR:DoneViewList' | translate }}
+                </button>
+              </div>
+
+            </div>
+          }
+
+        }
+
+        <!-- TAB 2: AUDIT HISTORY & PAST RUNS -->
+        @if (activeTab === 'history') {
+          <div class="space-y-4 animate-fade-in">
+            
+            <div class="flex items-center justify-between">
+              <div class="relative w-72">
+                <i class="pi pi-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                <input type="text"
+                       [(ngModel)]="historySearch"
+                       (keyup.enter)="loadHistory()"
+                       placeholder="{{ 'HR:SearchHistoryPlaceholder' | translate }}"
+                       class="w-full pl-8 pr-3 py-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden" />
+              </div>
+              <button (click)="loadHistory()" class="btn-outline text-xs cursor-pointer flex items-center gap-1.5">
+                <i class="pi pi-refresh" [class.pi-spin]="historyLoading()"></i> {{ 'HR:RefreshHistory' | translate }}
+              </button>
+            </div>
+
+            <!-- History Table -->
+            <div class="border border-[var(--border-color)] rounded-xl overflow-hidden shadow-2xs">
+              <div class="max-h-[480px] overflow-y-auto">
+                <table class="w-full text-left rtl:text-right text-xs border-collapse">
+                  <thead class="bg-slate-100/70 dark:bg-slate-800/70 text-[10px] uppercase font-bold text-slate-500 sticky top-0 z-10">
+                    <tr class="border-b border-[var(--border-color)]">
+                      <th class="p-3">{{ 'HR:FileName' | translate }}</th>
+                      <th class="p-3 min-w-[170px]">{{ 'HR:Status' | translate }}</th>
+                      <th class="p-3">{{ 'HR:TotalRows' | translate }}</th>
+                      <th class="p-3">{{ 'HR:ValidRows' | translate }}</th>
+                      <th class="p-3">{{ 'HR:FailedRows' | translate }}</th>
+                      <th class="p-3">{{ 'HR:StartedBy' | translate }}</th>
+                      <th class="p-3">{{ 'HR:Date' | translate }}</th>
+                      <th class="p-3 text-right rtl:text-left">{{ 'HR:Actions' | translate }}</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-[var(--border-color)]">
+                    @for (j of historyJobs(); track j.id) {
+                      <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                        <td class="p-3 font-semibold text-[var(--text-main)]">
+                          <button (click)="downloadJobFile(j)"
+                                  [title]="'HR:DownloadXlsxTemplate' | translate"
+                                  class="flex items-center gap-1.5 hover:text-blue-600 cursor-pointer group text-left rtl:text-right">
+                            <i class="pi pi-file-excel text-emerald-600 text-base group-hover:scale-110 transition-transform"></i>
+                            <span class="truncate max-w-[160px] text-blue-600 hover:underline font-bold">{{ j.fileName }}</span>
+                            <i class="pi pi-download text-[10px] opacity-60 group-hover:opacity-100 text-blue-600"></i>
+                          </button>
+                        </td>
+                        <td class="p-3 min-w-[170px]">
+                          @if (j.status === 2) {
+                            <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 flex items-center w-max gap-1">
+                              <i class="pi pi-check-circle"></i> {{ 'HR:Completed' | translate }}
+                            </span>
+                          } @else if (j.status === 3) {
+                            <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300 flex items-center w-max gap-1">
+                              <i class="pi pi-exclamation-triangle"></i> {{ 'HR:WithErrors' | translate }}
+                            </span>
+                          } @else if (j.status === 4) {
+                            <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-300 flex items-center w-max gap-1">
+                              <i class="pi pi-times-circle"></i> {{ 'HR:Failed' | translate }}
+                            </span>
+                          } @else if (j.status === 1) {
+                            <div class="space-y-1.5 min-w-[140px]">
+                              <div class="flex items-center justify-between text-[11px] font-extrabold text-blue-600 dark:text-blue-400">
+                                <span class="flex items-center gap-1">
+                                  <i class="pi pi-spin pi-spinner text-[10px]"></i>
+                                  {{ 'HR:Processing' | translate }}
+                                </span>
+                                <span>{{ j.progressPercentage || 0 }}%</span>
+                              </div>
+                              <div class="w-full h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden shadow-inner">
+                                <div class="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-500 animate-pulse"
+                                     [style.width.%]="j.progressPercentage || 0"></div>
+                              </div>
+                              <div class="flex justify-between text-[10px] text-[var(--text-muted)]">
+                                <span>Chunk {{ j.currentChunk || 1 }}/{{ j.totalChunks || 1 }}</span>
+                                <span>{{ j.processedRows }}/{{ j.totalRows }}</span>
+                              </div>
+                            </div>
+                          } @else {
+                            <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-slate-100 text-slate-700 flex items-center w-max gap-1">
+                              <i class="pi pi-clock"></i> {{ 'HR:Queued' | translate }}
+                            </span>
+                          }
+                        </td>
+                        <td class="p-3 text-[var(--text-main)]">{{ j.totalRows }}</td>
+                        <td class="p-3 font-semibold text-emerald-600">{{ j.successfulRows }}</td>
+                        <td class="p-3 font-semibold text-rose-600">{{ j.failedRows }}</td>
+                        <td class="p-3 text-[var(--text-muted)]">{{ j.createdByUserName || 'Admin' }}</td>
+                        <td class="p-3 text-[var(--text-muted)]">{{ j.creationTime | appDate }}</td>
+                        <td class="p-3 text-right rtl:text-left">
+                          @if (j.canRetry) {
+                            <button (click)="retryJob(j)" class="text-xs text-blue-600 hover:underline font-semibold cursor-pointer">
+                              {{ 'HR:Retry' | translate }}
+                            </button>
+                          } @else if (j.canCancel) {
+                            <button (click)="cancelJob(j)" class="text-xs text-rose-600 hover:underline font-semibold cursor-pointer">
+                              {{ 'HR:Cancel' | translate }}
+                            </button>
+                          }
+                        </td>
+                      </tr>
+                    } @empty {
+                      <tr>
+                        <td colspan="8" class="p-8 text-center text-xs text-[var(--text-muted)]">
+                          {{ 'HR:NoHistoryFound' | translate }}
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        }
+
+      </div>
+    </div>
+  </div>
+}

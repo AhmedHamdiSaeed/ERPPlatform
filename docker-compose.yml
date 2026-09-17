@@ -25,6 +25,19 @@ services:
       retries: 10
       start_period: 30s
 
+  # ── Database Migrator ─────────────────────────────────────
+  migrator:
+    build:
+      context: .
+      dockerfile: Dockerfile.migrator
+    container_name: erpplatform-migrator
+    environment:
+      ConnectionStrings__Default: "Server=db;Database=ERPPlatform;User Id=sa;Password=ERPPlatform_Dev123!;TrustServerCertificate=True;Encrypt=False"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: on-failure
+
   # ── .NET 9 Backend API ───────────────────────────────────
   backend:
     build:
@@ -47,6 +60,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      migrator:
+        condition: service_completed_successfully
     restart: on-failure
 
   # ── Angular 20 Frontend ─────────────────────────────────

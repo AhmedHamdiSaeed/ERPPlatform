@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { CommonModule } from '@angular/common'; // Needed for pipes (number, date, etc.)
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Employee, AttendanceRecord, LeaveRequest } from '../../../core/models/erp-models';
 import { HrApiService } from '../../../core/services/api/hr-api.service';
@@ -9,7 +10,7 @@ import { ToastService } from '../../../core/services/toast.service';
 @Component({
   selector: 'app-employee-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslatePipe],
+  imports: [CommonModule, RouterModule, FormsModule, TranslatePipe],
   templateUrl: './employee-detail.component.html'
 })
 export class EmployeeDetailComponent {
@@ -20,6 +21,9 @@ export class EmployeeDetailComponent {
   employee = signal<Employee | undefined>(undefined);
   activeTab = signal('HR:TabOverview');
   loading = signal(false);
+
+  showEditModal = signal(false);
+  editEmp: Partial<Employee> = {};
 
   attendance = signal<AttendanceRecord[]>([]);
   leaveRequests = signal<LeaveRequest[]>([]);
@@ -64,4 +68,33 @@ export class EmployeeDetailComponent {
       this.loading.set(false);
     }
   }
+
+  openEditModal() {
+    const emp = this.employee();
+    if (!emp) return;
+    this.editEmp = { ...emp };
+    this.showEditModal.set(true);
+  }
+
+  async saveEmployee() {
+    const emp = this.employee();
+    if (!emp?.id) return;
+    try {
+      await this.hrApi.updateEmployee(emp.id, this.editEmp);
+      this.toast.success('Employee profile updated successfully.');
+      this.showEditModal.set(false);
+      await this.load(emp.id);
+    } catch (e) {
+      console.error('Failed to save employee', e);
+      this.toast.error('Failed to save the employee record.');
+    }
+  }
+
+  sendEmail() {
+    const emp = this.employee();
+    if (emp?.email) {
+      window.location.href = `mailto:${emp.email}`;
+    }
+  }
 }
+

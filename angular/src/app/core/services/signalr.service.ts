@@ -1,7 +1,10 @@
 import { Injectable, signal, inject } from '@angular/core';
+import { Subject } from 'rxjs';
+import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import { ToastService } from './toast.service';
 import { NotificationItem } from '../models/erp-models';
 import { MOCK_NOTIFICATIONS } from '../mock/mock-data';
+import { environment } from '../../../environments/environment';
 
 export interface ChatMessageItem {
   id: string;
@@ -60,9 +63,47 @@ export const INITIAL_CHAT_MESSAGES: ChatMessageItem[] = [
 })
 export class SignalRService {
   private toast = inject(ToastService);
+  private hubConnection?: HubConnection;
+
+  // SignalR Event Emitters for Realtime updates without polling
+  public importProgress$ = new Subject<any>();
 
   // Connection status signal
-  isConnected = signal<boolean>(true);
+  isConnected = signal<boolean>(false);
+
+  constructor() {
+    this.startSignalRConnection();
+  }
+
+  private startSignalRConnection(): void {
+    if (this.hubConnection) return;
+
+    const hubUrl = `${environment.apis.default.url}/signalr-hubs/notification`;
+    this.hubConnection = new HubConnectionBuilder()
+      .withUrl(hubUrl, {
+        accessTokenFactory: () => localStorage.getItem('access_token') || ''
+      })
+      .withAutomaticReconnect()
+      .configureLogging(LogLevel.Warning)
+      .build();
+
+    this.hubConnection.start()
+      .then(() => {
+        this.isConnected.set(true);
+      })
+      .catch(() => {
+        // Best effort: retry quietly in background
+        this.isConnected.set(false);
+      });
+
+    this.hubConnection.on('EmployeeImportProgress', (payload: any) => {
+      this.importProgress$.next(payload);
+    });
+
+    this.hubConnection.on('EmployeeImportCompleted', (payload: any) => {
+      this.importProgress$.next(payload);
+    });
+  }
 
   // Messages signal
   chatMessages = signal<ChatMessageItem[]>(INITIAL_CHAT_MESSAGES);

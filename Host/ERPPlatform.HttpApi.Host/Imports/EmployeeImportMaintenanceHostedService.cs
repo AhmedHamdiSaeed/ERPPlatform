@@ -39,15 +39,17 @@ public class EmployeeImportMaintenanceHostedService : BackgroundService, ISingle
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        // Let the application finish booting before the first sweep.
+        // Give the host a short moment to initialize DB connections.
         try
         {
-            await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+            await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
         }
         catch (OperationCanceledException)
         {
             return;
         }
+
+        var isStartupSweep = true;
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -58,7 +60,7 @@ public class EmployeeImportMaintenanceHostedService : BackgroundService, ISingle
                     var orchestrator = scope.ServiceProvider.GetRequiredService<EmployeeImportOrchestrator>();
                     var argsFactory = scope.ServiceProvider.GetRequiredService<IEmployeeImportScheduleArgsFactory>();
 
-                    var recovered = await orchestrator.RecoverStalledJobsAsync(argsFactory);
+                    var recovered = await orchestrator.RecoverStalledJobsAsync(argsFactory, isStartupRecovery: isStartupSweep);
                     if (recovered > 0)
                     {
                         _logger.LogInformation("Employee import recovery released {Count} stalled job(s).", recovered);
@@ -77,9 +79,11 @@ public class EmployeeImportMaintenanceHostedService : BackgroundService, ISingle
                 _logger.LogWarning(ex, "Employee import maintenance sweep failed; retrying next interval.");
             }
 
+            isStartupSweep = false;
+
             try
             {
-                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
             }
             catch (OperationCanceledException)
             {

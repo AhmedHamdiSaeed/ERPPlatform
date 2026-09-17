@@ -11,6 +11,7 @@ import {
 } from '../../../core/services/api/payroll-api.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { DialogService } from '../../../core/services/dialog.service';
+import { TranslationService } from '../../../core/services/translation.service';
 
 @Component({
   selector: 'app-payroll-management',
@@ -22,6 +23,7 @@ export class PayrollManagementComponent {
   private api = inject(PayrollApiService);
   private toast = inject(ToastService);
   private dialog = inject(DialogService);
+  private translation = inject(TranslationService);
 
   readonly LOCKED_STATUSES = ['Finalized', 'Posted'];
 
@@ -55,7 +57,7 @@ export class PayrollManagementComponent {
     try {
       this.runs.set(await this.api.getPayrollRuns());
     } catch {
-      this.toast.error('Could not load payroll runs.');
+      this.toast.error(this.translation.get('Could not load payroll runs.'));
     }
   }
 
@@ -63,7 +65,7 @@ export class PayrollManagementComponent {
     try {
       this.payslips.set(await this.api.getPayslips(this.payslipPeriod()));
     } catch {
-      this.toast.error('Could not load payslips.');
+      this.toast.error(this.translation.get('Could not load payslips.'));
     }
   }
 
@@ -73,7 +75,7 @@ export class PayrollManagementComponent {
       const data = await this.api.getPreview(this.simPeriod());
       this.preview.set(data);
     } catch {
-      this.toast.error('Could not compute the simulation.');
+      this.toast.error(this.translation.get('Could not compute the simulation.'));
       this.preview.set(null);
     } finally {
       this.simulating.set(false);
@@ -99,14 +101,14 @@ export class PayrollManagementComponent {
     this.processing.set(true);
     try {
       await this.api.processPayrollRun(this.processPeriod());
-      this.toast.success(`Payroll for ${this.processPeriod()} calculated.`);
+      this.toast.success(this.translation.get('Payroll calculated successfully for period') + ` ${this.processPeriod()}`);
       this.showProcessModal.set(false);
       await this.loadRuns();
       // Refresh the payslip view and the simulation for the same period.
       if (this.processPeriod() === this.payslipPeriod()) await this.loadPayslips();
       if (this.processPeriod() === this.simPeriod()) await this.simulate();
     } catch {
-      this.toast.error('Failed to process the payroll run.');
+      this.toast.error(this.translation.get('Failed to process the payroll run.'));
     } finally {
       this.processing.set(false);
     }
@@ -138,48 +140,50 @@ export class PayrollManagementComponent {
   async advance(run: PayrollRunDto): Promise<void> {
     try {
       await this.api.advanceStatus(run.id);
-      this.toast.success(`Run moved to ${this.nextStatusLabel(run.status)}.`);
+      const nextLabel = this.translation.get(this.nextStatusLabel(run.status));
+      this.toast.success(this.translation.get('Run moved to') + ` ${nextLabel}`);
       await this.loadRuns();
     } catch {
-      this.toast.error('Could not advance the run.');
+      this.toast.error(this.translation.get('Could not advance the run.'));
     }
   }
 
   async reopen(run: PayrollRunDto): Promise<void> {
     const ok = await this.dialog.confirm({
-      title: 'Reopen payroll run',
-      message: `Reopen the ${run.period} run? It will return to Draft so it can be recalculated.`,
-      confirmText: 'Reopen',
+      title: this.translation.get('Reopen payroll run'),
+      message: `${this.translation.get('Reopen the')} ${run.period} ${this.translation.get('run? It will return to Draft so it can be recalculated.')}`,
+      confirmText: this.translation.get('Reopen'),
       type: 'warning'
     });
     if (!ok) return;
     try {
       await this.api.reopen(run.id);
-      this.toast.success('Run reopened.');
+      this.toast.success(this.translation.get('Run reopened.'));
       await this.loadRuns();
     } catch {
-      this.toast.error('Could not reopen the run.');
+      this.toast.error(this.translation.get('Could not reopen the run.'));
     }
   }
 
   // ── Anomalies ──
   async resolveAnomaly(a: PayrollAnomalyDto): Promise<void> {
+    const kindTrans = this.translation.get(a.kind);
     const note = await this.dialog.prompt({
-      title: 'Resolve Anomaly',
-      message: `Resolution note for "${a.kind}" (${a.employeeName})?`,
-      placeholder: 'Resolution Note',
-      confirmText: 'Submit',
+      title: this.translation.get('Resolve Anomaly'),
+      message: `${this.translation.get('Resolution note for')} "${kindTrans}" (${a.employeeName})?`,
+      placeholder: this.translation.get('Resolution Note'),
+      confirmText: this.translation.get('Submit'),
       type: 'info',
       icon: 'pi-check-circle'
     });
     if (note === null) return;
     try {
       await this.api.resolveAnomaly(a.id, note || '');
-      this.toast.success('Anomaly marked as reviewed.');
+      this.toast.success(this.translation.get('Anomaly marked as reviewed.'));
       await this.simulate();
       await this.loadRuns();
     } catch {
-      this.toast.error('Could not resolve the anomaly.');
+      this.toast.error(this.translation.get('Could not resolve the anomaly.'));
     }
   }
 

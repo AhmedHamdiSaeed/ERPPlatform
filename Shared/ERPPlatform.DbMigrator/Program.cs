@@ -38,6 +38,12 @@ class Program
             // (e.g. "dotnet run --project" from the solution root).
             .UseContentRoot(AppContext.BaseDirectory)
             .AddAppSettingsSecretsJson()
+            // Re-add environment variables AFTER secrets so Docker env vars
+            // (e.g. ConnectionStrings__Default) take priority over appsettings.secrets.json
+            .ConfigureAppConfiguration((_, config) =>
+            {
+                config.AddEnvironmentVariables();
+            })
             .ConfigureLogging((context, logging) => logging.ClearProviders())
             .ConfigureServices((hostContext, services) =>
             {

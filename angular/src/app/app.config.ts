@@ -3,7 +3,7 @@ import { provideRouter } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { CoreModule } from '@abp/ng.core';
-import { ThemeSharedModule } from '@abp/ng.theme.shared';
+import { ThemeSharedModule, HTTP_ERROR_CONFIG } from '@abp/ng.theme.shared';
 import { provideAbpOAuth } from '@abp/ng.oauth';
 import { appRoutes } from './app.routes';
 import { authInterceptorFn } from './core/interceptors/auth.interceptor';
@@ -20,6 +20,12 @@ export const appConfig: ApplicationConfig = {
       })
     ),
     importProvidersFrom(ThemeSharedModule.forRoot()),
+    {
+      provide: HTTP_ERROR_CONFIG,
+      useValue: {
+        skipHandledErrorCodes: [0, 500, 502, 503, 504]
+      }
+    },
     provideAbpOAuth(),
     provideRouter(appRoutes),
     provideAnimations(),
