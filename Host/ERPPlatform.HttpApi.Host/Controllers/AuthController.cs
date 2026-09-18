@@ -747,6 +747,267 @@ public class AuthController : AbpControllerBase
     }
     #endregion
 
+    #region 5. Admin User Management (Change Password, Edit, Unlock, Delete)
+    /// <summary>
+    /// Allows an administrator to change or reset any user's password directly.
+    /// Optionally emails the new credentials to the user via Brevo.
+    /// </summary>
+    [HttpPost("auth/users/{id}/change-password")]
+    public async Task<ActionResult<Result>> AdminChangePassword(Guid id, [FromBody] AdminChangePasswordRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.NewPassword))
+        {
+            return BadRequest(Result.Fail("New password is required.", 400));
+        }
+
+        var tenantId = _currentTenant.Id;
+        var tenantName = Request.Headers["X-Tenant-Name"].FirstOrDefault()
+                         ?? Request.Headers["__tenant"].FirstOrDefault()
+                         ?? request.TenantName;
+
+        if (!tenantId.HasValue && !string.IsNullOrWhiteSpace(tenantName))
+        {
+            var tenant = await _tenantRepository.FindByNameAsync(tenantName.Trim());
+            if (tenant != null) tenantId = tenant.Id;
+        }
+
+        using (_currentTenant.Change(tenantId))
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user == null)
+            {
+                return NotFound(Result.Fail("User account not found.", 404));
+            }
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await _userManager.ResetPasswordAsync(user, token, request.NewPassword);
+            if (!result.Succeeded)
+            {
+                var errs = result.Errors.Select(e => e.Description).ToList();
+                return BadRequest(Result.Fail(string.Join("; ", errs), 400, errs));
+            }
+
+            // Unlock user if locked
+            if (await _userManager.IsLockedOutAsync(user))
+            {
+                await _userManager.SetLockoutEndDateAsync(user, null);
+                await _userManager.ResetAccessFailedCountAsync(user);
+            }
+
+            // Invalidate existing sessions
+            await _userManager.UpdateSecurityStampAsync(user);
+
+            // Optional email notification
+            if (request.SendEmail && !string.IsNullOrWhiteSpace(user.Email))
+            {
+                try
+                {
+                    var branding = await _tenantBrandingProvider.GetBrandingAsync(tenantId, tenantName);
+                    var recipientName = !string.IsNullOrWhiteSpace(user.Name) ? $"{user.Name} {user.Surname}".Trim() : user.UserName ?? user.Email;
+                    var emailBody = $@"
+                        <div style='font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;'>
+                            <h2 style='color: #2563eb;'>[{branding.TenantName}] Your Password Has Been Updated</h2>
+                            <p>Hello <b>{recipientName}</b>,</p>
+                            <p>An administrator has updated your login password for {branding.TenantName}.</p>
+                            <div style='background-color: #f1f5f9; padding: 15px; border-radius: 8px; margin: 15px 0;'>
+                                <p style='margin: 0;'><b>Username / Email:</b> {user.UserName} ({user.Email})</p>
+                                <p style='margin: 5px 0 0 0;'><b>New Password:</b> <span style='font-family: monospace; font-size: 16px; color: #1e293b; background: #e2e8f0; padding: 2px 6px; border-radius: 4px;'>{request.NewPassword}</span></p>
+                            </div>
+                            <p>Please sign in and keep your password secure.</p>
+                            <hr style='border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;' />
+                            <p style='color: #64748b; font-size: 12px;'>{branding.TenantName} Team</p>
+                        </div>";
+
+                    await _brevoEmailService.SendEmailAsync(
+                        user.Email,
+                        recipientName,
+                        $"[{branding.TenantName}] Your updated login password",
+                        emailBody
+                    );
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to send password change notification email to {Email}", user.Email);
+                }
+            }
+
+            return Ok(Result.Ok("Password has been changed successfully."));
+        }
+    }
+
+    /// <summary>
+    /// Updates user details, assigned role, and linked employee ID.
+    /// </summary>
+    [HttpPut("auth/users/{id}")]
+    public async Task<ActionResult<Result<UserProfileDto>>> UpdateUser(Guid id, [FromBody] UpdateUserRequest request)
+    {
+        var tenantId = _currentTenant.Id;
+        var tenantName = Request.Headers["X-Tenant-Name"].FirstOrDefault()
+                         ?? Request.Headers["__tenant"].FirstOrDefault()
+                         ?? request.TenantName;
+
+        if (!tenantId.HasValue && !string.IsNullOrWhiteSpace(tenantName))
+        {
+            var tenant = await _tenantRepository.FindByNameAsync(tenantName.Trim());
+            if (tenant != null) tenantId = tenant.Id;
+        }
+
+        using (_currentTenant.Change(tenantId))
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user == null)
+            {
+                return NotFound(Result<UserProfileDto>.Fail("User not found.", 404));
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.Name)) user.Name = request.Name.Trim();
+            if (!string.IsNullOrWhiteSpace(request.Surname)) user.Surname = request.Surname.Trim();
+            if (!string.IsNullOrWhiteSpace(request.Email))
+            {
+                await _userManager.SetEmailAsync(user, request.Email.Trim());
+            }
+            if (request.PhoneNumber != null)
+            {
+                await _userManager.SetPhoneNumberAsync(user, request.PhoneNumber.Trim());
+            }
+            if (request.IsActive.HasValue)
+            {
+                user.SetIsActive(request.IsActive.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.LinkedEmployeeId))
+            {
+                user.SetProperty("EmployeeId", request.LinkedEmployeeId.Trim());
+                if (!string.IsNullOrWhiteSpace(request.LinkedEmployeeName))
+                {
+                    user.SetProperty("LinkedEmployeeName", request.LinkedEmployeeName.Trim());
+                }
+            }
+
+            var updateResult = await _userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+            {
+                var errs = updateResult.Errors.Select(e => e.Description).ToList();
+                return BadRequest(Result<UserProfileDto>.Fail(string.Join("; ", errs), 400, errs));
+            }
+
+            // Update Role
+            if (!string.IsNullOrWhiteSpace(request.Role))
+            {
+                var currentRoles = await _userManager.GetRolesAsync(user);
+                if (!currentRoles.Contains(request.Role, StringComparer.OrdinalIgnoreCase))
+                {
+                    var roleObj = await _roleManager.FindByNameAsync(request.Role.Trim());
+                    if (roleObj == null)
+                    {
+                        var newRole = new IdentityRole(Guid.NewGuid(), request.Role.Trim(), tenantId);
+                        await _roleManager.CreateAsync(newRole);
+                    }
+                    if (currentRoles.Count > 0)
+                    {
+                        await _userManager.RemoveFromRolesAsync(user, currentRoles);
+                    }
+                    await _userManager.AddToRoleAsync(user, request.Role.Trim());
+                }
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var permissions = await GetUserPermissionsAsync(user, roles);
+            var branding = await _tenantBrandingProvider.GetBrandingAsync(tenantId, tenantName);
+
+            var dto = new UserProfileDto
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Name = user.Name,
+                Surname = user.Surname,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                Roles = roles.ToList(),
+                Permissions = permissions,
+                TenantId = tenantId,
+                TenantName = branding.TenantName,
+                LogoUrl = branding.LogoUrl
+            };
+
+            return Ok(Result<UserProfileDto>.Ok(dto, "User profile updated successfully."));
+        }
+    }
+
+    /// <summary>
+    /// Unlocks a locked user account and resets access failed count.
+    /// </summary>
+    [HttpPost("auth/users/{id}/unlock")]
+    public async Task<ActionResult<Result>> UnlockUser(Guid id, [FromBody] TenantContextRequest? request)
+    {
+        var tenantId = _currentTenant.Id;
+        var tenantName = Request.Headers["X-Tenant-Name"].FirstOrDefault()
+                         ?? Request.Headers["__tenant"].FirstOrDefault()
+                         ?? request?.TenantName;
+
+        if (!tenantId.HasValue && !string.IsNullOrWhiteSpace(tenantName))
+        {
+            var tenant = await _tenantRepository.FindByNameAsync(tenantName.Trim());
+            if (tenant != null) tenantId = tenant.Id;
+        }
+
+        using (_currentTenant.Change(tenantId))
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user == null)
+            {
+                return NotFound(Result.Fail("User not found.", 404));
+            }
+
+            await _userManager.SetLockoutEndDateAsync(user, null);
+            await _userManager.ResetAccessFailedCountAsync(user);
+
+            return Ok(Result.Ok("User account has been unlocked successfully."));
+        }
+    }
+
+    /// <summary>
+    /// Deletes a user account.
+    /// </summary>
+    [HttpDelete("auth/users/{id}")]
+    public async Task<ActionResult<Result>> DeleteUser(Guid id, [FromQuery] string? tenantName)
+    {
+        var tenantId = _currentTenant.Id;
+        var targetTenant = Request.Headers["X-Tenant-Name"].FirstOrDefault()
+                           ?? Request.Headers["__tenant"].FirstOrDefault()
+                           ?? tenantName;
+
+        if (!tenantId.HasValue && !string.IsNullOrWhiteSpace(targetTenant))
+        {
+            var tenant = await _tenantRepository.FindByNameAsync(targetTenant.Trim());
+            if (tenant != null) tenantId = tenant.Id;
+        }
+
+        using (_currentTenant.Change(tenantId))
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user == null)
+            {
+                return NotFound(Result.Fail("User not found.", 404));
+            }
+
+            if (string.Equals(user.UserName, "admin", StringComparison.OrdinalIgnoreCase))
+            {
+                return BadRequest(Result.Fail("Primary administrator account cannot be deleted.", 400));
+            }
+
+            var result = await _userManager.DeleteAsync(user);
+            if (!result.Succeeded)
+            {
+                var errs = result.Errors.Select(e => e.Description).ToList();
+                return BadRequest(Result.Fail(string.Join("; ", errs), 400, errs));
+            }
+
+            return Ok(Result.Ok("User account deleted successfully."));
+        }
+    }
+    #endregion
+
     #region Helper Methods
     private async Task<IdentityUser?> FindUserByIdentifierAsync(string login)
     {
@@ -1251,6 +1512,31 @@ public class ResetPasswordRequest
 public class SetTenantLogoRequest
 {
     public string LogoUrl { get; set; } = string.Empty;
+    public string? TenantName { get; set; }
+}
+
+public class AdminChangePasswordRequest
+{
+    public string NewPassword { get; set; } = string.Empty;
+    public bool SendEmail { get; set; } = true;
+    public string? TenantName { get; set; }
+}
+
+public class UpdateUserRequest
+{
+    public string? Name { get; set; }
+    public string? Surname { get; set; }
+    public string? Email { get; set; }
+    public string? PhoneNumber { get; set; }
+    public string? Role { get; set; }
+    public bool? IsActive { get; set; }
+    public string? LinkedEmployeeId { get; set; }
+    public string? LinkedEmployeeName { get; set; }
+    public string? TenantName { get; set; }
+}
+
+public class TenantContextRequest
+{
     public string? TenantName { get; set; }
 }
 #endregion
