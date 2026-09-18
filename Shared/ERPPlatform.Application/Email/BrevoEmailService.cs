@@ -14,7 +14,10 @@ public class BrevoEmailService : IBrevoEmailService, ITransientDependency
 {
     private readonly IConfiguration _configuration;
     private readonly ILogger<BrevoEmailService> _logger;
-    private static readonly HttpClient _httpClient = new HttpClient();
+    private static readonly HttpClient _httpClient = new HttpClient
+    {
+        Timeout = TimeSpan.FromSeconds(10)
+    };
 
     public BrevoEmailService(IConfiguration configuration, ILogger<BrevoEmailService> logger)
     {
@@ -59,13 +62,13 @@ public class BrevoEmailService : IBrevoEmailService, ITransientDependency
             var response = await _httpClient.SendAsync(request);
             if (response.IsSuccessStatusCode)
             {
-                _logger.LogInformation("[BrevoEmailService] Email successfully sent to {ToEmail}", toEmail);
+                _logger.LogInformation("[BrevoEmailService] Email successfully delivered via Brevo to {ToEmail}", toEmail);
                 return true;
             }
 
             var errorContent = await response.Content.ReadAsStringAsync();
-            _logger.LogError("[BrevoEmailService] Failed to send email to {ToEmail}. Status: {StatusCode}, Error: {Error}",
-                toEmail, response.StatusCode, errorContent);
+            _logger.LogError("[BrevoEmailService] Brevo API Error sending email to {ToEmail}. Status: {StatusCode}, Response: {Error}. Hint: Ensure '{SenderEmail}' is a verified sender in your Brevo account dashboard.",
+                toEmail, (int)response.StatusCode, errorContent, senderEmail);
             return false;
         }
         catch (Exception ex)

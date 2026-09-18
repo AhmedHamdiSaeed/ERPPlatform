@@ -69,7 +69,7 @@
               <td class="p-3">
                 <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-800/50">
                   <i class="pi pi-shield text-[9px]"></i>
-                  {{ u.role }}
+                  {{ u.role | translate }}
                 </span>
               </td>
               <td class="p-3">
@@ -200,7 +200,7 @@
             <label class="block mb-1 font-bold text-[var(--text-main)]">{{ 'Assigned Role' | translate }}</label>
             <select [(ngModel)]="newUser.role" class="w-full p-2.5 border border-[var(--border-color)] rounded-xl bg-[var(--bg-main)] text-[var(--text-main)] focus:ring-2 focus:ring-blue-500 focus:outline-hidden">
               @for (r of availableRoles(); track r) {
-                <option [value]="r">{{ r }}</option>
+                <option [value]="r">{{ r | translate }}</option>
               }
             </select>
           </div>
@@ -209,7 +209,7 @@
             <select [(ngModel)]="newUser.linkedEmployeeId" class="w-full p-2.5 border border-[var(--border-color)] rounded-xl bg-[var(--bg-main)] text-[var(--text-main)] focus:ring-2 focus:ring-blue-500 focus:outline-hidden">
               <option value="">{{ '-- None (Independent User) --' | translate }}</option>
               @for (emp of employees(); track emp.id) {
-                <option [value]="emp.id">{{ emp.name }} ({{ emp.position || 'Employee' }})</option>
+                <option [value]="emp.id">{{ emp.name }} ({{ (emp.position || 'Employee') | translate }})</option>
               }
             </select>
           </div>
@@ -315,8 +315,8 @@
               [type]="showChangePasswordEye() ? 'text' : 'password'" 
               [ngModel]="newPasswordModel()" 
               (ngModelChange)="newPasswordModel.set($event)"
+              [placeholder]="'Enter new strong password...' | translate"
               class="w-full p-2.5 pr-10 border border-[var(--border-color)] bg-[var(--bg-main)] text-[var(--text-main)] font-mono text-xs rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-hidden" 
-              placeholder="Enter new strong password..." 
             />
             <button 
               type="button" 
@@ -409,7 +409,7 @@
             <label class="block mb-1 font-bold text-[var(--text-main)]">{{ 'Assigned Role' | translate }}</label>
             <select [(ngModel)]="editUserModel().role" class="w-full p-2.5 border border-[var(--border-color)] rounded-xl bg-[var(--bg-main)] text-[var(--text-main)] focus:ring-2 focus:ring-blue-500 focus:outline-hidden">
               @for (r of availableRoles(); track r) {
-                <option [value]="r">{{ r }}</option>
+                <option [value]="r">{{ r | translate }}</option>
               }
             </select>
           </div>
@@ -418,7 +418,7 @@
             <select [(ngModel)]="editUserModel().linkedEmployeeId" class="w-full p-2.5 border border-[var(--border-color)] rounded-xl bg-[var(--bg-main)] text-[var(--text-main)] focus:ring-2 focus:ring-blue-500 focus:outline-hidden">
               <option value="">{{ '-- None (Independent User) --' | translate }}</option>
               @for (emp of employees(); track emp.id) {
-                <option [value]="emp.id">{{ emp.name }} ({{ emp.position || 'Employee' }})</option>
+                <option [value]="emp.id">{{ emp.name }} ({{ (emp.position || 'Employee') | translate }})</option>
               }
             </select>
           </div>

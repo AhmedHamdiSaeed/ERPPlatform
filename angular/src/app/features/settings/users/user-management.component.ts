@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { ToastService } from '../../../core/services/toast.service';
 import { DialogService } from '../../../core/services/dialog.service';
+import { TranslationService } from '../../../core/services/translation.service';
 import { environment } from '../../../../environments/environment';
 import { PERMISSIONS } from '../../../core/models/permissions';
 import { StateService } from '../../../core/services/state.service';
@@ -41,6 +42,7 @@ export class UserManagementComponent implements OnInit {
   private http = inject(HttpClient);
   private toast = inject(ToastService);
   private dialog = inject(DialogService);
+  private translation = inject(TranslationService);
   state = inject(StateService);
 
   readonly PERMISSIONS = PERMISSIONS;
@@ -214,7 +216,7 @@ export class UserManagementComponent implements OnInit {
       this.newPasswordModel.set(pass);
       this.showChangePasswordEye.set(true);
     }
-    this.toast.info(`Generated password: ${pass}`);
+    this.toast.info(`${this.translation.get('Generated password:')} ${pass}`);
   }
 
   copyPassword(target: 'new' | 'change' = 'new') {
@@ -229,7 +231,7 @@ export class UserManagementComponent implements OnInit {
         this.copiedChangePassword.set(true);
         setTimeout(() => this.copiedChangePassword.set(false), 2500);
       }
-      this.toast.success('Password copied to clipboard!');
+      this.toast.success(this.translation.get('Password copied to clipboard!'));
     }
   }
 
@@ -239,7 +241,7 @@ export class UserManagementComponent implements OnInit {
 
   async saveUser() {
     if (!this.newUser.name || !this.newUser.email) {
-      this.toast.warning('Please provide both name and email.');
+      this.toast.warning(this.translation.get('Please provide both name and email.'));
       return;
     }
 
@@ -283,7 +285,7 @@ export class UserManagementComponent implements OnInit {
       };
 
       this.users.update(list => [userAccount, ...list]);
-      this.toast.success(`User "${userAccount.name}" created with password "${password}".`);
+      this.toast.success(this.translation.get('User registered successfully.'));
       this.showModal.set(false);
     } catch (err) {
       console.error('Failed to save user via API', err);
@@ -299,7 +301,7 @@ export class UserManagementComponent implements OnInit {
         isActive: true
       };
       this.users.update(list => [userAccount, ...list]);
-      this.toast.success(`User "${userAccount.name}" registered with password "${password}".`);
+      this.toast.success(this.translation.get('User registered successfully.'));
       this.showModal.set(false);
     }
   }
@@ -320,12 +322,12 @@ export class UserManagementComponent implements OnInit {
     const newPass = this.newPasswordModel().trim();
 
     if (!user || !newPass) {
-      this.toast.warning('Please enter or generate a new password.');
+      this.toast.warning(this.translation.get('Please enter or generate a new password.'));
       return;
     }
 
     if (newPass.length < 6) {
-      this.toast.warning('Password must be at least 6 characters long.');
+      this.toast.warning(this.translation.get('Password must be at least 6 characters long.'));
       return;
     }
 
@@ -340,14 +342,14 @@ export class UserManagementComponent implements OnInit {
         this.http.post(`${environment.apis.default.url}/api/auth/users/${user.id}/change-password`, payload)
       );
 
-      this.toast.success(`Password for ${user.name} changed successfully!`);
+      this.toast.success(this.translation.get('Password updated successfully!'));
       this.showChangePasswordModal.set(false);
       
       // Update local lock state
       this.users.update(list => list.map(u => u.id === user.id ? { ...u, isLockedOut: false } : u));
     } catch (err: any) {
       console.error('Failed to change password', err);
-      const errMsg = err.error?.message || 'Failed to update user password.';
+      const errMsg = err.error?.message || this.translation.get('Failed to update user password.');
       this.toast.error(errMsg);
     } finally {
       this.changePasswordLoading.set(false);
@@ -373,7 +375,7 @@ export class UserManagementComponent implements OnInit {
   async submitEditUser() {
     const model = this.editUserModel();
     if (!model.id || !model.name || !model.email) {
-      this.toast.warning('Please provide name and email.');
+      this.toast.warning(this.translation.get('Please provide both name and email.'));
       return;
     }
 
@@ -407,11 +409,11 @@ export class UserManagementComponent implements OnInit {
         linkedEmployeeName: selectedEmp?.name
       } : u));
 
-      this.toast.success(`User "${model.name}" updated successfully!`);
+      this.toast.success(this.translation.get('User profile updated successfully.'));
       this.showEditUserModal.set(false);
     } catch (err: any) {
       console.error('Failed to update user', err);
-      const errMsg = err.error?.message || 'Failed to update user.';
+      const errMsg = err.error?.message || this.translation.get('Failed to update user.');
       this.toast.error(errMsg);
     } finally {
       this.editUserLoading.set(false);
@@ -425,9 +427,9 @@ export class UserManagementComponent implements OnInit {
         this.http.post(`${environment.apis.default.url}/api/auth/users/${user.id}/unlock`, {})
       );
       this.users.update(list => list.map(u => u.id === user.id ? { ...u, isLockedOut: false } : u));
-      this.toast.success(`Account for "${user.name}" unlocked successfully.`);
+      this.toast.success(this.translation.get('Account unlocked successfully.'));
     } catch (err: any) {
-      this.toast.error(err.error?.message || 'Failed to unlock account.');
+      this.toast.error(err.error?.message || this.translation.get('Failed to unlock account.'));
     }
   }
 
@@ -444,26 +446,26 @@ export class UserManagementComponent implements OnInit {
         })
       );
       this.users.update(list => list.map(u => u.id === id ? { ...u, isActive: newStatus } : u));
-      this.toast.info(newStatus ? 'User account activated.' : 'User account disabled.');
+      this.toast.info(newStatus ? this.translation.get('User account activated.') : this.translation.get('User account disabled.'));
     } catch {
       // Local fallback
       this.users.update(list => list.map(u => u.id === id ? { ...u, isActive: newStatus } : u));
-      this.toast.info(newStatus ? 'User account activated.' : 'User account disabled.');
+      this.toast.info(newStatus ? this.translation.get('User account activated.') : this.translation.get('User account disabled.'));
     }
   }
 
   // --- Delete User Feature ---
   async deleteUser(user: UserAccount) {
     if (user.userName.toLowerCase() === 'admin') {
-      this.toast.warning('Cannot delete primary Administrator account.');
+      this.toast.warning(this.translation.get('Cannot delete primary Administrator account.'));
       return;
     }
 
     const confirmed = await this.dialog.confirm({
-      title: 'Delete User Account',
-      message: `Are you sure you want to delete the user account for "${user.name}"? This action cannot be undone.`,
+      title: this.translation.get('Delete User Account'),
+      message: `${this.translation.get('Are you sure you want to delete the user account for')} "${user.name}"? ${this.translation.get('This action cannot be undone.')}`,
       type: 'danger',
-      confirmText: 'Delete'
+      confirmText: this.translation.get('Delete')
     });
 
     if (!confirmed) return;
@@ -473,10 +475,10 @@ export class UserManagementComponent implements OnInit {
         this.http.delete(`${environment.apis.default.url}/api/auth/users/${user.id}`)
       );
       this.users.update(list => list.filter(u => u.id !== user.id));
-      this.toast.success(`User "${user.name}" deleted successfully.`);
+      this.toast.success(this.translation.get('User deleted successfully.'));
     } catch (err: any) {
       console.error('Failed to delete user', err);
-      this.toast.error(err.error?.message || 'Failed to delete user account.');
+      this.toast.error(err.error?.message || this.translation.get('Failed to delete user account.'));
     }
   }
 }

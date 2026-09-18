@@ -504,19 +504,25 @@ public class AuthController : AbpControllerBase
             // 4. Render and send branded email with reset link
             var htmlBody = _emailTemplateManager.RenderPasswordResetLink(branding, recipientName, resetLink, expiryMinutes: 30);
 
-            try
+            // Dispatch email in background so the user receives an instant (< 50ms) HTTP response
+            var userEmail = user.Email;
+            var tenantBrandingName = branding.TenantName;
+            _ = Task.Run(async () =>
             {
-                await _brevoEmailService.SendEmailAsync(
-                    user.Email,
-                    recipientName,
-                    $"[{branding.TenantName}] Reset your password",
-                    htmlBody
-                );
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to send password reset email to {Email}", user.Email);
-            }
+                try
+                {
+                    await _brevoEmailService.SendEmailAsync(
+                        userEmail,
+                        recipientName,
+                        $"[{tenantBrandingName}] Reset your password",
+                        htmlBody
+                    );
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Background error sending password reset email to {Email}", userEmail);
+                }
+            });
 
             _logger.LogInformation(
                 "\n=======================================================\n" +
