@@ -73,6 +73,12 @@ export class EmployeeImportModalComponent implements OnInit, OnDestroy {
   historyLoading = signal(false);
   historySearch = '';
 
+  // Detailed Error Inspection Modal State (History or Active)
+  viewingJobErrors = signal<EmployeeImportJobDto | null>(null);
+  historyJobErrors = signal<EmployeeImportErrorDto[]>([]);
+  loadingHistoryErrors = signal<boolean>(false);
+  historyErrorSearch = '';
+
   constructor() {
     // Real-Time SignalR Event Listener (No polling used)
     this.signalrSub = this.signalr.importProgress$.subscribe((payload) => {
@@ -292,7 +298,7 @@ export class EmployeeImportModalComponent implements OnInit, OnDestroy {
             failedRows: payload.failedRows ?? j.failedRows,
             currentChunk: payload.currentChunk ?? j.currentChunk,
             totalChunks: payload.totalChunks ?? j.totalChunks,
-            status: payload.type === 'EmployeeImportCompleted' ? 2 : j.status
+            status: payload.type === 'EmployeeImportCompleted' ? (payload.failedRows > 0 ? 3 : 2) : j.status
           };
         }
         return j;
@@ -301,23 +307,54 @@ export class EmployeeImportModalComponent implements OnInit, OnDestroy {
   }
 
   private loadJobErrors(jobId: string): void {
-    this.api.getJobErrors(jobId).subscribe({
+    this.api.getJobErrors(jobId, 500).subscribe({
       next: (res) => this.jobErrors.set(res.items),
       error: (e) => console.error('Failed to load error list', e)
     });
   }
 
-  // ── Step 12: Download Error Report ──
-  downloadErrorReport(): void {
-    const errors = this.jobErrors();
+  // ── Error Inspector Dialog for Any Job ──
+  openJobErrors(job: EmployeeImportJobDto): void {
+    this.viewingJobErrors.set(job);
+    this.loadingHistoryErrors.set(true);
+    this.historyErrorSearch = '';
+    this.api.getJobErrors(job.id, 500).subscribe({
+      next: (res) => {
+        this.historyJobErrors.set(res.items);
+        this.loadingHistoryErrors.set(false);
+      },
+      error: () => this.loadingHistoryErrors.set(false)
+    });
+  }
+
+  closeJobErrors(): void {
+    this.viewingJobErrors.set(null);
+    this.historyJobErrors.set([]);
+  }
+
+  get filteredHistoryErrors(): EmployeeImportErrorDto[] {
+    const list = this.historyJobErrors();
+    if (!this.historyErrorSearch.trim()) return list;
+    const q = this.historyErrorSearch.toLowerCase().trim();
+    return list.filter(e => 
+      e.rowNumber.toString().includes(q) ||
+      (e.columnName || '').toLowerCase().includes(q) ||
+      (e.value || '').toLowerCase().includes(q) ||
+      (e.errorMessage || '').toLowerCase().includes(q)
+    );
+  }
+
+  // ── Step 12: Download Error Report with UTF-8 BOM ──
+  downloadErrorReport(customErrors?: EmployeeImportErrorDto[], customFileName?: string): void {
+    const errors = customErrors || this.jobErrors();
     if (!errors.length) {
       this.toast.info(this.translation.get('No errors to export.'));
       return;
     }
 
-    let csv = 'Row Number,Column Name,Rejected Value,Error Message\n';
+    let csv = '\uFEFFRow Number,Column / Field,Rejected Value,Error Reason\n';
     errors.forEach(e => {
-      const col = `"${(e.columnName || '').replace(/"/g, '""')}"`;
+      const col = `"${(e.columnName || 'General').replace(/"/g, '""')}"`;
       const val = `"${(e.value || '').replace(/"/g, '""')}"`;
       const msg = `"${(e.errorMessage || '').replace(/"/g, '""')}"`;
       csv += `${e.rowNumber},${col},${val},${msg}\n`;
@@ -327,7 +364,7 @@ export class EmployeeImportModalComponent implements OnInit, OnDestroy {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `ImportErrors_Job_${this.currentJobId?.slice(0, 8) || 'export'}.csv`);
+    link.setAttribute('download', customFileName || `ImportErrors_Job_${this.currentJobId?.slice(0, 8) || 'export'}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

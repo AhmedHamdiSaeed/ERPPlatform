@@ -342,7 +342,22 @@ namespace ERPPlatform.Modules.HR.Application
             return Task.CompletedTask;
         }
 
+        public override async Task<PagedResultDto<EmployeeDto>> GetListAsync(PagedAndSortedResultRequestDto input)
+        {
+            return await GetListFilteredAsync(new EmployeeGetListInput
+            {
+                SkipCount = input.SkipCount,
+                MaxResultCount = input.MaxResultCount,
+                Sorting = input.Sorting
+            });
+        }
+
         protected override Task<EmployeeDto> MapToGetOutputDtoAsync(Employee entity)
+        {
+            return Task.FromResult(MapEntityToDto(entity));
+        }
+
+        protected override Task<EmployeeDto> MapToGetListOutputDtoAsync(Employee entity)
         {
             return Task.FromResult(MapEntityToDto(entity));
         }

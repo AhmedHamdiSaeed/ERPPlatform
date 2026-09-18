@@ -71,8 +71,9 @@
         <!-- Notifications Dropdown Toggle -->
         <div class="relative">
           <button 
-            (click)="showNotifDropdown = !showNotifDropdown"
-            class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-[var(--text-muted)] relative transition-colors">
+            (click)="toggleNotifDropdown($event)"
+            class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-[var(--text-muted)] relative transition-colors cursor-pointer"
+            title="{{ 'UI:Notifications' | translate }}">
             <i class="pi pi-bell text-lg"></i>
             @if (state.unreadNotificationCount() > 0) {
               <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
@@ -81,10 +82,12 @@
 
           <!-- Notifications Popup -->
           @if (showNotifDropdown) {
-            <div class="absolute right-0 mt-2 w-80 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl shadow-lg z-50 overflow-hidden animate-fade-in">
+            <div 
+              (click)="$event.stopPropagation()"
+              class="absolute end-0 mt-2 w-80 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl shadow-xl z-50 overflow-hidden animate-fade-in">
               <div class="p-3 border-b border-[var(--border-color)] flex items-center justify-between">
                 <h4 class="font-semibold text-sm">{{ 'UI:Notifications' | translate }}</h4>
-                <button (click)="state.markAllNotificationsAsRead()" class="text-xs text-blue-600 hover:underline">{{ 'UI:MarkAllRead' | translate }}</button>
+                <button (click)="state.markAllNotificationsAsRead()" class="text-xs text-blue-600 hover:underline cursor-pointer">{{ 'UI:MarkAllRead' | translate }}</button>
               </div>
               <div class="max-h-72 overflow-y-auto divide-y divide-[var(--border-color)]">
                 @for (n of state.notifications(); track n.id) {
@@ -115,9 +118,9 @@
 
         <!-- User Profile Dropdown -->
         <div class="relative ml-1">
-          <button (click)="showUserMenu = !showUserMenu" class="flex items-center gap-2 p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+          <button (click)="toggleUserMenu($event)" class="flex items-center gap-2 p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer">
             <img [src]="state.currentUser().avatar" [alt]="state.currentUser().name" class="w-8 h-8 rounded-full object-cover ring-2 ring-blue-500/30" />
-            <div class="hidden lg:block text-left">
+            <div class="hidden lg:block text-left rtl:text-right">
               <span class="text-xs font-semibold block leading-tight text-[var(--text-main)]">{{ state.currentUser().name }}</span>
               <span class="text-[10px] text-[var(--text-muted)] block">{{ state.currentUser().role }}</span>
             </div>
@@ -125,7 +128,9 @@
           </button>
 
           @if (showUserMenu) {
-            <div class="absolute right-0 mt-2 w-56 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl shadow-lg z-50 p-1 animate-fade-in">
+            <div 
+              (click)="$event.stopPropagation()"
+              class="absolute end-0 mt-2 w-56 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-xl shadow-xl z-50 p-1 animate-fade-in">
               <div class="px-3 py-2 border-b border-[var(--border-color)] mb-1">
                 <p class="text-xs font-bold text-[var(--text-main)]">{{ state.currentUser().name }}</p>
                 <p class="text-[11px] text-[var(--text-muted)] truncate">{{ state.currentUser().email }}</p>
@@ -137,7 +142,7 @@
                 <i class="pi pi-check-square text-slate-400"></i> {{ 'UI:MyTasksInbox' | translate }}
               </a>
               <div class="border-t border-[var(--border-color)] my-1"></div>
-              <a routerLink="/auth/login" (click)="showUserMenu = false" class="flex items-center gap-2.5 px-3 py-2 text-xs rounded-md hover:bg-red-50 text-red-600">
+              <a routerLink="/auth/login" (click)="showUserMenu = false" class="flex items-center gap-2.5 px-3 py-2 text-xs rounded-md hover:bg-red-50 dark:hover:bg-red-950/30 text-red-600">
                 <i class="pi pi-sign-out"></i> {{ 'UI:Logout' | translate }}
               </a>
             </div>

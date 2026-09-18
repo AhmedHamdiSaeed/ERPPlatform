@@ -25,6 +25,7 @@ public class EmployeeImportProgressService : ITransientDependency
     private readonly IRepository<EmployeeImportJob, Guid> _jobRepository;
     private readonly IRepository<EmployeeImportChunk, Guid> _chunkRepository;
     private readonly IRepository<EmployeeImportError, Guid> _errorRepository;
+    private readonly IRepository<ERPPlatform.Domain.Entities.SystemNotification, Guid> _notificationRepository;
     private readonly IEmployeeImportNotifier _notifier;
     private readonly IUnitOfWorkManager _unitOfWorkManager;
     private readonly IClock _clock;
@@ -33,6 +34,7 @@ public class EmployeeImportProgressService : ITransientDependency
         IRepository<EmployeeImportJob, Guid> jobRepository,
         IRepository<EmployeeImportChunk, Guid> chunkRepository,
         IRepository<EmployeeImportError, Guid> errorRepository,
+        IRepository<ERPPlatform.Domain.Entities.SystemNotification, Guid> notificationRepository,
         IEmployeeImportNotifier notifier,
         IUnitOfWorkManager unitOfWorkManager,
         IClock clock)
@@ -40,6 +42,7 @@ public class EmployeeImportProgressService : ITransientDependency
         _jobRepository = jobRepository;
         _chunkRepository = chunkRepository;
         _errorRepository = errorRepository;
+        _notificationRepository = notificationRepository;
         _notifier = notifier;
         _unitOfWorkManager = unitOfWorkManager;
         _clock = clock;
@@ -173,11 +176,11 @@ public class EmployeeImportProgressService : ITransientDependency
     public async Task NotifyProgressAsync(EmployeeImportJob job)
     {
         var payload = BuildPayload(job, EmployeeImportNotificationTypes.Progress, null);
-        if (string.IsNullOrWhiteSpace(job.CreatorId?.ToString())) return;
+        var userId = job.CreatorId?.ToString() ?? string.Empty;
 
         try
         {
-            await _notifier.NotifyProgressAsync(job.CreatorId!.Value.ToString(), payload);
+            await _notifier.NotifyProgressAsync(userId, payload);
         }
         catch
         {
@@ -188,14 +191,42 @@ public class EmployeeImportProgressService : ITransientDependency
 
     private async Task NotifyCompletedAsync(EmployeeImportJob job)
     {
-        if (job.CreatorId == null) return;
-
         var message = BuildCompletedMessage(job);
         var payload = BuildPayload(job, EmployeeImportNotificationTypes.Completed, message);
+        var userId = job.CreatorId?.ToString() ?? string.Empty;
 
         try
         {
-            await _notifier.NotifyCompletedAsync(job.CreatorId.Value.ToString(), payload);
+            // 1. Persist notification in database for Notification Center / Notification page
+            var title = job.Status switch
+            {
+                EmployeeImportStatus.Completed => "Employee Import Completed Successfully",
+                EmployeeImportStatus.CompletedWithErrors => "Employee Import Finished with Some Errors",
+                EmployeeImportStatus.Cancelled => "Employee Import Cancelled",
+                _ => "Employee Import Failed"
+            };
+
+            var notif = new ERPPlatform.Domain.Entities.SystemNotification
+            {
+                UserId = userId,
+                Type = "HR",
+                Title = title,
+                Message = message,
+                Link = "/hr/employees",
+                Timestamp = _clock.Now,
+                IsRead = false
+            };
+
+            await _notificationRepository.InsertAsync(notif, autoSave: true);
+        }
+        catch
+        {
+            // Notification persistence shouldn't crash the import
+        }
+
+        try
+        {
+            await _notifier.NotifyCompletedAsync(userId, payload);
         }
         catch
         {

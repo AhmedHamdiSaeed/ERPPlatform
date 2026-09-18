@@ -1,5 +1,13 @@
 <div class="flex h-dvh overflow-hidden bg-[var(--bg-main)]" [attr.dir]="state.isRtl() ? 'rtl' : 'ltr'">
   
+  <!-- Mobile Sidebar Backdrop -->
+  @if (state.sidebarExpanded()) {
+    <div 
+      class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-30 md:hidden transition-opacity"
+      (click)="state.toggleSidebar()">
+    </div>
+  }
+
   <!-- Sidebar (Full height from top to bottom) -->
   <app-sidebar />
 
@@ -10,7 +18,7 @@
     <app-header />
     
     <!-- Scrollable Content Region -->
-    <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+    <main class="flex-1 overflow-y-auto p-3 sm:p-5 lg:p-8">
       <router-outlet />
     </main>
   </div>

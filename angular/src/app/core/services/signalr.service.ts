@@ -6,6 +6,8 @@ import { NotificationItem } from '../models/erp-models';
 import { MOCK_NOTIFICATIONS } from '../mock/mock-data';
 import { environment } from '../../../environments/environment';
 
+import { TOKEN_KEY } from '../constants/session.constants';
+
 export interface ChatMessageItem {
   id: string;
   senderId: string;
@@ -75,13 +77,15 @@ export class SignalRService {
     this.startSignalRConnection();
   }
 
-  private startSignalRConnection(): void {
-    if (this.hubConnection) return;
+  public startSignalRConnection(): void {
+    if (this.hubConnection && this.hubConnection.state === 'Connected') return;
 
+    const token = localStorage.getItem(TOKEN_KEY) || localStorage.getItem('access_token') || '';
     const hubUrl = `${environment.apis.default.url}/signalr-hubs/notification`;
+
     this.hubConnection = new HubConnectionBuilder()
       .withUrl(hubUrl, {
-        accessTokenFactory: () => localStorage.getItem('access_token') || ''
+        accessTokenFactory: () => localStorage.getItem(TOKEN_KEY) || localStorage.getItem('access_token') || ''
       })
       .withAutomaticReconnect()
       .configureLogging(LogLevel.Warning)
@@ -102,6 +106,10 @@ export class SignalRService {
 
     this.hubConnection.on('EmployeeImportCompleted', (payload: any) => {
       this.importProgress$.next(payload);
+      const isSuccess = payload.status === 'Completed' || payload.failedRows === 0;
+      const title = isSuccess ? 'Employee Import Finished' : 'Employee Import Completed with Errors';
+      const msg = payload.message || `Processed ${payload.processedRows || 0} rows (${payload.successfulRows || 0} successful, ${payload.failedRows || 0} failed)`;
+      this.broadcastRealTimeNotification('HR', title, msg, '/hr/employees');
     });
   }
 

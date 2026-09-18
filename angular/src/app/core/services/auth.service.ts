@@ -346,10 +346,12 @@ export class AuthService {
     const activeTenant = tenantName?.trim() || this.extractTenantFromUrl() || this.getTenant() || '';
     const url = `${environment.apis.default.url}/api/auth/reset-password`;
     const headers = this.buildHeaders(activeTenant);
+    const clientTimeZone = typeof Intl !== 'undefined' ? Intl.DateTimeFormat().resolvedOptions().timeZone : undefined;
     const body = {
       token: token.trim(),
       newPassword,
-      tenantName: activeTenant || null
+      tenantName: activeTenant || null,
+      timeZone: clientTimeZone
     };
 
     try {
@@ -379,6 +381,11 @@ export class AuthService {
     let headers = new HttpHeaders({
       'Content-Type': 'application/json'
     });
+
+    const clientTimeZone = typeof Intl !== 'undefined' ? Intl.DateTimeFormat().resolvedOptions().timeZone : null;
+    if (clientTimeZone) {
+      headers = headers.set('X-Timezone', clientTimeZone);
+    }
 
     if (tenantName && tenantName.trim()) {
       headers = headers

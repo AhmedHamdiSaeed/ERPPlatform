@@ -12,6 +12,9 @@
     <ProjectReference Include="..\..\Shared\ERPPlatform.Application\ERPPlatform.Application.csproj" />
     <ProjectReference Include="..\ERPPlatform.Domain.Tests\ERPPlatform.Domain.Tests.csproj" />
     <ProjectReference Include="..\..\Modules\AI\Application\ERPPlatform.Modules.AI.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\HR\Application\ERPPlatform.Modules.HR.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\Inventory\Application\ERPPlatform.Modules.Inventory.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\Workflow\Application\ERPPlatform.Modules.Workflow.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>

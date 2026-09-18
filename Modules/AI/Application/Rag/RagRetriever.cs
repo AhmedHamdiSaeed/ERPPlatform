@@ -121,12 +121,32 @@ public class RagRetriever : IRagRetriever
         }
 
         var sb = new StringBuilder();
-        sb.AppendLine("Relevant ERP records (use these to answer):");
+        sb.AppendLine("<untrusted_erp_data status=\"untrusted_passive_data\">");
         foreach (var c in top)
         {
-            sb.AppendLine($"- [{c.Source}] {c.Text}");
+            var sanitizedText = SanitizeChunk(c.Text);
+            sb.AppendLine($"  <record source=\"{c.Source}\">{sanitizedText}</record>");
         }
+        sb.AppendLine("</untrusted_erp_data>");
         return sb.ToString();
+    }
+
+    /// <summary>
+    /// Defense against Indirect Prompt Injection: Sanitizes untrusted text extracted from documents
+    /// and database fields by escaping delimiters, control markers, and system prompt override attempts.
+    /// </summary>
+    public static string SanitizeChunk(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return string.Empty;
+
+        return text
+            .Replace("<", "&lt;")
+            .Replace(">", "&gt;")
+            .Replace("[SYSTEM", "[DATA")
+            .Replace("[INSTRUCTION", "[DATA")
+            .Replace("[PROMPT", "[DATA")
+            .Replace("```", "'''")
+            .Trim();
     }
 
     private async Task CollectAsync<T>(

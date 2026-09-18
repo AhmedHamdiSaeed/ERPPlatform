@@ -25,23 +25,19 @@ public class EmployeeImportSignalRNotifier : IEmployeeImportNotifier, ITransient
 
     public async Task NotifyProgressAsync(string userId, EmployeeImportNotificationDto payload)
     {
-        if (string.IsNullOrWhiteSpace(userId))
+        if (!string.IsNullOrWhiteSpace(userId))
         {
-            return;
+            await _hubContext.Clients.User(userId).SendAsync(EmployeeImportNotificationTypes.Progress, payload);
         }
-
-        await _hubContext.Clients.User(userId)
-            .SendAsync(EmployeeImportNotificationTypes.Progress, payload);
+        await _hubContext.Clients.All.SendAsync(EmployeeImportNotificationTypes.Progress, payload);
     }
 
     public async Task NotifyCompletedAsync(string userId, EmployeeImportNotificationDto payload)
     {
-        if (string.IsNullOrWhiteSpace(userId))
+        if (!string.IsNullOrWhiteSpace(userId))
         {
-            return;
+            await _hubContext.Clients.User(userId).SendAsync(EmployeeImportNotificationTypes.Completed, payload);
         }
-
-        await _hubContext.Clients.User(userId)
-            .SendAsync(EmployeeImportNotificationTypes.Completed, payload);
+        await _hubContext.Clients.All.SendAsync(EmployeeImportNotificationTypes.Completed, payload);
     }
 }

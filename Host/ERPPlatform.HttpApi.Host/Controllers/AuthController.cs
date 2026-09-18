@@ -663,24 +663,34 @@ public class AuthController : AbpControllerBase
                 // Consume single-use reset token atomically
                 await _passwordResetTokenService.ConsumeResetTokenAsync(request.Token.Trim());
 
-                // Send Security Alert Email notifying user that password changed
-                try
-                {
-                    var branding = await _tenantBrandingProvider.GetBrandingAsync(tokenInfo.TenantId);
-                    var recipientName = !string.IsNullOrWhiteSpace(user.Name) ? $"{user.Name} {user.Surname}".Trim() : user.UserName ?? user.Email;
-                    var alertHtml = _emailTemplateManager.RenderPasswordChangedNotification(branding, recipientName, DateTime.UtcNow, clientIp);
+                // Send Security Alert Email notifying user that password changed (in background)
+                var clientTimezone = Request.Headers["X-Timezone"].FirstOrDefault()
+                                     ?? Request.Headers["Timezone"].FirstOrDefault()
+                                     ?? request.TimeZone
+                                     ?? _configuration["App:TimeZone"];
 
-                    await _brevoEmailService.SendEmailAsync(
-                        user.Email,
-                        recipientName,
-                        $"[{branding.TenantName}] Security Alert: Your password has been changed",
-                        alertHtml
-                    );
-                }
-                catch (Exception ex)
+                var userEmail = user.Email;
+                var tenantBrandingName = tokenInfo.TenantId.HasValue ? (await _tenantBrandingProvider.GetBrandingAsync(tokenInfo.TenantId)).TenantName : "ERP Platform";
+                _ = Task.Run(async () =>
                 {
-                    _logger.LogWarning(ex, "Failed to send password changed alert email.");
-                }
+                    try
+                    {
+                        var branding = await _tenantBrandingProvider.GetBrandingAsync(tokenInfo.TenantId);
+                        var recipientName = !string.IsNullOrWhiteSpace(user.Name) ? $"{user.Name} {user.Surname}".Trim() : user.UserName ?? userEmail;
+                        var alertHtml = _emailTemplateManager.RenderPasswordChangedNotification(branding, recipientName, DateTime.UtcNow, clientIp, clientTimezone);
+
+                        await _brevoEmailService.SendEmailAsync(
+                            userEmail,
+                            recipientName,
+                            $"[{branding.TenantName}] Security Alert: Your password has been changed",
+                            alertHtml
+                        );
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Failed to send password changed alert email to {Email}", userEmail);
+                    }
+                });
 
                 return Ok(Result.Ok("Your password has been reset successfully. You can now log in with your new password."));
             }
@@ -726,24 +736,33 @@ public class AuthController : AbpControllerBase
                 // Invalidate all existing sessions
                 await _userManager.UpdateSecurityStampAsync(user);
 
-                // Send Security Alert Email
-                try
-                {
-                    var branding = await _tenantBrandingProvider.GetBrandingAsync(tenantId, tenantName);
-                    var recipientName = !string.IsNullOrWhiteSpace(user.Name) ? $"{user.Name} {user.Surname}".Trim() : user.UserName ?? user.Email;
-                    var alertHtml = _emailTemplateManager.RenderPasswordChangedNotification(branding, recipientName, DateTime.UtcNow, clientIp);
+                // Send Security Alert Email (in background)
+                var clientTimezone = Request.Headers["X-Timezone"].FirstOrDefault()
+                                     ?? Request.Headers["Timezone"].FirstOrDefault()
+                                     ?? request.TimeZone
+                                     ?? _configuration["App:TimeZone"];
 
-                    await _brevoEmailService.SendEmailAsync(
-                        user.Email,
-                        recipientName,
-                        $"[{branding.TenantName}] Security Alert: Your password has been changed",
-                        alertHtml
-                    );
-                }
-                catch (Exception ex)
+                var userEmail = user.Email;
+                _ = Task.Run(async () =>
                 {
-                    _logger.LogWarning(ex, "Failed to send password changed alert email.");
-                }
+                    try
+                    {
+                        var branding = await _tenantBrandingProvider.GetBrandingAsync(tenantId, tenantName);
+                        var recipientName = !string.IsNullOrWhiteSpace(user.Name) ? $"{user.Name} {user.Surname}".Trim() : user.UserName ?? userEmail;
+                        var alertHtml = _emailTemplateManager.RenderPasswordChangedNotification(branding, recipientName, DateTime.UtcNow, clientIp, clientTimezone);
+
+                        await _brevoEmailService.SendEmailAsync(
+                            userEmail,
+                            recipientName,
+                            $"[{branding.TenantName}] Security Alert: Your password has been changed",
+                            alertHtml
+                        );
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Failed to send password changed alert email to {Email}", userEmail);
+                    }
+                });
 
                 return Ok(Result.Ok("Your password has been reset successfully. You can now log in with your new password."));
             }
@@ -1513,6 +1532,7 @@ public class ResetPasswordRequest
     public string? Otp { get; set; }
     public string NewPassword { get; set; } = string.Empty;
     public string? TenantName { get; set; }
+    public string? TimeZone { get; set; }
 }
 
 public class SetTenantLogoRequest

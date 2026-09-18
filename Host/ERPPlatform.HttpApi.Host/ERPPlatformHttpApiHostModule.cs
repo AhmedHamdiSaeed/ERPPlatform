@@ -586,6 +586,21 @@ public class ERPPlatformHttpApiHostModule : AbpModule
         app.UseRouting();
         app.UseCors();
         app.UseRateLimiter();
+
+        // SignalR WebSockets and EventSource transport send the JWT in the query string as ?access_token=...
+        // OpenIddict ASP.NET Core validation expects an Authorization: Bearer header.
+        app.Use(async (context, next) =>
+        {
+            if (context.Request.Path.StartsWithSegments("/signalr-hubs") &&
+                context.Request.Query.TryGetValue("access_token", out var token) &&
+                !string.IsNullOrEmpty(token) &&
+                !context.Request.Headers.ContainsKey("Authorization"))
+            {
+                context.Request.Headers.Append("Authorization", $"Bearer {token}");
+            }
+            await next();
+        });
+
         app.UseAuthentication();
         app.UseAbpOpenIddictValidation();
 

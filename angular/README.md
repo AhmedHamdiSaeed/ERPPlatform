@@ -2,7 +2,7 @@
 
 Enterprise SaaS ERP Angular 20 SPA with Tailwind CSS & PrimeNG.
 
-- **Live Demo**: [https://erpplatform-one.vercel.app](https://erpplatform-one.vercel.app)
+- **Live Demo**: [https://erpplatform-gamma.vercel.app](https://erpplatform-gamma.vercel.app)
 - **Backend API**: [https://erpplatform.runasp.net](https://erpplatform.runasp.net)
 
 ---

@@ -174,6 +174,14 @@ export class SidebarComponent {
     }
   ];
 
+  onNavClick(): void {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      if (this.state.sidebarExpanded()) {
+        this.state.toggleSidebar();
+      }
+    }
+  }
+
   getLabel(item: NavGroup | NavItem): string {
     return this.state.isRtl() ? (item.arLabel || item.label) : item.label;
   }

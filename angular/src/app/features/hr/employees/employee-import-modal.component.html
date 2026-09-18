@@ -311,23 +311,39 @@
                 <div class="p-4 rounded-xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/30 space-y-3">
                   <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2 text-rose-700 dark:text-rose-400 text-xs font-bold">
-                      <i class="pi pi-exclamation-circle"></i>
-                      <span>{{ 'HR:SomeRowsFailed' | translate }}</span>
+                      <i class="pi pi-exclamation-circle text-base"></i>
+                      <span>{{ 'HR:SomeRowsFailed' | translate }} ({{ jobErrors().length || currentJob()?.failedRows || 0 }} {{ 'HR:FailedRows' | translate }})</span>
                     </div>
                     <button (click)="downloadErrorReport()"
                             class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs flex items-center gap-1.5 cursor-pointer">
-                      <i class="pi pi-download"></i> {{ 'HR:DownloadErrorReport' | translate }}
+                      <i class="pi pi-download"></i> {{ 'HR:DownloadErrorReport' | translate }} (CSV)
                     </button>
                   </div>
 
                   @if (jobErrors().length > 0) {
-                    <div class="max-h-36 overflow-y-auto text-xs space-y-1">
-                      @for (err of jobErrors(); track err.id) {
-                        <div class="p-2 rounded-lg bg-white dark:bg-slate-800 border border-rose-100 dark:border-rose-900/40 flex justify-between">
-                          <span class="font-semibold text-rose-700 dark:text-rose-400">{{ 'HR:Row' | translate }} #{{ err.rowNumber }} ({{ err.columnName || ('HR:Field' | translate) }}):</span>
-                          <span class="text-[var(--text-muted)]">{{ err.errorMessage }}</span>
-                        </div>
-                      }
+                    <div class="border border-rose-200 dark:border-rose-900/50 rounded-xl overflow-hidden bg-white dark:bg-slate-800">
+                      <div class="max-h-56 overflow-y-auto">
+                        <table class="w-full text-left rtl:text-right text-xs border-collapse">
+                          <thead class="bg-rose-100/60 dark:bg-rose-950/50 text-[10px] uppercase font-bold text-rose-800 dark:text-rose-300 sticky top-0">
+                            <tr class="border-b border-rose-200 dark:border-rose-900/40">
+                              <th class="p-2.5 w-16">{{ 'HR:Row' | translate }}</th>
+                              <th class="p-2.5 w-32">{{ 'HR:Field' | translate }}</th>
+                              <th class="p-2.5 w-40">{{ 'HR:InvalidValue' | translate }}</th>
+                              <th class="p-2.5">{{ 'HR:ErrorReason' | translate }}</th>
+                            </tr>
+                          </thead>
+                          <tbody class="divide-y divide-rose-100 dark:divide-rose-900/30">
+                            @for (err of jobErrors(); track err.id) {
+                              <tr class="hover:bg-rose-50/40 dark:hover:bg-rose-950/30 transition-colors">
+                                <td class="p-2.5 font-mono text-[11px] font-bold text-rose-600">#{{ err.rowNumber }}</td>
+                                <td class="p-2.5 font-semibold text-slate-700 dark:text-slate-300">{{ err.columnName || ('HR:General' | translate) }}</td>
+                                <td class="p-2.5 font-mono text-[11px] text-slate-500 truncate max-w-[150px]" [title]="err.value || ''">{{ err.value || '-' }}</td>
+                                <td class="p-2.5 text-rose-700 dark:text-rose-400 font-medium">{{ err.errorMessage }}</td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   }
                 </div>
@@ -435,10 +451,26 @@
                         </td>
                         <td class="p-3 text-[var(--text-main)]">{{ j.totalRows }}</td>
                         <td class="p-3 font-semibold text-emerald-600">{{ j.successfulRows }}</td>
-                        <td class="p-3 font-semibold text-rose-600">{{ j.failedRows }}</td>
+                        <td class="p-3">
+                          @if (j.failedRows > 0) {
+                            <button (click)="openJobErrors(j)"
+                                    class="px-2 py-0.5 rounded-md bg-rose-100 hover:bg-rose-200 text-rose-700 dark:bg-rose-950/50 dark:hover:bg-rose-900/60 dark:text-rose-300 font-bold text-xs flex items-center gap-1 cursor-pointer transition-colors"
+                                    title="{{ 'HR:ViewErrors' | translate }}">
+                              <i class="pi pi-exclamation-circle text-[10px]"></i>
+                              <span>{{ j.failedRows }}</span>
+                            </button>
+                          } @else {
+                            <span class="text-slate-400 font-medium">0</span>
+                          }
+                        </td>
                         <td class="p-3 text-[var(--text-muted)]">{{ j.createdByUserName || 'Admin' }}</td>
                         <td class="p-3 text-[var(--text-muted)]">{{ j.creationTime | appDate }}</td>
-                        <td class="p-3 text-right rtl:text-left">
+                        <td class="p-3 text-right rtl:text-left space-x-2 rtl:space-x-reverse">
+                          @if (j.failedRows > 0) {
+                            <button (click)="openJobErrors(j)" class="text-xs text-rose-600 hover:underline font-semibold cursor-pointer">
+                              {{ 'HR:ViewErrors' | translate }}
+                            </button>
+                          }
                           @if (j.canRetry) {
                             <button (click)="retryJob(j)" class="text-xs text-blue-600 hover:underline font-semibold cursor-pointer">
                               {{ 'HR:Retry' | translate }}
@@ -466,6 +498,113 @@
         }
 
       </div>
+    </div>
+  </div>
+}
+
+<!-- ERROR DETAILS INSPECTION MODAL (FOR PAST OR CURRENT IMPORT JOBS) -->
+@if (viewingJobErrors()) {
+  <div class="fixed inset-0 z-[10000] flex items-center justify-center p-4 sm:p-6 bg-slate-900/80 backdrop-blur-sm animate-fade-in"
+       [attr.dir]="state.isRtl() ? 'rtl' : 'ltr'"
+       (click)="closeJobErrors()">
+    
+    <div class="w-[90vw] max-w-4xl h-[75vh] max-h-[75vh] bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+         (click)="$event.stopPropagation()">
+      
+      <!-- Modal Header -->
+      <div class="px-6 py-4 border-b border-[var(--border-color)] flex items-center justify-between bg-rose-50/60 dark:bg-rose-950/30">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-lg shadow-xs">
+            <i class="pi pi-exclamation-triangle"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-extrabold text-[var(--text-main)] leading-tight flex items-center gap-2">
+              <span>{{ 'HR:ImportErrorBreakdown' | translate }}</span>
+              <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-rose-200 text-rose-800 dark:bg-rose-900 dark:text-rose-200">
+                {{ viewingJobErrors()?.failedRows }} {{ 'HR:FailedRows' | translate }}
+              </span>
+            </h3>
+            <p class="text-xs text-[var(--text-muted)] mt-0.5">
+              {{ viewingJobErrors()?.fileName }} &bull; {{ viewingJobErrors()?.creationTime | appDate }}
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button (click)="downloadErrorReport(historyJobErrors(), 'ImportErrors_' + viewingJobErrors()?.fileName + '.csv')"
+                  class="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-xs flex items-center gap-1.5 cursor-pointer">
+            <i class="pi pi-download"></i> {{ 'HR:DownloadErrorReport' | translate }}
+          </button>
+          <button (click)="closeJobErrors()" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-[var(--text-muted)] cursor-pointer">
+            <i class="pi pi-times"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-5 flex-1 overflow-hidden flex flex-col space-y-3">
+        
+        <!-- Search filter bar -->
+        <div class="relative w-full">
+          <i class="pi pi-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+          <input type="text"
+                 [(ngModel)]="historyErrorSearch"
+                 placeholder="{{ 'HR:SearchErrorsPlaceholder' | translate }}"
+                 class="w-full pl-8 pr-3 py-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden" />
+        </div>
+
+        <!-- Errors Table -->
+        <div class="border border-[var(--border-color)] rounded-xl overflow-hidden shadow-2xs flex-1">
+          <div class="h-full max-h-[48vh] overflow-y-auto">
+            <table class="w-full text-left rtl:text-right text-xs border-collapse">
+              <thead class="bg-slate-100/80 dark:bg-slate-800/80 text-[10px] uppercase font-bold text-slate-500 sticky top-0 z-10">
+                <tr class="border-b border-[var(--border-color)]">
+                  <th class="p-3 w-20">{{ 'HR:Row' | translate }}</th>
+                  <th class="p-3 w-36">{{ 'HR:Field' | translate }}</th>
+                  <th class="p-3 w-48">{{ 'HR:InvalidValue' | translate }}</th>
+                  <th class="p-3">{{ 'HR:ErrorReason' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[var(--border-color)]">
+                @if (loadingHistoryErrors()) {
+                  <tr>
+                    <td colspan="4" class="p-8 text-center text-xs text-[var(--text-muted)]">
+                      <i class="pi pi-spin pi-spinner mr-1"></i> {{ 'HR:LoadingErrors' | translate }}
+                    </td>
+                  </tr>
+                } @else {
+                  @for (err of filteredHistoryErrors; track err.id) {
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                      <td class="p-3 font-mono text-[11px] font-bold text-rose-600">#{{ err.rowNumber }}</td>
+                      <td class="p-3 font-semibold text-slate-800 dark:text-slate-200">{{ err.columnName || ('HR:General' | translate) }}</td>
+                      <td class="p-3 font-mono text-[11px] text-slate-500 truncate max-w-[180px]" [title]="err.value || ''">{{ err.value || '-' }}</td>
+                      <td class="p-3 text-rose-700 dark:text-rose-400 font-medium">{{ err.errorMessage }}</td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td colspan="4" class="p-8 text-center text-xs text-[var(--text-muted)]">
+                        {{ 'HR:NoMatchingErrors' | translate }}
+                      </td>
+                    </tr>
+                  }
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-6 py-3 border-t border-[var(--border-color)] flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/30">
+        <span class="text-xs text-[var(--text-muted)]">
+          {{ filteredHistoryErrors.length }} {{ 'HR:RecordsFound' | translate }}
+        </span>
+        <button (click)="closeJobErrors()" class="px-4 py-1.5 text-xs font-semibold rounded-xl bg-slate-200 dark:bg-slate-700 text-[var(--text-main)] hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer">
+          {{ 'HR:Close' | translate }}
+        </button>
+      </div>
+
     </div>
   </div>
 }

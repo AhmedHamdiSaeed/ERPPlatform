@@ -13,8 +13,9 @@ public class AbpUserIdProvider : IUserIdProvider
 {
     public string? GetUserId(HubConnectionContext connection)
     {
-        // ABP sets the NameIdentifier claim to the user's GUID ID
+        // ABP sets NameIdentifier / UserId / sub claim to the user's GUID ID
         return connection.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value
-               ?? connection.User?.FindFirst(AbpClaimTypes.UserId)?.Value;
+               ?? connection.User?.FindFirst(AbpClaimTypes.UserId)?.Value
+               ?? connection.User?.FindFirst("sub")?.Value;
     }
 }

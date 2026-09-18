@@ -347,7 +347,7 @@ public class EmailTemplateManager : IEmailTemplateManager, ITransientDependency
 </html>";
     }
 
-    public string RenderPasswordChangedNotification(TenantBrandingInfo branding, string userName, DateTime changeTime, string? ipAddress = null)
+    public string RenderPasswordChangedNotification(TenantBrandingInfo branding, string userName, DateTime changeTime, string? ipAddress = null, string? timeZoneId = null)
     {
         var year = DateTime.UtcNow.Year;
         var logoUrl = !string.IsNullOrWhiteSpace(branding.LogoUrl)
@@ -357,7 +357,7 @@ public class EmailTemplateManager : IEmailTemplateManager, ITransientDependency
             ? branding.TenantName
             : TenantBrandingProvider.DefaultSystemName;
 
-        var formattedTime = changeTime.ToString("MMMM dd, yyyy HH:mm 'UTC'");
+        var formattedTime = FormatTimeWithTimezone(changeTime, timeZoneId);
 
         return $@"
 <!DOCTYPE html>
@@ -519,5 +519,59 @@ public class EmailTemplateManager : IEmailTemplateManager, ITransientDependency
   </div>
 </body>
 </html>";
+    }
+
+    private static string FormatTimeWithTimezone(DateTime utcTime, string? timeZoneId)
+    {
+        TimeZoneInfo tzi;
+        try
+        {
+            if (!string.IsNullOrWhiteSpace(timeZoneId))
+            {
+                try
+                {
+                    tzi = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+                }
+                catch
+                {
+                    if (TimeZoneInfo.TryConvertIanaIdToWindowsId(timeZoneId, out var windowsId))
+                    {
+                        tzi = TimeZoneInfo.FindSystemTimeZoneById(windowsId);
+                    }
+                    else
+                    {
+                        tzi = TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time");
+                    }
+                }
+            }
+            else
+            {
+                try
+                {
+                    tzi = TimeZoneInfo.FindSystemTimeZoneById("Egypt Standard Time");
+                }
+                catch
+                {
+                    tzi = TimeZoneInfo.Local;
+                }
+            }
+        }
+        catch
+        {
+            tzi = TimeZoneInfo.Local;
+        }
+
+        var converted = TimeZoneInfo.ConvertTimeFromUtc(
+            utcTime.Kind == DateTimeKind.Utc ? utcTime : DateTime.SpecifyKind(utcTime, DateTimeKind.Utc),
+            tzi
+        );
+
+        var offset = tzi.GetUtcOffset(converted);
+        var offsetSign = offset >= TimeSpan.Zero ? "+" : "-";
+        var offsetFormatted = offset.Minutes == 0
+            ? $"GMT{offsetSign}{Math.Abs(offset.Hours)}"
+            : $"GMT{offsetSign}{Math.Abs(offset.Hours):00}:{Math.Abs(offset.Minutes):00}";
+
+        return $"{converted:MMMM dd, yyyy HH:mm} ({offsetFormatted})";
     }
 }
