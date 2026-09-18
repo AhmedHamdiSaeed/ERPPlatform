@@ -1,12 +1,31 @@
 <header class="h-16 bg-[var(--bg-card)] border-b border-[var(--border-color)] px-4 flex items-center justify-between sticky top-0 z-30 shadow-xs">
-      <!-- Left: Sidebar Toggle Button -->
-      <div class="flex items-center gap-3">
+      <!-- Left: Sidebar Toggle Button & Brand / Portfolio Logo -->
+      <div class="flex items-center gap-2.5 min-w-0">
         <button 
           (click)="state.toggleSidebar()" 
-          class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-[var(--text-muted)] transition-colors focus:outline-hidden cursor-pointer"
+          class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors focus:outline-hidden cursor-pointer shrink-0"
           title="{{ 'UI:ToggleSidebar' | translate }}">
           <i class="pi pi-bars text-lg"></i>
         </button>
+
+        <!-- Brand / Portfolio Logo & Name (Always visible on mobile, or when sidebar is collapsed on desktop) -->
+        <a routerLink="/dashboard" class="flex items-center gap-2.5 decoration-none min-w-0 group" [class.md:hidden]="state.sidebarExpanded()">
+          @if (state.currentUser().tenantLogo) {
+            <img [src]="state.currentUser().tenantLogo" [alt]="state.currentUser().tenantName || 'Tenant Logo'" class="w-8 h-8 rounded-lg object-contain bg-white dark:bg-slate-800 p-0.5 border border-slate-200 dark:border-slate-700 shadow-xs group-hover:scale-105 transition-transform shrink-0" />
+          } @else {
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-sm group-hover:scale-105 transition-transform shrink-0">
+              <i class="pi pi-box"></i>
+            </div>
+          }
+          <div class="truncate flex flex-col">
+            <span class="font-bold text-slate-800 dark:text-slate-100 text-xs sm:text-sm leading-tight truncate">
+              {{ state.currentUser().tenantName || 'ERP Platform' }}
+            </span>
+            <span class="text-[9px] text-blue-600 font-semibold tracking-wider uppercase leading-none mt-0.5 hidden xs:inline">
+              Enterprise
+            </span>
+          </div>
+        </a>
       </div>
 
       <!-- Center: Global Search Input -->
@@ -141,6 +160,9 @@
               <a routerLink="/workflow/tasks" (click)="showUserMenu = false" class="flex items-center gap-2.5 px-3 py-2 text-xs rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-[var(--text-main)]">
                 <i class="pi pi-check-square text-slate-400"></i> {{ 'UI:MyTasksInbox' | translate }}
               </a>
+              <button (click)="state.requestPwaInstall(); showUserMenu = false" class="w-full flex items-center gap-2.5 px-3 py-2 text-xs rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-[var(--text-main)] cursor-pointer text-left rtl:text-right">
+                <i class="pi pi-download text-blue-600"></i> {{ state.isRtl() ? 'تثبيت التطبيق (PWA)' : 'Install App (PWA)' }}
+              </button>
               <div class="border-t border-[var(--border-color)] my-1"></div>
               <a routerLink="/auth/login" (click)="showUserMenu = false" class="flex items-center gap-2.5 px-3 py-2 text-xs rounded-md hover:bg-red-50 dark:hover:bg-red-950/30 text-red-600">
                 <i class="pi pi-sign-out"></i> {{ 'UI:Logout' | translate }}

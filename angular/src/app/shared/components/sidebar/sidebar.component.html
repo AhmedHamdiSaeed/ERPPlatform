@@ -1,10 +1,17 @@
 <aside 
-      [class.w-64]="state.sidebarExpanded()" 
-      [class.w-20]="!state.sidebarExpanded()"
-      [class.max-md:translate-x-0]="state.sidebarExpanded()"
-      [class.max-md:-translate-x-full]="!state.sidebarExpanded() && !state.isRtl()"
-      [class.max-md:translate-x-full]="!state.sidebarExpanded() && state.isRtl()"
-      class="h-full bg-[var(--bg-card)] border-r rtl:border-r-0 rtl:border-l border-[var(--border-color)] transition-all duration-300 flex flex-col select-none overflow-hidden shrink-0 z-40 max-md:fixed max-md:inset-y-0 max-md:start-0 max-md:w-72 max-md:shadow-2xl">
+      class="h-full bg-[var(--bg-card)] border-r rtl:border-r-0 rtl:border-l border-[var(--border-color)] transition-all duration-300 flex flex-col select-none overflow-hidden shrink-0 z-40"
+      [class.fixed]="state.sidebarExpanded()"
+      [class.inset-y-0]="state.sidebarExpanded()"
+      [class.start-0]="state.sidebarExpanded()"
+      [class.w-72]="state.sidebarExpanded()"
+      [class.max-w-[85vw]]="state.sidebarExpanded()"
+      [class.shadow-2xl]="state.sidebarExpanded()"
+      [class.md:relative]="state.sidebarExpanded()"
+      [class.md:w-64]="state.sidebarExpanded()"
+      [class.md:shadow-none]="state.sidebarExpanded()"
+      [class.hidden]="!state.sidebarExpanded()"
+      [class.md:flex]="!state.sidebarExpanded()"
+      [class.md:w-20]="!state.sidebarExpanded()">
       
       <!-- Brand Header at top of Sidebar (height: 64px / h-16) -->
       <div class="h-16 px-3.5 flex items-center justify-between border-b border-[var(--border-color)] bg-[var(--bg-card)] shrink-0">
@@ -29,7 +36,8 @@
             (click)="state.toggleSidebar()" 
             class="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-[var(--text-muted)] transition-colors focus:outline-hidden shrink-0 cursor-pointer"
             title="{{ 'UI:ToggleSidebar' | translate }}">
-            <i class="pi pi-bars text-base"></i>
+            <i class="pi pi-bars text-base hidden md:block"></i>
+            <i class="pi pi-times text-base md:hidden"></i>
           </button>
         }
       </div>

@@ -1,25 +1,115 @@
 @if (showPrompt()) {
-      <div class="fixed bottom-4 right-4 rtl:right-auto rtl:left-4 z-40 max-w-sm bg-[var(--bg-card)] border border-[var(--border-color)] p-4 rounded-2xl shadow-2xl animate-fade-in">
-        <div class="flex items-start gap-3">
-          <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xl shrink-0 shadow-md">
-            <i class="pi pi-box"></i>
-          </div>
-          <div class="flex-1">
-            <h4 class="font-bold text-xs text-[var(--text-main)]">
-              {{ state.isRtl() ? 'تثبيت منصة ERP' : 'Install ERP Platform' }}
-            </h4>
-            <p class="text-[11px] text-[var(--text-muted)] mt-0.5 leading-relaxed">
-              {{ state.isRtl() ? 'ثبّت التطبيق على جهازك للوصول الفوري وتجربة سطح المكتب.' : 'Install the application on your device for instant offline access and desktop experience.' }}
-            </p>
-            <div class="flex items-center gap-2 mt-3">
-              <button (click)="installPwa()" class="px-3 py-1.5 bg-blue-600 text-white font-semibold text-xs rounded-lg hover:bg-blue-700 transition-colors shadow-xs cursor-pointer">
-                {{ state.isRtl() ? 'تثبيت التطبيق' : 'Install App' }}
-              </button>
-              <button (click)="dismiss()" class="px-3 py-1.5 text-xs text-slate-500 hover:text-slate-700 font-medium cursor-pointer">
-                {{ state.isRtl() ? 'ليس الآن' : 'Not now' }}
-              </button>
-            </div>
-          </div>
+  <div class="fixed bottom-4 right-4 rtl:right-auto rtl:left-4 z-40 max-w-sm bg-[var(--bg-card)] border border-[var(--border-color)] p-4 rounded-2xl shadow-2xl animate-fade-in">
+    <div class="flex items-start gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center text-xl shrink-0 shadow-md">
+        <i class="pi pi-box"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <h4 class="font-bold text-xs text-[var(--text-main)]">
+          {{ state.isRtl() ? 'تثبيت منصة ERP' : 'Install ERP Platform' }}
+        </h4>
+        <p class="text-[11px] text-[var(--text-muted)] mt-0.5 leading-relaxed">
+          {{ state.isRtl() ? 'ثبّت التطبيق على جهازك للوصول الفوري وتجربة تطبيق مستقل.' : 'Install the application on your device for instant offline access and standalone app experience.' }}
+        </p>
+        <div class="flex items-center gap-2 mt-3">
+          <button (click)="installPwa()" class="px-3 py-1.5 bg-blue-600 text-white font-semibold text-xs rounded-lg hover:bg-blue-700 transition-colors shadow-xs cursor-pointer flex items-center gap-1.5">
+            <i class="pi pi-download text-xs"></i>
+            <span>{{ state.isRtl() ? 'تثبيت الآن' : 'Install Now' }}</span>
+          </button>
+          <button (click)="dismiss()" class="px-3 py-1.5 text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-medium cursor-pointer">
+            {{ state.isRtl() ? 'ليس الآن' : 'Not now' }}
+          </button>
         </div>
       </div>
-    }
+    </div>
+  </div>
+}
+
+<!-- Fallback Step-by-Step Installation Guide Modal (for iOS / Safari / Desktop) -->
+@if (showGuideModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in" (click)="closeGuide()">
+    <div class="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl p-6 max-w-md w-full shadow-2xl animate-scale-up" (click)="$event.stopPropagation()">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-[var(--border-color)]">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center text-lg shadow-sm">
+            <i class="pi pi-download"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-sm text-[var(--text-main)]">
+              {{ state.isRtl() ? 'كيفية تثبيت منصة ERP' : 'How to Install ERP Platform' }}
+            </h3>
+            <p class="text-[11px] text-[var(--text-muted)]">
+              {{ state.isRtl() ? 'خطوات بسيطة لتشغيل التطبيق كـ PWA' : 'Simple steps to run the app as a standalone PWA' }}
+            </p>
+          </div>
+        </div>
+        <button (click)="closeGuide()" class="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer">
+          <i class="pi pi-times text-sm"></i>
+        </button>
+      </div>
+
+      <div class="mt-4 space-y-3.5">
+        @if (isIos()) {
+          <!-- iOS Safari Instructions -->
+          <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60">
+            <div class="w-7 h-7 rounded-lg bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-bold shrink-0">1</div>
+            <div class="text-xs text-[var(--text-main)]">
+              {{ state.isRtl() ? 'اضغط على زر المشاركة' : 'Tap the Share button' }}
+              <span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700 font-mono text-[10px] mx-1"><i class="pi pi-share-alt"></i></span>
+              {{ state.isRtl() ? 'في أسفل متصفح Safari.' : 'in the Safari toolbar.' }}
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60">
+            <div class="w-7 h-7 rounded-lg bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-bold shrink-0">2</div>
+            <div class="text-xs text-[var(--text-main)]">
+              {{ state.isRtl() ? 'مرر للأسفل واختر ' : 'Scroll down and tap ' }}
+              <strong class="text-blue-600 dark:text-blue-400">"{{ state.isRtl() ? 'إضافة إلى الشاشة الرئيسية' : 'Add to Home Screen' }}"</strong> ⊕
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60">
+            <div class="w-7 h-7 rounded-lg bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-bold shrink-0">3</div>
+            <div class="text-xs text-[var(--text-main)]">
+              {{ state.isRtl() ? 'اضغط على "إضافة" في الزاوية العلوية.' : 'Tap "Add" in the top-right corner to finish.' }}
+            </div>
+          </div>
+        } @else {
+          <!-- Chrome / Edge / Android Instructions -->
+          <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60">
+            <div class="w-7 h-7 rounded-lg bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-bold shrink-0">1</div>
+            <div class="text-xs text-[var(--text-main)]">
+              {{ state.isRtl() ? 'افتح قائمة المتصفح ' : 'Open the browser menu ' }}
+              <span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700 font-mono text-[10px] mx-1">⋮</span>
+              {{ state.isRtl() ? 'أو أيقونة التثبيت في شريط العنوان.' : 'or the Install icon in the address bar.' }}
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60">
+            <div class="w-7 h-7 rounded-lg bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-bold shrink-0">2</div>
+            <div class="text-xs text-[var(--text-main)]">
+              {{ state.isRtl() ? 'اختر ' : 'Select ' }}
+              <strong class="text-blue-600 dark:text-blue-400">"{{ state.isRtl() ? 'تثبيت التطبيق' : 'Install ERP Platform' }}"</strong>
+              {{ state.isRtl() ? 'أو "إضافة إلى الشاشة الرئيسية".' : 'or "Add to Home screen".' }}
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60">
+            <div class="w-7 h-7 rounded-lg bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xs font-bold shrink-0">3</div>
+            <div class="text-xs text-[var(--text-main)]">
+              {{ state.isRtl() ? 'انقر على "تثبيت" لتأكيد التشغيل كتطبيق مستقل.' : 'Click "Install" to confirm and open as a standalone app.' }}
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="mt-5 pt-3 border-t border-[var(--border-color)] flex justify-end">
+        <button (click)="closeGuide()" class="px-4 py-2 bg-blue-600 text-white font-semibold text-xs rounded-xl hover:bg-blue-700 transition-colors cursor-pointer">
+          {{ state.isRtl() ? 'فهمت ذلك' : 'Got it' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+}

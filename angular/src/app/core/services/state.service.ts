@@ -32,7 +32,8 @@ export class StateService {
   currentUser = signal<UserProfile>(GUEST_USER);
   theme = signal<ThemeMode>('light');
   lang = signal<LanguageMode>('en');
-  sidebarExpanded = signal<boolean>(true);
+  sidebarExpanded = signal<boolean>(typeof window !== 'undefined' ? window.innerWidth >= 768 : true);
+  pwaInstallRequested = signal<number>(0);
   mobileDrawerOpen = signal<boolean>(false);
   globalSearchOpen = signal<boolean>(false);
   aiWidgetOpen = signal<boolean>(false);
@@ -236,6 +237,10 @@ export class StateService {
 
   toggleAiWidget(open?: boolean) {
     this.aiWidgetOpen.update(v => open !== undefined ? open : !v);
+  }
+
+  requestPwaInstall() {
+    this.pwaInstallRequested.update(c => c + 1);
   }
 
   async markNotificationAsRead(id: string) {
