@@ -1,0 +1,133 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Manager Self-Service (MSS) Team Hub</h1>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Direct reports roster, team attendance approvals, leave sign-offs, and career promotions.</p>
+    </div>
+  </div>
+
+  <!-- Team Snapshot Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="card p-4 flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 flex items-center justify-center text-xl">
+        <i class="pi pi-users"></i>
+      </div>
+      <div>
+        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Direct Reports</p>
+        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ teamSummary.totalDirectReports }}</p>
+      </div>
+    </div>
+    <div class="card p-4 flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 flex items-center justify-center text-xl">
+        <i class="pi pi-check-circle"></i>
+      </div>
+      <div>
+        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Present Today</p>
+        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ teamSummary.presentToday }}</p>
+      </div>
+    </div>
+    <div class="card p-4 flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30 text-amber-600 flex items-center justify-center text-xl">
+        <i class="pi pi-inbox"></i>
+      </div>
+      <div>
+        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Pending Leave Approvals</p>
+        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ pendingLeaves.length }}</p>
+      </div>
+    </div>
+    <div class="card p-4 flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 text-purple-600 flex items-center justify-center text-xl">
+        <i class="pi pi-sliders-h"></i>
+      </div>
+      <div>
+        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Pending Action Approvals</p>
+        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ pendingActions.length }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Pending Leave Approvals -->
+    <div class="card p-5 space-y-4">
+      <h3 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
+        <i class="pi pi-calendar-plus text-amber-500"></i> Team Leave Requests Pending Approval
+      </h3>
+      <div class="space-y-3">
+        <div *ngFor="let lv of pendingLeaves" class="p-3 rounded-xl border border-gray-200 dark:border-gray-800 flex items-center justify-between gap-4">
+          <div>
+            <h4 class="font-bold text-sm text-gray-900 dark:text-white">{{ lv.employeeName }}</h4>
+            <p class="text-xs text-gray-500">{{ lv.leaveType }} &bull; {{ lv.startDate | date:'shortDate' }} to {{ lv.endDate | date:'shortDate' }} ({{ lv.daysCount }} days)</p>
+            <p class="text-xs text-gray-600 dark:text-gray-300 italic mt-0.5">"{{ lv.reason }}"</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button (click)="approveLeave(lv.id)" class="btn btn-primary text-xs px-3 py-1">Approve</button>
+            <button (click)="rejectLeave(lv.id)" class="btn btn-secondary text-xs px-2.5 py-1 text-red-600">Reject</button>
+          </div>
+        </div>
+        <div *ngIf="pendingLeaves.length === 0" class="text-center py-6 text-xs text-gray-400">
+          No pending team leave requests.
+        </div>
+      </div>
+    </div>
+
+    <!-- Direct Reports Team Roster -->
+    <div class="card p-5 space-y-4">
+      <h3 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
+        <i class="pi pi-users text-blue-600"></i> My Direct Reports
+      </h3>
+      <div class="space-y-3">
+        <div *ngFor="let member of teamSummary.teamMembers" class="p-3 rounded-xl border border-gray-200 dark:border-gray-800 flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <img [src]="member.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'" class="w-10 h-10 rounded-full object-cover" />
+            <div>
+              <h4 class="font-bold text-sm text-gray-900 dark:text-white">{{ member.name }}</h4>
+              <p class="text-xs text-gray-500">{{ member.position }} &bull; Leave: {{ member.leaveBalance }}d</p>
+            </div>
+          </div>
+          <button (click)="openActionModal(member.id)" class="btn btn-secondary text-xs px-3 py-1">
+            Recommend Action
+          </button>
+        </div>
+        <div *ngIf="teamSummary.teamMembers.length === 0" class="text-center py-6 text-xs text-gray-400">
+          No direct reports assigned.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recommend Promotion Modal -->
+  <div *ngIf="showActionModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div class="card w-full max-w-md p-6 space-y-4">
+      <h3 class="text-lg font-bold text-gray-900 dark:text-white">Recommend Team Career Action</h3>
+      <div>
+        <label class="block text-xs font-semibold mb-1">Action Type</label>
+        <select [(ngModel)]="actionForm.actionType" class="form-select w-full">
+          <option value="Promotion">Promotion</option>
+          <option value="SalaryRevision">Salary Increment</option>
+          <option value="Transfer">Department Transfer</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold mb-1">Proposed Position</label>
+        <input type="text" [(ngModel)]="actionForm.newPosition" class="form-input w-full" />
+      </div>
+      <div>
+        <label class="block text-xs font-semibold mb-1">Proposed Monthly Salary ($)</label>
+        <input type="number" [(ngModel)]="actionForm.newSalary" class="form-input w-full" />
+      </div>
+      <div>
+        <label class="block text-xs font-semibold mb-1">Effective Date</label>
+        <input type="date" [(ngModel)]="actionForm.effectiveDate" class="form-input w-full" />
+      </div>
+      <div>
+        <label class="block text-xs font-semibold mb-1">Manager Justification & Remarks</label>
+        <textarea [(ngModel)]="actionForm.remarks" rows="2" class="form-input w-full"></textarea>
+      </div>
+      <div class="flex justify-end gap-3 pt-4">
+        <button (click)="showActionModal = false" class="btn btn-secondary">Cancel</button>
+        <button (click)="submitAction()" class="btn btn-primary">Submit to HR</button>
+      </div>
+    </div>
+  </div>
+</div>

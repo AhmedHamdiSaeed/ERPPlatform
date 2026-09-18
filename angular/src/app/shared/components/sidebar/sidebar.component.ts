@@ -126,7 +126,12 @@ export class SidebarComponent {
         { label: 'Leave Management', key: 'Menu:LeaveManagement', arLabel: 'إدارة الإجازات', link: '/hr/leave', icon: 'pi-briefcase' },
         { label: 'Payroll & Payslips', key: 'Menu:PayrollPayslips', arLabel: 'الرواتب وكشوف المرتبات', link: '/hr/payroll', icon: 'pi-dollar' },
         { label: 'Salary Components', key: 'Menu:SalaryComponents', arLabel: 'عناصر الراتب', link: '/hr/payroll/components', icon: 'pi-sliders-h' },
-        { label: 'Recruitment Kanban', key: 'Menu:RecruitmentKanban', arLabel: 'لوحة التوظيف', link: '/hr/recruitment', icon: 'pi-user-plus' }
+        { label: 'Recruitment Kanban', key: 'Menu:RecruitmentKanban', arLabel: 'لوحة التوظيف', link: '/hr/recruitment', icon: 'pi-user-plus' },
+        { label: 'Performance & KPIs', key: 'Menu:PerformanceKpi', arLabel: 'الأداء والتقييم', link: '/hr/performance', icon: 'pi-star' },
+        { label: 'Training & L&D', key: 'Menu:TrainingLnd', arLabel: 'التدريب والتطوير', link: '/hr/training', icon: 'pi-book' },
+        { label: 'Benefits & Insurance', key: 'Menu:BenefitsInsurance', arLabel: 'المزايا والتأمين', link: '/hr/benefits', icon: 'pi-shield' },
+        { label: 'Employee Self-Service', key: 'Menu:EssPortal', arLabel: 'الخدمة الذاتية للموظف', link: '/hr/ess', icon: 'pi-user-edit', badge: 'ESS' },
+        { label: 'Manager Team Hub', key: 'Menu:MssPortal', arLabel: 'مركز المدير', link: '/hr/mss', icon: 'pi-users', badge: 'MSS' }
       ]
     },
     {

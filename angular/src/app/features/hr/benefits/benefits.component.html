@@ -1,0 +1,213 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Compensation & Corporate Benefits</h1>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Medical insurance, retirement policies, wellness allowances, and employee coverage plans.</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <button *ngIf="activeTab === 'plans'" (click)="showNewPlanModal = true" class="btn btn-primary flex items-center gap-2">
+        <i class="pi pi-plus text-sm"></i>
+        <span>Create Benefit Plan</span>
+      </button>
+      <button (click)="openEnrollModal()" class="btn btn-secondary flex items-center gap-2">
+        <i class="pi pi-user-plus text-sm"></i>
+        <span>Enroll Employee</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="card p-4 flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 flex items-center justify-center text-xl">
+        <i class="pi pi-shield"></i>
+      </div>
+      <div>
+        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Available Plans</p>
+        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ plans.length }}</p>
+      </div>
+    </div>
+    <div class="card p-4 flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 flex items-center justify-center text-xl">
+        <i class="pi pi-users"></i>
+      </div>
+      <div>
+        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Enrolled Employees</p>
+        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ benefits.length }}</p>
+      </div>
+    </div>
+    <div class="card p-4 flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 text-purple-600 flex items-center justify-center text-xl">
+        <i class="pi pi-dollar"></i>
+      </div>
+      <div>
+        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Active Insurance Coverage</p>
+        <p class="text-2xl font-bold text-gray-900 dark:text-white">
+          {{ activeBenefitsCount }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <div class="border-b border-gray-200 dark:border-gray-800">
+    <nav class="flex gap-6 -mb-px">
+      <button (click)="activeTab = 'plans'" [class.border-blue-600]="activeTab === 'plans'" [class.text-blue-600]="activeTab === 'plans'"
+              class="pb-3 font-semibold text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
+        Corporate Benefit Plans
+      </button>
+      <button (click)="activeTab = 'roster'" [class.border-blue-600]="activeTab === 'roster'" [class.text-blue-600]="activeTab === 'roster'"
+              class="pb-3 font-semibold text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
+        Enrolled Employee Roster
+      </button>
+    </nav>
+  </div>
+
+  <!-- Plans Grid -->
+  <div *ngIf="activeTab === 'plans'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div *ngFor="let plan of plans" class="card p-5 space-y-3">
+      <div class="flex items-start justify-between">
+        <span class="text-xs font-semibold px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+          {{ plan.category }}
+        </span>
+        <span class="text-xs font-mono text-gray-400">{{ plan.planCode }}</span>
+      </div>
+      <h3 class="font-bold text-gray-900 dark:text-white text-base">{{ plan.planName }}</h3>
+      <p class="text-xs text-gray-500 dark:text-gray-400">Provider: <strong>{{ plan.providerName || 'Corporate Standard' }}</strong></p>
+      <p class="text-xs text-gray-600 dark:text-gray-300 line-clamp-2">{{ plan.coverageDetails || 'Full coverage benefits package.' }}</p>
+
+      <div class="grid grid-cols-2 gap-2 text-xs pt-2 border-t dark:border-gray-800">
+        <div>
+          <span class="text-gray-400 block text-[11px]">Employer Contrib.</span>
+          <strong class="text-emerald-600">{{ plan.employerContributionMonthly | currency:'USD' }}/mo</strong>
+        </div>
+        <div>
+          <span class="text-gray-400 block text-[11px]">Employee Deduct.</span>
+          <strong class="text-gray-700 dark:text-gray-300">{{ plan.employeeContributionMonthly | currency:'USD' }}/mo</strong>
+        </div>
+      </div>
+
+      <div class="pt-2">
+        <button (click)="openEnrollModal(plan)" class="btn btn-secondary w-full text-xs py-2">
+          Enroll Employee
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Enrolled Roster View -->
+  <div *ngIf="activeTab === 'roster'" class="card overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm text-gray-600 dark:text-gray-300">
+        <thead class="bg-gray-50 dark:bg-gray-800/60 text-xs uppercase font-semibold text-gray-700 dark:text-gray-300">
+          <tr>
+            <th class="px-6 py-3.5">Employee</th>
+            <th class="px-6 py-3.5">Plan Name</th>
+            <th class="px-6 py-3.5">Category</th>
+            <th class="px-6 py-3.5">Enrolled Date</th>
+            <th class="px-6 py-3.5 text-right">Coverage Amount</th>
+            <th class="px-6 py-3.5 text-right">Monthly Deduct.</th>
+            <th class="px-6 py-3.5">Status</th>
+            <th class="px-6 py-3.5 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+          <tr *ngFor="let ben of benefits" class="hover:bg-gray-50 dark:hover:bg-gray-800/40">
+            <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">{{ ben.employeeName }}</td>
+            <td class="px-6 py-4 font-semibold text-blue-600">{{ ben.planName }}</td>
+            <td class="px-6 py-4">{{ ben.category }}</td>
+            <td class="px-6 py-4">{{ ben.enrollmentDate | date:'mediumDate' }}</td>
+            <td class="px-6 py-4 text-right font-semibold">{{ ben.coverageAmount | currency:'USD' }}</td>
+            <td class="px-6 py-4 text-right text-gray-500">{{ ben.employeeDeduction | currency:'USD' }}</td>
+            <td class="px-6 py-4">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                    [class.bg-emerald-100.text-emerald-800]="ben.status === 'Active'"
+                    [class.bg-gray-100.text-gray-800]="ben.status === 'Terminated'">
+                {{ ben.status }}
+              </span>
+            </td>
+            <td class="px-6 py-4 text-right">
+              <button *ngIf="ben.status === 'Active'" (click)="terminate(ben.id)" class="text-xs text-red-600 hover:text-red-800 font-semibold">
+                Terminate
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="benefits.length === 0">
+            <td colspan="8" class="px-6 py-8 text-center text-gray-400">No active employee enrollments.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- New Plan Modal -->
+  <div *ngIf="showNewPlanModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div class="card w-full max-w-md p-6 space-y-4">
+      <h3 class="text-lg font-bold text-gray-900 dark:text-white">Create Corporate Benefit Plan</h3>
+      <div>
+        <label class="block text-xs font-semibold mb-1">Plan Name</label>
+        <input type="text" [(ngModel)]="newPlan.planName" class="form-input w-full" placeholder="e.g. Premium Medical Gold" />
+      </div>
+      <div>
+        <label class="block text-xs font-semibold mb-1">Category</label>
+        <select [(ngModel)]="newPlan.category" class="form-select w-full">
+          <option value="MedicalInsurance">Medical Insurance</option>
+          <option value="LifeInsurance">Life Insurance</option>
+          <option value="Retirement">Retirement & Pension</option>
+          <option value="GymWellness">Gym & Wellness</option>
+          <option value="Allowance">Transportation / Meal Allowance</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold mb-1">Insurance Provider</label>
+        <input type="text" [(ngModel)]="newPlan.providerName" class="form-input w-full" placeholder="e.g. AXA / Allianz / Bupa" />
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold mb-1">Employer Monthly ($)</label>
+          <input type="number" [(ngModel)]="newPlan.employerContributionMonthly" class="form-input w-full" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold mb-1">Employee Deduct ($)</label>
+          <input type="number" [(ngModel)]="newPlan.employeeContributionMonthly" class="form-input w-full" />
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold mb-1">Coverage Details</label>
+        <textarea [(ngModel)]="newPlan.coverageDetails" rows="2" class="form-input w-full"></textarea>
+      </div>
+      <div class="flex justify-end gap-3 pt-4">
+        <button (click)="showNewPlanModal = false" class="btn btn-secondary">Cancel</button>
+        <button (click)="createPlan()" class="btn btn-primary">Save Plan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Enroll Modal -->
+  <div *ngIf="showEnrollModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <div class="card w-full max-w-md p-6 space-y-4">
+      <h3 class="text-lg font-bold text-gray-900 dark:text-white">Enroll Employee into Benefit</h3>
+      <div>
+        <label class="block text-xs font-semibold mb-1">Select Benefit Plan</label>
+        <select [(ngModel)]="enrollForm.benefitPlanId" class="form-select w-full">
+          <option *ngFor="let p of plans" [value]="p.id">{{ p.planName }} ({{ p.category }})</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold mb-1">Select Employee</label>
+        <select [(ngModel)]="enrollForm.employeeId" class="form-select w-full">
+          <option *ngFor="let emp of employees" [value]="emp.id">{{ emp.name }} ({{ emp.departmentName }})</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold mb-1">Coverage Amount ($)</label>
+        <input type="number" [(ngModel)]="enrollForm.coverageAmount" class="form-input w-full" />
+      </div>
+      <div class="flex justify-end gap-3 pt-4">
+        <button (click)="showEnrollModal = false" class="btn btn-secondary">Cancel</button>
+        <button (click)="enroll()" class="btn btn-primary">Confirm Enrollment</button>
+      </div>
+    </div>
+  </div>
+</div>

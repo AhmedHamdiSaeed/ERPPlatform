@@ -17,14 +17,125 @@ export interface Employee {
   name: string;
   email: string;
   phone: string;
-  departmentId: string;
+  departmentId?: string;
   departmentName: string;
+  branchId?: string;
+  branchName?: string;
   position: string;
   managerName?: string;
   joiningDate: string;
-  status: 'Active' | 'Inactive' | 'On Leave';
+  status: 'Active' | 'Inactive' | 'On Leave' | 'Suspended' | 'Terminated';
   salary?: number;
   location?: string;
+  leaveBalance?: number;
+
+  // Master Data Fields
+  nationalId?: string;
+  passportNumber?: string;
+  nationality?: string;
+  dateOfBirth?: string;
+  gender?: 'Male' | 'Female';
+  maritalStatus?: 'Single' | 'Married' | 'Divorced' | 'Widowed';
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
+  emergencyContactRelation?: string;
+  bankName?: string;
+  bankAccountNumber?: string;
+  iban?: string;
+  swiftCode?: string;
+  employmentType?: 'FullTime' | 'PartTime' | 'Contractor' | 'Intern' | 'Remote';
+  probationEndDate?: string;
+  contractEndDate?: string;
+  jobGradeId?: string;
+  jobGradeName?: string;
+  costCenterCode?: string;
+  noticePeriodDays?: number;
+}
+
+export interface EmployeeContract {
+  id: string;
+  contractNumber: string;
+  employeeId: string;
+  employeeName: string;
+  contractType: 'Permanent' | 'FixedTerm' | 'Probation' | 'Contractor';
+  startDate: string;
+  endDate?: string;
+  probationEndDate?: string;
+  basicSalary: number;
+  housingAllowance: number;
+  transportationAllowance: number;
+  otherAllowances: number;
+  totalGrossSalary: number;
+  workingHoursPerWeek: number;
+  noticePeriodDays: number;
+  status: 'Active' | 'Expired' | 'Terminated' | 'Draft' | 'Renewed';
+  signedAt?: string;
+  signedDocumentUrl?: string;
+  notes?: string;
+  daysUntilExpiration?: number;
+}
+
+export interface HrAction {
+  id: string;
+  actionCode: string;
+  employeeId: string;
+  employeeName: string;
+  actionType: 'Hire' | 'Promotion' | 'Transfer' | 'SalaryChange' | 'DepartmentChange' | 'ManagerChange' | 'Suspension' | 'Termination' | 'Resignation';
+  effectiveDate: string;
+  status: 'Pending' | 'Approved' | 'Rejected' | 'Implemented';
+  previousValuesJson: string;
+  newValuesJson: string;
+  requestedBy: string;
+  approvedBy?: string;
+  approvalDate?: string;
+  remarks?: string;
+  creationTime: string;
+}
+
+export interface EmployeeDocument {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  documentType: 'NationalId' | 'Passport' | 'Contract' | 'Medical' | 'Certificate' | 'Degree' | 'Tax' | 'Visa' | 'Warning' | 'Other';
+  documentTitle: string;
+  documentNumber?: string;
+  fileUrl: string;
+  fileName: string;
+  fileSize: number;
+  issueDate?: string;
+  expiryDate?: string;
+  isVerified: boolean;
+  verifiedBy?: string;
+  verificationDate?: string;
+  notes?: string;
+  isExpired?: boolean;
+  daysUntilExpiration?: number;
+}
+
+export interface JobGrade {
+  id: string;
+  gradeCode: string;
+  gradeName: string;
+  level: string;
+  minSalary: number;
+  maxSalary: number;
+  description: string;
+  isActive: boolean;
+}
+
+export interface JobPosition {
+  id: string;
+  code: string;
+  title: string;
+  departmentId?: string;
+  departmentName?: string;
+  jobGradeId?: string;
+  jobGradeName?: string;
+  description: string;
+  requirements: string;
+  minSalary: number;
+  maxSalary: number;
+  isActive: boolean;
 }
 
 export interface Department {
@@ -66,19 +177,139 @@ export interface LeaveRequest {
   appliedDate: string;
 }
 
+export interface JobRequisition {
+  id: string;
+  requisitionCode: string;
+  title: string;
+  departmentId?: string;
+  departmentName: string;
+  vacanciesCount: number;
+  employmentType: string;
+  minSalary: number;
+  maxSalary: number;
+  experienceLevel: string;
+  jobDescription: string;
+  requirements: string;
+  hiringManager: string;
+  status: 'Draft' | 'Open' | 'InProgress' | 'Filled' | 'Cancelled';
+  targetStartDate: string;
+  candidatesCount?: number;
+}
+
 export interface Candidate {
   id: string;
   name: string;
   email: string;
   phone: string;
   appliedPosition: string;
+  jobRequisitionId?: string;
   experienceYears: number;
-  stage: 'Applied' | 'Screening' | 'Interview' | 'Technical' | 'Offer' | 'Hired';
+  stage: 'Applied' | 'Screening' | 'Interview' | 'Technical' | 'Offer' | 'Hired' | 'Rejected';
   rating: number;
   cvUrl?: string;
-  skills: string[];
+  skills?: string[];
+  skillsJson?: string;
   appliedDate: string;
+  expectedSalary?: string;
+  noticePeriod?: string;
   notes?: string;
+  convertedEmployeeId?: string;
+}
+
+export interface Interview {
+  id: string;
+  candidateId: string;
+  candidateName: string;
+  interviewType: 'Screening' | 'Technical' | 'HR' | 'Managerial' | 'Final';
+  scheduledTime: string;
+  interviewerName: string;
+  meetingLink?: string;
+  score: number;
+  status: 'Scheduled' | 'Completed' | 'Cancelled' | 'Rescheduled';
+  recommendation: 'Advance' | 'StrongHire' | 'Hire' | 'Hold' | 'Reject' | 'Pending';
+  feedbackNotes?: string;
+}
+
+export interface OfferLetter {
+  id: string;
+  offerCode: string;
+  candidateId: string;
+  candidateName: string;
+  positionTitle: string;
+  departmentName: string;
+  offeredBasicSalary: number;
+  housingAllowance: number;
+  transportAllowance: number;
+  totalMonthlyPackage: number;
+  proposedStartDate: string;
+  expiryDate: string;
+  status: 'Draft' | 'Sent' | 'Accepted' | 'Declined' | 'Expired';
+  acceptedAt?: string;
+  signedDocumentUrl?: string;
+  notes?: string;
+}
+
+export interface OnboardingTask {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  title: string;
+  category: 'IT' | 'HR' | 'Finance' | 'Admin' | 'Department';
+  assignedTo: string;
+  dueDate: string;
+  status: 'Pending' | 'InProgress' | 'Completed' | 'Blocked';
+  completedAt?: string;
+  notes?: string;
+}
+
+export interface OffboardingRequest {
+  id: string;
+  requestNumber: string;
+  employeeId: string;
+  employeeName: string;
+  departmentName: string;
+  resignationDate: string;
+  lastWorkingDay: string;
+  reason: string;
+  status: 'Submitted' | 'ClearanceInProgress' | 'ReadyForFinalSettlement' | 'FinanceApproved' | 'Finalized' | 'Cancelled';
+  itClearanceStatus: 'Pending' | 'Cleared';
+  adminClearanceStatus: 'Pending' | 'Cleared';
+  financeClearanceStatus: 'Pending' | 'Cleared';
+  outstandingLoanBalance: number;
+  accruedLeavePayout: number;
+  endOfServiceGratuity: number;
+  netFinalSettlement: number;
+  exitInterviewNotes?: string;
+}
+
+export interface EmployeeLoan {
+  id: string;
+  loanNumber: string;
+  employeeId: string;
+  employeeName: string;
+  loanType: 'Personal' | 'Advance' | 'Emergency' | 'Housing';
+  principalAmount: number;
+  totalInstallments: number;
+  monthlyInstallment: number;
+  totalPaidAmount: number;
+  remainingBalance: number;
+  startDeductionPeriod: string;
+  status: 'PendingApproval' | 'Approved' | 'Active' | 'FullyRepaid' | 'Rejected';
+  approvedBy?: string;
+  purpose?: string;
+  installments?: LoanInstallment[];
+}
+
+export interface LoanInstallment {
+  id: string;
+  loanId: string;
+  employeeId: string;
+  period: string;
+  installmentNumber: number;
+  amount: number;
+  dueDate: string;
+  isDeducted: boolean;
+  deductedAt?: string;
 }
 
 export interface Product {
@@ -299,3 +530,144 @@ export interface AuditLogEntry {
   timestamp: string;
   changesJson: string;
 }
+
+// ─── Performance & KPIs Models ───
+export interface PerformanceReview {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  reviewCycle: string;
+  periodStart: string;
+  periodEnd: string;
+  reviewerName: string;
+  selfRating: number;
+  managerRating: number;
+  finalRating: number;
+  status: 'Draft' | 'SelfAssessment' | 'ManagerReview' | 'Completed';
+  goalsAchievedPercentage: number;
+  strengths: string;
+  areasForImprovement: string;
+  promotionRecommended: boolean;
+  managerFeedback: string;
+  completedAt?: string;
+}
+
+export interface PerformanceGoal {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  title: string;
+  description: string;
+  category: 'Strategic' | 'Operational' | 'Learning' | 'KPI';
+  weight: number;
+  targetValue: number;
+  currentValue: number;
+  metricUnit: string;
+  dueDate: string;
+  status: 'NotStarted' | 'InProgress' | 'Achieved' | 'Behind';
+  score?: number;
+}
+
+// ─── Learning & Development (L&D) Models ───
+export interface TrainingCourse {
+  id: string;
+  courseCode: string;
+  title: string;
+  description: string;
+  category: 'Technical' | 'Compliance' | 'Leadership' | 'SoftSkills';
+  trainerName: string;
+  durationHours: number;
+  costPerAttendee: number;
+  maxAttendees: number;
+  deliveryMethod: 'Online' | 'Classroom' | 'Hybrid';
+  status: 'Active' | 'Upcoming' | 'Completed' | 'Archived';
+  passingScore: number;
+}
+
+export interface TrainingEnrollment {
+  id: string;
+  courseId: string;
+  courseTitle: string;
+  employeeId: string;
+  employeeName: string;
+  enrollmentDate: string;
+  completionDate?: string;
+  status: 'Enrolled' | 'InProgress' | 'Completed' | 'Failed' | 'Cancelled';
+  score: number;
+  certificateIssued: boolean;
+  feedback?: string;
+}
+
+export interface EmployeeCertification {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  certificationName: string;
+  issuingOrganization: string;
+  issueDate: string;
+  expiryDate?: string;
+  credentialId: string;
+  certificateUrl?: string;
+  status: 'Active' | 'ExpiringSoon' | 'Expired';
+}
+
+// ─── Benefits & Corporate Insurance Models ───
+export interface BenefitPlan {
+  id: string;
+  planCode: string;
+  planName: string;
+  category: 'MedicalInsurance' | 'LifeInsurance' | 'Retirement' | 'GymWellness' | 'Allowance';
+  providerName: string;
+  coverageDetails: string;
+  employerContributionMonthly: number;
+  employeeContributionMonthly: number;
+  isActive: boolean;
+}
+
+export interface EmployeeBenefit {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  benefitPlanId: string;
+  planName: string;
+  category: string;
+  enrollmentDate: string;
+  coverageAmount: number;
+  employerContribution: number;
+  employeeDeduction: number;
+  status: 'Active' | 'Terminated' | 'Suspended';
+}
+
+// ─── Work Shifts Models ───
+export interface WorkShift {
+  id: string;
+  shiftCode: string;
+  shiftName: string;
+  startTime: string;
+  endTime: string;
+  breakMinutes: number;
+  isNightShift: boolean;
+  isActive: boolean;
+}
+
+export interface ShiftAssignment {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  workShiftId: string;
+  shiftName: string;
+  startDate: string;
+  endDate?: string;
+  notes?: string;
+}
+
+// ─── Self-Service (MSS / ESS) Models ───
+export interface TeamSummary {
+  totalDirectReports: number;
+  presentToday: number;
+  onLeaveToday: number;
+  pendingLeaveApprovals: number;
+  pendingActionApprovals: number;
+  teamMembers: Employee[];
+}
+

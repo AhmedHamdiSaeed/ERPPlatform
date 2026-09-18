@@ -284,6 +284,90 @@ export class AuthService {
     this.state.loadAppConfig().catch(err => console.warn('App config load warning:', err));
   }
 
+  /**
+   * Requests a password reset link to be sent to the given email.
+   * Anti-enumeration safe: Returns success regardless of whether the email exists.
+   */
+  async requestPasswordReset(email: string, tenantName?: string): Promise<ApiResult<any>> {
+    const activeTenant = tenantName?.trim() || this.extractTenantFromUrl() || this.getTenant() || '';
+    const url = `${environment.apis.default.url}/api/auth/forgot-password`;
+    const headers = this.buildHeaders(activeTenant);
+    const body = {
+      email: email.trim(),
+      tenantName: activeTenant || null,
+      returnUrl: typeof window !== 'undefined' ? `${window.location.origin}/auth/reset-password` : undefined
+    };
+
+    try {
+      const response = await firstValueFrom(
+        this.http.post<ApiResult<any>>(url, body, { headers })
+      );
+      return response;
+    } catch (error: any) {
+      if (error.status === 429) {
+        return {
+          success: false,
+          statusCode: 429,
+          message: error.error?.message || 'Too many password reset requests. Please wait a few minutes before trying again.'
+        };
+      }
+      return {
+        success: true, // Maintain anti-enumeration UX on client side
+        statusCode: 200,
+        message: 'If an account exists for this email, we’ll send you a password reset link.'
+      };
+    }
+  }
+
+  /**
+   * Validates if the password reset token is active and unexpired.
+   */
+  async validateResetToken(token: string): Promise<ApiResult<{ isValid: boolean; email?: string; tenantName?: string }>> {
+    const url = `${environment.apis.default.url}/api/auth/validate-reset-token?token=${encodeURIComponent(token.trim())}`;
+    try {
+      const response = await firstValueFrom(
+        this.http.get<ApiResult<{ isValid: boolean; email?: string; tenantName?: string }>>(url)
+      );
+      return response;
+    } catch (error: any) {
+      return {
+        success: false,
+        statusCode: error.status || 400,
+        message: error.error?.message || 'The password reset link is invalid or has expired.',
+        data: { isValid: false }
+      };
+    }
+  }
+
+  /**
+   * Resets password using the secure single-use token.
+   */
+  async resetPassword(token: string, newPassword: string, tenantName?: string): Promise<ApiResult<any>> {
+    const activeTenant = tenantName?.trim() || this.extractTenantFromUrl() || this.getTenant() || '';
+    const url = `${environment.apis.default.url}/api/auth/reset-password`;
+    const headers = this.buildHeaders(activeTenant);
+    const body = {
+      token: token.trim(),
+      newPassword,
+      tenantName: activeTenant || null
+    };
+
+    try {
+      const response = await firstValueFrom(
+        this.http.post<ApiResult<any>>(url, body, { headers })
+      );
+      return response;
+    } catch (error: any) {
+      const errorMsg = error.error?.message || error.error?.errors?.[0] || 'Failed to reset password. The link may have expired.';
+      return {
+        success: false,
+        statusCode: error.status || 400,
+        message: errorMsg,
+        errors: error.error?.errors
+      };
+    }
+  }
+
   private clearTokens(): void {
     if (typeof localStorage !== 'undefined') {
       localStorage.removeItem(this.tokenKey);

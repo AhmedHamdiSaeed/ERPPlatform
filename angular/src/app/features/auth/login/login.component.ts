@@ -22,10 +22,15 @@ export class LoginComponent implements OnInit {
   errorMessage = signal('');
   sessionNotice = signal('');
   tenantName = signal('');
+  showPassword = signal(false);
 
   /** Page the user was heading to before the session ended. */
   private returnUrl = '';
   hasReturnUrl = signal(false);
+
+  togglePasswordVisibility() {
+    this.showPassword.set(!this.showPassword());
+  }
 
   loginForm = this.fb.group({
     email: ['admin@erpplatform.com', [Validators.required]],

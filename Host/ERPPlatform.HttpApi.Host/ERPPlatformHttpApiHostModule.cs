@@ -215,6 +215,16 @@ public class ERPPlatformHttpApiHostModule : AbpModule
 
         // Register custom SignalR user ID provider for user-targeted push
         context.Services.AddSingleton<Microsoft.AspNetCore.SignalR.IUserIdProvider, AbpUserIdProvider>();
+
+        Configure<Microsoft.AspNetCore.Identity.IdentityOptions>(options =>
+        {
+            options.Password.RequireDigit = false;
+            options.Password.RequireLowercase = false;
+            options.Password.RequireNonAlphanumeric = false;
+            options.Password.RequireUppercase = false;
+            options.Password.RequiredLength = 6;
+            options.Password.RequiredUniqueChars = 1;
+        });
     }
 
     private void ConfigureAuthentication(ServiceConfigurationContext context)

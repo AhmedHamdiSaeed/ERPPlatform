@@ -53,6 +53,24 @@ export class RecruitmentApiService extends ErpApiService {
     ).then(mapCandidate);
   }
 
+  convertCandidateToEmployee(candidateId: string, input: {
+    employeeCode?: string;
+    departmentId?: string;
+    departmentName: string;
+    agreedBasicSalary: number;
+    housingAllowance: number;
+    transportAllowance: number;
+    joiningDate: string;
+    employmentType: string;
+    jobGradeName?: string;
+  }): Promise<any> {
+    return this.post(`candidate/${candidateId}/convert-to-employee`, input);
+  }
+
+  getRequisitions(): Promise<any[]> {
+    return this.getList('job-requisition');
+  }
+
   deleteCandidate(id: string): Promise<void> {
     return this.delete(`candidate/${id}`);
   }

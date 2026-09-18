@@ -55,6 +55,11 @@ public class ERPPlatformDbContext :
     public DbSet<Department> Departments { get; set; }
     public DbSet<LeaveRequest> LeaveRequests { get; set; }
     public DbSet<Attendance> Attendances { get; set; }
+    public DbSet<JobGrade> JobGrades { get; set; }
+    public DbSet<JobPosition> JobPositions { get; set; }
+    public DbSet<EmployeeContract> EmployeeContracts { get; set; }
+    public DbSet<HrAction> HrActions { get; set; }
+    public DbSet<EmployeeDocument> EmployeeDocuments { get; set; }
 
     // Organization Setup DbSets
     public DbSet<CompanyGroup> CompanyGroups { get; set; }
@@ -152,7 +157,14 @@ public class ERPPlatformDbContext :
     public DbSet<LeavePolicy> LeavePolicies { get; set; }
 
     // Recruitment, Execution History & Report Catalog DbSets
+    public DbSet<JobRequisition> JobRequisitions { get; set; }
     public DbSet<Candidate> Candidates { get; set; }
+    public DbSet<Interview> Interviews { get; set; }
+    public DbSet<OfferLetter> OfferLetters { get; set; }
+    public DbSet<OnboardingTask> OnboardingTasks { get; set; }
+    public DbSet<OffboardingRequest> OffboardingRequests { get; set; }
+    public DbSet<EmployeeLoan> EmployeeLoans { get; set; }
+    public DbSet<LoanInstallment> LoanInstallments { get; set; }
     public DbSet<WorkflowExecutionLog> WorkflowExecutionLogs { get; set; }
     public DbSet<WorkflowExecutionStep> WorkflowExecutionSteps { get; set; }
     public DbSet<ReportDefinition> ReportDefinitions { get; set; }
@@ -170,6 +182,17 @@ public class ERPPlatformDbContext :
     public DbSet<EmployeeSalaryComponent> EmployeeSalaryComponents { get; set; }
     public DbSet<PayslipLine> PayslipLines { get; set; }
     public DbSet<PayrollAnomaly> PayrollAnomalies { get; set; }
+
+    // Performance, Training, Benefits & Shifts DbSets
+    public DbSet<PerformanceReview> PerformanceReviews { get; set; }
+    public DbSet<PerformanceGoal> PerformanceGoals { get; set; }
+    public DbSet<TrainingCourse> TrainingCourses { get; set; }
+    public DbSet<TrainingEnrollment> TrainingEnrollments { get; set; }
+    public DbSet<EmployeeCertification> EmployeeCertifications { get; set; }
+    public DbSet<BenefitPlan> BenefitPlans { get; set; }
+    public DbSet<EmployeeBenefit> EmployeeBenefits { get; set; }
+    public DbSet<WorkShift> WorkShifts { get; set; }
+    public DbSet<ShiftAssignment> ShiftAssignments { get; set; }
 
     public ERPPlatformDbContext(DbContextOptions<ERPPlatformDbContext> options)
         : base(options)
@@ -254,6 +277,82 @@ public class ERPPlatformDbContext :
         builder.Entity<Payment>(b =>
         {
             b.HasIndex(x => x.SalesInvoiceId);
+        });
+
+        builder.Entity<EmployeeContract>(b =>
+        {
+            b.HasIndex(x => x.EmployeeId);
+            b.HasIndex(x => x.ContractNumber);
+        });
+
+        builder.Entity<HrAction>(b =>
+        {
+            b.HasIndex(x => x.EmployeeId);
+            b.HasIndex(x => x.ActionCode);
+        });
+
+        builder.Entity<EmployeeDocument>(b =>
+        {
+            b.HasIndex(x => x.EmployeeId);
+            b.HasIndex(x => x.DocumentType);
+        });
+
+        builder.Entity<JobPosition>(b =>
+        {
+            b.HasIndex(x => x.Code);
+            b.HasIndex(x => x.DepartmentId);
+        });
+
+        builder.Entity<JobGrade>(b =>
+        {
+            b.HasIndex(x => x.GradeCode);
+        });
+
+        builder.Entity<JobRequisition>(b =>
+        {
+            b.HasIndex(x => x.RequisitionCode);
+            b.HasIndex(x => x.DepartmentId);
+        });
+
+        builder.Entity<Candidate>(b =>
+        {
+            b.HasIndex(x => x.JobRequisitionId);
+            b.HasIndex(x => x.Stage);
+        });
+
+        builder.Entity<Interview>(b =>
+        {
+            b.HasIndex(x => x.CandidateId);
+        });
+
+        builder.Entity<OfferLetter>(b =>
+        {
+            b.HasIndex(x => x.CandidateId);
+            b.HasIndex(x => x.OfferCode);
+        });
+
+        builder.Entity<OnboardingTask>(b =>
+        {
+            b.HasIndex(x => x.EmployeeId);
+        });
+
+        builder.Entity<OffboardingRequest>(b =>
+        {
+            b.HasIndex(x => x.EmployeeId);
+            b.HasIndex(x => x.RequestNumber);
+        });
+
+        builder.Entity<EmployeeLoan>(b =>
+        {
+            b.HasIndex(x => x.EmployeeId);
+            b.HasIndex(x => x.LoanNumber);
+        });
+
+        builder.Entity<LoanInstallment>(b =>
+        {
+            b.HasIndex(x => x.LoanId);
+            b.HasIndex(x => x.EmployeeId);
+            b.HasIndex(x => x.Period);
         });
 
         builder.Entity<AiChatSession>(b =>

@@ -161,6 +161,26 @@ export const appRoutes: Routes = [
         path: 'hr/recruitment',
         loadComponent: () => import('./features/hr/recruitment/recruitment-kanban.component').then(m => m.RecruitmentKanbanComponent)
       },
+      {
+        path: 'hr/performance',
+        loadComponent: () => import('./features/hr/performance/performance.component').then(m => m.PerformanceComponent)
+      },
+      {
+        path: 'hr/training',
+        loadComponent: () => import('./features/hr/training/training.component').then(m => m.TrainingComponent)
+      },
+      {
+        path: 'hr/benefits',
+        loadComponent: () => import('./features/hr/benefits/benefits.component').then(m => m.BenefitsComponent)
+      },
+      {
+        path: 'hr/ess',
+        loadComponent: () => import('./features/hr/self-service/ess-portal.component').then(m => m.EssPortalComponent)
+      },
+      {
+        path: 'hr/mss',
+        loadComponent: () => import('./features/hr/self-service/mss-portal.component').then(m => m.MssPortalComponent)
+      },
 
       // ─── Inventory & Purchasing Module ───
       {

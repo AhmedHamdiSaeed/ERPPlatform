@@ -39,13 +39,15 @@ export class UserManagementComponent implements OnInit {
   searchQuery = signal('');
   showModal = signal(false);
   loading = signal(false);
+  showPassword = signal(false);
+  copiedPassword = signal(false);
 
   newUser: Partial<UserAccount> & { password?: string } = {
     name: '',
     userName: '',
     email: '',
     role: 'Employee',
-    password: '',
+    password: 'User123!',
     isActive: true
   };
 
@@ -110,6 +112,8 @@ export class UserManagementComponent implements OnInit {
   }
 
   openAddModal() {
+    this.showPassword.set(false);
+    this.copiedPassword.set(false);
     this.newUser = {
       name: '',
       userName: '',
@@ -121,6 +125,32 @@ export class UserManagementComponent implements OnInit {
     this.showModal.set(true);
   }
 
+  generateSecurePassword() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%&*';
+    let pass = 'Pass';
+    for (let i = 0; i < 6; i++) {
+      pass += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    pass += '!1';
+    this.newUser.password = pass;
+    this.showPassword.set(true);
+    this.toast.info(`Generated password: ${pass}`);
+  }
+
+  copyPassword() {
+    if (!this.newUser.password) return;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(this.newUser.password);
+      this.copiedPassword.set(true);
+      this.toast.success('Password copied to clipboard!');
+      setTimeout(() => this.copiedPassword.set(false), 2500);
+    }
+  }
+
+  togglePasswordVisibility() {
+    this.showPassword.set(!this.showPassword());
+  }
+
   async saveUser() {
     if (!this.newUser.name || !this.newUser.email) {
       this.toast.warning('Please provide both name and email.');
@@ -130,6 +160,7 @@ export class UserManagementComponent implements OnInit {
     const email = this.newUser.email.trim();
     const userName = this.newUser.userName || email.split('@')[0];
     const roleName = this.newUser.role || 'Employee';
+    const password = this.newUser.password || 'User123!';
 
     try {
       const payload = {
@@ -137,7 +168,7 @@ export class UserManagementComponent implements OnInit {
         name: this.newUser.name,
         surname: '',
         email: email,
-        password: this.newUser.password || 'User123!',
+        password: password,
         isActive: true,
         roleNames: [roleName]
       };
@@ -156,7 +187,7 @@ export class UserManagementComponent implements OnInit {
       };
 
       this.users.update(list => [userAccount, ...list]);
-      this.toast.success(`User "${userAccount.name}" created and assigned role "${roleName}".`);
+      this.toast.success(`User "${userAccount.name}" created with password "${password}".`);
       this.showModal.set(false);
     } catch (err) {
       console.error('Failed to save user via API', err);
@@ -170,7 +201,7 @@ export class UserManagementComponent implements OnInit {
         isActive: true
       };
       this.users.update(list => [created, ...list]);
-      this.toast.success(`User "${created.name}" registered and assigned role "${roleName}".`);
+      this.toast.success(`User "${created.name}" registered with password "${password}".`);
       this.showModal.set(false);
     }
   }

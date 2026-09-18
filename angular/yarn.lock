@@ -1716,7 +1716,7 @@
     "@jridgewell/gen-mapping" "^0.3.5"
     "@jridgewell/trace-mapping" "^0.3.25"
 
-"@jridgewell/sourcemap-codec@^1.4.14", "@jridgewell/sourcemap-codec@^1.5.0", "@jridgewell/sourcemap-codec@^1.5.5":
+"@jridgewell/sourcemap-codec@^1.4.14", "@jridgewell/sourcemap-codec@^1.5.0":
   version "1.5.5"
   resolved "https://registry.npmjs.org/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.5.5.tgz"
   integrity sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og==
@@ -2275,53 +2275,6 @@
   integrity sha512-4BAffykYOgO+5nzBWYwE3W90sBgLJoUPRWWcL8wlyiM8IB8ipJz3UMJ9KXQd1RKQXpKp8Tutn80HZtWsu2u76w==
   dependencies:
     defer-to-connect "^2.0.0"
-
-"@tailwindcss/node@4.3.3":
-  version "4.3.3"
-  resolved "https://registry.npmjs.org/@tailwindcss/node/-/node-4.3.3.tgz"
-  integrity sha512-/T8IKEsf9VTU6tLjgC7+sv2mOPtQxzE2jMw7u4Tt40Tx+QSZxpzh95/H6cMKoja9XuW7iMdLJYBB0o9G1CaAgg==
-  dependencies:
-    "@jridgewell/remapping" "^2.3.5"
-    enhanced-resolve "^5.24.1"
-    jiti "^2.7.0"
-    lightningcss "1.32.0"
-    magic-string "^0.30.21"
-    source-map-js "^1.2.1"
-    tailwindcss "4.3.3"
-
-"@tailwindcss/oxide-win32-x64-msvc@4.3.3":
-  version "4.3.3"
-  resolved "https://registry.npmjs.org/@tailwindcss/oxide-win32-x64-msvc/-/oxide-win32-x64-msvc-4.3.3.tgz"
-  integrity sha512-yJ0pwIVc/nYeGoV02WtsN8KYyLQv7kyI2wDnkezyJlGGjkd4QLwDGAwl47YpPJeuI0M0ObaXGSPjvWDPeTPggw==
-
-"@tailwindcss/oxide@4.3.3":
-  version "4.3.3"
-  resolved "https://registry.npmjs.org/@tailwindcss/oxide/-/oxide-4.3.3.tgz"
-  integrity sha512-krXjAikiaFSPaK/FkAQT5UTx3VormQaiZ5hBFlJZ9UFQGB/rwg1MZIhHAG9smMQRTdyJxP6Qt5MwMtdyU5FWrA==
-  optionalDependencies:
-    "@tailwindcss/oxide-android-arm64" "4.3.3"
-    "@tailwindcss/oxide-darwin-arm64" "4.3.3"
-    "@tailwindcss/oxide-darwin-x64" "4.3.3"
-    "@tailwindcss/oxide-freebsd-x64" "4.3.3"
-    "@tailwindcss/oxide-linux-arm-gnueabihf" "4.3.3"
-    "@tailwindcss/oxide-linux-arm64-gnu" "4.3.3"
-    "@tailwindcss/oxide-linux-arm64-musl" "4.3.3"
-    "@tailwindcss/oxide-linux-x64-gnu" "4.3.3"
-    "@tailwindcss/oxide-linux-x64-musl" "4.3.3"
-    "@tailwindcss/oxide-wasm32-wasi" "4.3.3"
-    "@tailwindcss/oxide-win32-arm64-msvc" "4.3.3"
-    "@tailwindcss/oxide-win32-x64-msvc" "4.3.3"
-
-"@tailwindcss/postcss@^4.3.3":
-  version "4.3.3"
-  resolved "https://registry.npmjs.org/@tailwindcss/postcss/-/postcss-4.3.3.tgz"
-  integrity sha512-JTSZZGQi1AyKirbLN3azmjVzef92tcX7h+iSqPdaeStyFpGpDlKvvpxeOE8njhbUanbRwr3z8DyzhICWnMtQeg==
-  dependencies:
-    "@alloc/quick-lru" "^5.2.0"
-    "@tailwindcss/node" "4.3.3"
-    "@tailwindcss/oxide" "4.3.3"
-    postcss "^8.5.16"
-    tailwindcss "4.3.3"
 
 "@tufjs/canonical-json@2.0.0":
   version "2.0.0"
@@ -3963,7 +3916,7 @@ engine.io@~6.6.0:
     engine.io-parser "~5.2.1"
     ws "~8.21.0"
 
-enhanced-resolve@^5.17.1, enhanced-resolve@^5.24.1:
+enhanced-resolve@^5.17.1:
   version "5.24.5"
   resolved "https://registry.npmjs.org/enhanced-resolve/-/enhanced-resolve-5.24.5.tgz"
   integrity sha512-L1l8TNvomm6UVW5B253AGxQagSQr+vGwhMlrrfRS2qmhx46AMpMVJKQYLvWYbysTMY8VoicOvzHzoHMbyzB+4A==
@@ -5170,11 +5123,6 @@ jiti@^1.20.0, jiti@^1.21.6:
   resolved "https://registry.npmjs.org/jiti/-/jiti-1.21.7.tgz"
   integrity sha512-/imKNG4EbWNrVjoNC/1H5/9GFy+tqjGBHCaSsN+P2RnPqjsLmv6UD3Ej+Kj8nBWaRAwyk7kK5ZUc+OEatnTR3A==
 
-jiti@^2.7.0:
-  version "2.7.0"
-  resolved "https://registry.npmjs.org/jiti/-/jiti-2.7.0.tgz"
-  integrity sha512-AC/7JofJvZGrrneWNaEnJeOLUx+JlGt7tNa0wZiRPT4MY1wmfKjt2+6O2p2uz2+skll8OZZmJMNqeke7kKbNgQ==
-
 js-tokens@^4.0.0:
   version "4.0.0"
   resolved "https://registry.npmjs.org/js-tokens/-/js-tokens-4.0.0.tgz"
@@ -5384,30 +5332,6 @@ license-webpack-plugin@4.0.2:
   dependencies:
     webpack-sources "^3.0.0"
 
-lightningcss-win32-x64-msvc@1.32.0:
-  version "1.32.0"
-  resolved "https://registry.npmjs.org/lightningcss-win32-x64-msvc/-/lightningcss-win32-x64-msvc-1.32.0.tgz"
-  integrity sha512-Amq9B/SoZYdDi1kFrojnoqPLxYhQ4Wo5XiL8EVJrVsB8ARoC1PWW6VGtT0WKCemjy8aC+louJnjS7U18x3b06Q==
-
-lightningcss@1.32.0:
-  version "1.32.0"
-  resolved "https://registry.npmjs.org/lightningcss/-/lightningcss-1.32.0.tgz"
-  integrity sha512-NXYBzinNrblfraPGyrbPoD19C1h9lfI/1mzgWYvXUTe414Gz/X1FD2XBZSZM7rRTrMA8JL3OtAaGifrIKhQ5yQ==
-  dependencies:
-    detect-libc "^2.0.3"
-  optionalDependencies:
-    lightningcss-android-arm64 "1.32.0"
-    lightningcss-darwin-arm64 "1.32.0"
-    lightningcss-darwin-x64 "1.32.0"
-    lightningcss-freebsd-x64 "1.32.0"
-    lightningcss-linux-arm-gnueabihf "1.32.0"
-    lightningcss-linux-arm64-gnu "1.32.0"
-    lightningcss-linux-arm64-musl "1.32.0"
-    lightningcss-linux-x64-gnu "1.32.0"
-    lightningcss-linux-x64-musl "1.32.0"
-    lightningcss-win32-arm64-msvc "1.32.0"
-    lightningcss-win32-x64-msvc "1.32.0"
-
 lilconfig@^3.0.0, lilconfig@^3.1.3:
   version "3.1.3"
   resolved "https://registry.npmjs.org/lilconfig/-/lilconfig-3.1.3.tgz"
@@ -5541,13 +5465,6 @@ luxon@^3.0.0:
   version "3.7.2"
   resolved "https://registry.npmjs.org/luxon/-/luxon-3.7.2.tgz"
   integrity sha512-vtEhXh/gNjI9Yg1u4jX/0YVPMvxzHuGgCm6tC5kZyb08yjGWGnqAjGJvcXbqQR2P3MyMEFnRbpcdFS6PBcLqew==
-
-magic-string@^0.30.21:
-  version "0.30.21"
-  resolved "https://registry.npmjs.org/magic-string/-/magic-string-0.30.21.tgz"
-  integrity sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==
-  dependencies:
-    "@jridgewell/sourcemap-codec" "^1.5.5"
 
 magic-string@0.30.17:
   version "0.30.17"
@@ -6510,15 +6427,6 @@ postcss@^8.4.47:
     source-map-js "^1.2.1"
 
 postcss@^8.4.49:
-  version "8.5.28"
-  resolved "https://registry.npmjs.org/postcss/-/postcss-8.5.28.tgz"
-  integrity sha512-RRuzqDtt5Y9h3quz5hWhK+TPnsmVs6WwSU6LkJMeY4HstUEDuYTG8UJSdawMRzmzAtV+KEoG8N3Qg2qLy5vM/A==
-  dependencies:
-    nanoid "^3.3.18"
-    picocolors "^1.1.1"
-    source-map-js "^1.2.1"
-
-postcss@^8.5.16:
   version "8.5.28"
   resolved "https://registry.npmjs.org/postcss/-/postcss-8.5.28.tgz"
   integrity sha512-RRuzqDtt5Y9h3quz5hWhK+TPnsmVs6WwSU6LkJMeY4HstUEDuYTG8UJSdawMRzmzAtV+KEoG8N3Qg2qLy5vM/A==
@@ -7548,11 +7456,6 @@ tailwindcss@^3.4.17:
     postcss-selector-parser "^6.1.2"
     resolve "^1.22.8"
     sucrase "^3.35.0"
-
-tailwindcss@4.3.3:
-  version "4.3.3"
-  resolved "https://registry.npmjs.org/tailwindcss/-/tailwindcss-4.3.3.tgz"
-  integrity sha512-gOhV3P7ufE62QDGg1zVaTgCR+EtPv92k2nIhVcVKcLmxT1sUBsQGhnZj175j+MqRt4zLF7ic+sCYjfhxMxj7YQ==
 
 tapable@^2.1.1, tapable@^2.2.1, tapable@^2.3.3:
   version "2.3.3"

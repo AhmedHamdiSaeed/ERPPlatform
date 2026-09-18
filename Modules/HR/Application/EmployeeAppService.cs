@@ -17,7 +17,10 @@ namespace ERPPlatform.Modules.HR.Application
         public string Email { get; set; } = string.Empty;
         public string Phone { get; set; } = string.Empty;
         public string Position { get; set; } = string.Empty;
+        public Guid? DepartmentId { get; set; }
         public string DepartmentName { get; set; } = string.Empty;
+        public Guid? BranchId { get; set; }
+        public string BranchName { get; set; } = string.Empty;
         public decimal Salary { get; set; }
         public DateTime JoiningDate { get; set; }
         public string Status { get; set; } = "Active";
@@ -25,6 +28,28 @@ namespace ERPPlatform.Modules.HR.Application
         public string ManagerName { get; set; } = string.Empty;
         public string Location { get; set; } = "Cairo HQ";
         public decimal LeaveBalance { get; set; } = 21.0m;
+
+        // Master Data Enrichment
+        public string NationalId { get; set; } = string.Empty;
+        public string PassportNumber { get; set; } = string.Empty;
+        public string Nationality { get; set; } = "Egyptian";
+        public DateTime? DateOfBirth { get; set; }
+        public string Gender { get; set; } = "Male";
+        public string MaritalStatus { get; set; } = "Single";
+        public string EmergencyContactName { get; set; } = string.Empty;
+        public string EmergencyContactPhone { get; set; } = string.Empty;
+        public string EmergencyContactRelation { get; set; } = string.Empty;
+        public string BankName { get; set; } = string.Empty;
+        public string BankAccountNumber { get; set; } = string.Empty;
+        public string Iban { get; set; } = string.Empty;
+        public string SwiftCode { get; set; } = string.Empty;
+        public string EmploymentType { get; set; } = "FullTime";
+        public DateTime? ProbationEndDate { get; set; }
+        public DateTime? ContractEndDate { get; set; }
+        public Guid? JobGradeId { get; set; }
+        public string JobGradeName { get; set; } = string.Empty;
+        public string CostCenterCode { get; set; } = string.Empty;
+        public int NoticePeriodDays { get; set; } = 30;
     }
 
     public class CreateUpdateEmployeeDto
@@ -34,11 +59,39 @@ namespace ERPPlatform.Modules.HR.Application
         public string Email { get; set; } = string.Empty;
         public string Phone { get; set; } = string.Empty;
         public string Position { get; set; } = string.Empty;
+        public Guid? DepartmentId { get; set; }
         public string DepartmentName { get; set; } = string.Empty;
+        public Guid? BranchId { get; set; }
+        public string BranchName { get; set; } = string.Empty;
         public decimal Salary { get; set; }
         public DateTime JoiningDate { get; set; }
         public string Status { get; set; } = "Active";
+        public string Avatar { get; set; } = string.Empty;
+        public string ManagerName { get; set; } = string.Empty;
+        public string Location { get; set; } = "Cairo HQ";
         public decimal LeaveBalance { get; set; } = 21.0m;
+
+        // Master Data Fields
+        public string NationalId { get; set; } = string.Empty;
+        public string PassportNumber { get; set; } = string.Empty;
+        public string Nationality { get; set; } = "Egyptian";
+        public DateTime? DateOfBirth { get; set; }
+        public string Gender { get; set; } = "Male";
+        public string MaritalStatus { get; set; } = "Single";
+        public string EmergencyContactName { get; set; } = string.Empty;
+        public string EmergencyContactPhone { get; set; } = string.Empty;
+        public string EmergencyContactRelation { get; set; } = string.Empty;
+        public string BankName { get; set; } = string.Empty;
+        public string BankAccountNumber { get; set; } = string.Empty;
+        public string Iban { get; set; } = string.Empty;
+        public string SwiftCode { get; set; } = string.Empty;
+        public string EmploymentType { get; set; } = "FullTime";
+        public DateTime? ProbationEndDate { get; set; }
+        public DateTime? ContractEndDate { get; set; }
+        public Guid? JobGradeId { get; set; }
+        public string JobGradeName { get; set; } = string.Empty;
+        public string CostCenterCode { get; set; } = string.Empty;
+        public int NoticePeriodDays { get; set; } = 30;
     }
 
     public class EmployeeGetListInput : PagedAndSortedResultRequestDto
@@ -47,6 +100,7 @@ namespace ERPPlatform.Modules.HR.Application
         public string Status { get; set; } = string.Empty; // Active, Inactive, Terminated
         public string DepartmentName { get; set; } = string.Empty;
         public string Position { get; set; } = string.Empty;
+        public string EmploymentType { get; set; } = string.Empty;
         public DateTime? JoiningDateFrom { get; set; }
         public DateTime? JoiningDateTo { get; set; }
     }
@@ -84,7 +138,8 @@ namespace ERPPlatform.Modules.HR.Application
                     (e.Name ?? "").ToLower().Contains(filter) ||
                     (e.Email ?? "").ToLower().Contains(filter) ||
                     (e.Phone ?? "").ToLower().Contains(filter) ||
-                    (e.EmployeeCode ?? "").ToLower().Contains(filter));
+                    (e.EmployeeCode ?? "").ToLower().Contains(filter) ||
+                    (e.NationalId ?? "").ToLower().Contains(filter));
             }
 
             if (!string.IsNullOrWhiteSpace(input.Status))
@@ -100,6 +155,11 @@ namespace ERPPlatform.Modules.HR.Application
             if (!string.IsNullOrWhiteSpace(input.Position))
             {
                 query = query.Where(e => e.Position == input.Position);
+            }
+
+            if (!string.IsNullOrWhiteSpace(input.EmploymentType))
+            {
+                query = query.Where(e => e.EmploymentType == input.EmploymentType);
             }
 
             if (input.JoiningDateFrom.HasValue)
@@ -140,25 +200,53 @@ namespace ERPPlatform.Modules.HR.Application
                 .Take(input.MaxResultCount)
                 .ToList();
 
-            var dtos = items.Select(e => new EmployeeDto
-            {
-                Id = e.Id,
-                EmployeeCode = e.EmployeeCode,
-                Name = e.Name,
-                Email = e.Email,
-                Phone = e.Phone,
-                Position = e.Position,
-                DepartmentName = e.DepartmentName,
-                Salary = e.Salary,
-                JoiningDate = e.JoiningDate,
-                Status = e.Status,
-                Avatar = e.Avatar,
-                ManagerName = e.ManagerName,
-                Location = e.Location,
-                LeaveBalance = e.LeaveBalance
-            }).ToList();
+            var dtos = items.Select(e => MapEntityToDto(e)).ToList();
 
             return new PagedResultDto<EmployeeDto>(totalCount, dtos);
+        }
+
+        private static EmployeeDto MapEntityToDto(Employee entity)
+        {
+            return new EmployeeDto
+            {
+                Id = entity.Id,
+                EmployeeCode = entity.EmployeeCode,
+                Name = entity.Name,
+                Email = entity.Email,
+                Phone = entity.Phone,
+                Position = entity.Position,
+                DepartmentId = entity.DepartmentId,
+                DepartmentName = entity.DepartmentName,
+                BranchId = entity.BranchId,
+                BranchName = entity.BranchName,
+                Salary = entity.Salary,
+                JoiningDate = entity.JoiningDate,
+                Status = entity.Status,
+                Avatar = entity.Avatar,
+                ManagerName = entity.ManagerName,
+                Location = entity.Location,
+                LeaveBalance = entity.LeaveBalance,
+                NationalId = entity.NationalId,
+                PassportNumber = entity.PassportNumber,
+                Nationality = entity.Nationality,
+                DateOfBirth = entity.DateOfBirth,
+                Gender = entity.Gender,
+                MaritalStatus = entity.MaritalStatus,
+                EmergencyContactName = entity.EmergencyContactName,
+                EmergencyContactPhone = entity.EmergencyContactPhone,
+                EmergencyContactRelation = entity.EmergencyContactRelation,
+                BankName = entity.BankName,
+                BankAccountNumber = entity.BankAccountNumber,
+                Iban = entity.Iban,
+                SwiftCode = entity.SwiftCode,
+                EmploymentType = entity.EmploymentType,
+                ProbationEndDate = entity.ProbationEndDate,
+                ContractEndDate = entity.ContractEndDate,
+                JobGradeId = entity.JobGradeId,
+                JobGradeName = entity.JobGradeName,
+                CostCenterCode = entity.CostCenterCode,
+                NoticePeriodDays = entity.NoticePeriodDays
+            };
         }
 
         protected override Task<Employee> MapToEntityAsync(CreateUpdateEmployeeDto createInput)
@@ -170,12 +258,37 @@ namespace ERPPlatform.Modules.HR.Application
                 Email = createInput.Email,
                 Phone = createInput.Phone,
                 Position = createInput.Position,
+                DepartmentId = createInput.DepartmentId,
                 DepartmentName = createInput.DepartmentName,
+                BranchId = createInput.BranchId,
+                BranchName = createInput.BranchName,
                 Salary = createInput.Salary,
                 Status = string.IsNullOrWhiteSpace(createInput.Status) ? "Active" : createInput.Status,
-                Location = "Cairo HQ",
+                Location = string.IsNullOrWhiteSpace(createInput.Location) ? "Cairo HQ" : createInput.Location,
                 JoiningDate = createInput.JoiningDate != default ? createInput.JoiningDate : DateTime.UtcNow,
-                LeaveBalance = createInput.LeaveBalance > 0 ? createInput.LeaveBalance : 21.0m
+                LeaveBalance = createInput.LeaveBalance > 0 ? createInput.LeaveBalance : 21.0m,
+                Avatar = createInput.Avatar,
+                ManagerName = createInput.ManagerName,
+                NationalId = createInput.NationalId,
+                PassportNumber = createInput.PassportNumber,
+                Nationality = string.IsNullOrWhiteSpace(createInput.Nationality) ? "Egyptian" : createInput.Nationality,
+                DateOfBirth = createInput.DateOfBirth,
+                Gender = string.IsNullOrWhiteSpace(createInput.Gender) ? "Male" : createInput.Gender,
+                MaritalStatus = string.IsNullOrWhiteSpace(createInput.MaritalStatus) ? "Single" : createInput.MaritalStatus,
+                EmergencyContactName = createInput.EmergencyContactName,
+                EmergencyContactPhone = createInput.EmergencyContactPhone,
+                EmergencyContactRelation = createInput.EmergencyContactRelation,
+                BankName = createInput.BankName,
+                BankAccountNumber = createInput.BankAccountNumber,
+                Iban = createInput.Iban,
+                SwiftCode = createInput.SwiftCode,
+                EmploymentType = string.IsNullOrWhiteSpace(createInput.EmploymentType) ? "FullTime" : createInput.EmploymentType,
+                ProbationEndDate = createInput.ProbationEndDate,
+                ContractEndDate = createInput.ContractEndDate,
+                JobGradeId = createInput.JobGradeId,
+                JobGradeName = createInput.JobGradeName,
+                CostCenterCode = createInput.CostCenterCode,
+                NoticePeriodDays = createInput.NoticePeriodDays > 0 ? createInput.NoticePeriodDays : 30
             });
         }
 
@@ -186,35 +299,52 @@ namespace ERPPlatform.Modules.HR.Application
             entity.Email = updateInput.Email;
             entity.Phone = updateInput.Phone;
             entity.Position = updateInput.Position;
+            entity.DepartmentId = updateInput.DepartmentId;
             entity.DepartmentName = updateInput.DepartmentName;
+            entity.BranchId = updateInput.BranchId;
+            entity.BranchName = updateInput.BranchName;
             entity.Salary = updateInput.Salary;
             if (!string.IsNullOrWhiteSpace(updateInput.Status))
             {
                 entity.Status = updateInput.Status;
             }
+            if (!string.IsNullOrWhiteSpace(updateInput.Location))
+            {
+                entity.Location = updateInput.Location;
+            }
+            if (updateInput.JoiningDate != default)
+            {
+                entity.JoiningDate = updateInput.JoiningDate;
+            }
             entity.LeaveBalance = updateInput.LeaveBalance;
+            entity.Avatar = updateInput.Avatar;
+            entity.ManagerName = updateInput.ManagerName;
+            entity.NationalId = updateInput.NationalId;
+            entity.PassportNumber = updateInput.PassportNumber;
+            entity.Nationality = updateInput.Nationality;
+            entity.DateOfBirth = updateInput.DateOfBirth;
+            entity.Gender = updateInput.Gender;
+            entity.MaritalStatus = updateInput.MaritalStatus;
+            entity.EmergencyContactName = updateInput.EmergencyContactName;
+            entity.EmergencyContactPhone = updateInput.EmergencyContactPhone;
+            entity.EmergencyContactRelation = updateInput.EmergencyContactRelation;
+            entity.BankName = updateInput.BankName;
+            entity.BankAccountNumber = updateInput.BankAccountNumber;
+            entity.Iban = updateInput.Iban;
+            entity.SwiftCode = updateInput.SwiftCode;
+            entity.EmploymentType = updateInput.EmploymentType;
+            entity.ProbationEndDate = updateInput.ProbationEndDate;
+            entity.ContractEndDate = updateInput.ContractEndDate;
+            entity.JobGradeId = updateInput.JobGradeId;
+            entity.JobGradeName = updateInput.JobGradeName;
+            entity.CostCenterCode = updateInput.CostCenterCode;
+            entity.NoticePeriodDays = updateInput.NoticePeriodDays;
             return Task.CompletedTask;
         }
 
         protected override Task<EmployeeDto> MapToGetOutputDtoAsync(Employee entity)
         {
-            return Task.FromResult(new EmployeeDto
-            {
-                Id = entity.Id,
-                EmployeeCode = entity.EmployeeCode,
-                Name = entity.Name,
-                Email = entity.Email,
-                Phone = entity.Phone,
-                Position = entity.Position,
-                DepartmentName = entity.DepartmentName,
-                Salary = entity.Salary,
-                JoiningDate = entity.JoiningDate,
-                Status = entity.Status,
-                Avatar = entity.Avatar,
-                ManagerName = entity.ManagerName,
-                Location = entity.Location,
-                LeaveBalance = entity.LeaveBalance
-            });
+            return Task.FromResult(MapEntityToDto(entity));
         }
     }
 }

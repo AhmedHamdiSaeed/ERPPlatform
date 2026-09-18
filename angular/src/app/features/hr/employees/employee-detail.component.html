@@ -1,229 +1,722 @@
-<div class="space-y-6 animate-fade-in pb-8">
-      
-      <!-- Back Link -->
-      <div class="flex items-center gap-2">
-        <a routerLink="/hr/employees" class="text-xs text-blue-600 font-semibold hover:underline flex items-center gap-1">
-          <i class="pi pi-arrow-left"></i> {{ 'HR:BackToEmployeesDirectory' | translate }}
-        </a>
-      </div>
-
-      <!-- Employee Header Profile Card -->
-      <div class="card-panel relative overflow-hidden bg-gradient-to-r from-blue-900 to-indigo-900 text-white !p-6 border-none shadow-xl">
-        <div class="flex flex-col md:flex-row items-center md:items-start gap-6 relative z-10">
-          <img [src]="employee()?.avatar" [alt]="employee()?.name" class="w-24 h-24 rounded-2xl object-cover ring-4 ring-white/20 shadow-lg" />
-          
-          <div class="flex-1 text-center md:text-left space-y-1">
-            <div class="flex flex-wrap items-center justify-center md:justify-start gap-2">
-              <h1 class="text-2xl font-black text-white tracking-tight">{{ employee()?.name }}</h1>
-              <span class="status-badge active">{{ employee()?.status }}</span>
-            </div>
-            <p class="text-sm text-blue-200 font-medium">{{ employee()?.position }} • {{ employee()?.departmentName }}</p>
-            <p class="text-xs text-blue-300">{{ 'HR:IdCode' | translate }}: <span class="font-mono font-bold">{{ employee()?.employeeCode }}</span> | {{ 'Joined:' | translate }} {{ employee()?.joiningDate }}</p>
-          </div>
-
-          <div class="flex items-center gap-2">
-            <button (click)="sendEmail()" class="px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-semibold backdrop-blur-xs transition-colors">
-              <i class="pi pi-envelope"></i> {{ 'HR:SendEmail' | translate }}
-            </button>
-            <button (click)="openEditModal()" class="px-3 py-2 bg-white text-blue-900 hover:bg-blue-50 rounded-xl text-xs font-bold shadow-md transition-colors">
-              <i class="pi pi-pencil"></i> {{ 'HR:EditProfile' | translate }}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 8 Profile Tabs Navigation -->
-      <div class="flex gap-1 border-b border-[var(--border-color)] overflow-x-auto text-xs font-semibold">
-        @for (tab of tabs; track tab) {
-          <button 
-            (click)="activeTab.set(tab)"
-            [class.border-blue-600]="activeTab() === tab"
-            [class.text-blue-600]="activeTab() === tab"
-            [class.border-transparent]="activeTab() !== tab"
-            [class.text-[var(--text-muted)]]="activeTab() !== tab"
-            class="px-4 py-3 border-b-2 hover:text-blue-600 transition-colors whitespace-nowrap">
-            {{ tab | translate }}
-          </button>
-        }
-      </div>
-
-      <!-- Tab Content Area -->
-      <div class="card-panel min-h-[300px]">
-        
-        <!-- Tab 1: Overview -->
-        @if (activeTab() === 'HR:TabOverview') {
-          <div class="space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
-                <span class="text-[11px] text-[var(--text-muted)] block">{{ 'HR:Email' | translate }}</span>
-                <span class="font-semibold text-xs text-[var(--text-main)]">{{ employee()?.email }}</span>
-              </div>
-              <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
-                <span class="text-[11px] text-[var(--text-muted)] block">{{ 'HR:Phone' | translate }}</span>
-                <span class="font-semibold text-xs text-[var(--text-main)]">{{ employee()?.phone }}</span>
-              </div>
-              <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
-                <span class="text-[11px] text-[var(--text-muted)] block">{{ 'HR:DirectManager' | translate }}</span>
-                <span class="font-semibold text-xs text-[var(--text-main)]">{{ employee()?.managerName }}</span>
-              </div>
-              <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
-                <span class="text-[11px] text-[var(--text-muted)] block">{{ 'HR:WorkLocation' | translate }}</span>
-                <span class="font-semibold text-xs text-[var(--text-main)]">{{ employee()?.location }}</span>
-              </div>
-            </div>
-
-            <div class="border-t border-[var(--border-color)] pt-4">
-              <h4 class="font-bold text-xs text-[var(--text-main)] mb-3">{{ 'HR:KeyPerformanceSnapshot' | translate }}</h4>
-              <div class="grid grid-cols-3 gap-4 text-center">
-                <div class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
-                  <span class="text-2xl font-black text-blue-600 block">98.5%</span>
-                  <span class="text-xs text-slate-500">{{ 'HR:AttendanceRate' | translate }}</span>
-                </div>
-                <div class="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-100 dark:border-emerald-800">
-                  <span class="text-2xl font-black text-emerald-600 block">18 Days</span>
-                  <span class="text-xs text-slate-500">{{ 'HR:AnnualLeave' | translate }} {{ 'Balance' | translate }}</span>
-                </div>
-                <div class="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800">
-                  <span class="text-2xl font-black text-indigo-600 block">4.9 / 5</span>
-                  <span class="text-xs text-slate-500">{{ 'HR:PerformanceRating' | translate }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        }
-
-        <!-- Tab 2: Personal Information -->
-        @if (activeTab() === 'HR:TabPersonalInfo') {
-          <div class="grid grid-cols-2 gap-4 text-xs">
-            <div><span class="text-slate-400 block">{{ 'Full Legal Name:' | translate }}</span> <span class="font-bold">{{ employee()?.name }}</span></div>
-            <div><span class="text-slate-400 block">{{ 'Nationality:' | translate }}</span> <span class="font-bold">{{ 'Egyptian' | translate }}</span></div>
-            <div><span class="text-slate-400 block">{{ 'National ID / Passport:' | translate }}</span> <span class="font-bold">29508151203948</span></div>
-            <div><span class="text-slate-400 block">{{ 'Marital Status:' | translate }}</span> <span class="font-bold">{{ 'Married' | translate }}</span></div>
-          </div>
-        }
-
-        <!-- Tab 3: Employment -->
-        @if (activeTab() === 'HR:TabEmployment') {
-          <div class="grid grid-cols-2 gap-4 text-xs">
-            <div><span class="text-slate-400 block">{{ 'HR:BaseSalary' | translate }}:</span> <span class="font-bold text-emerald-600">\${{ employee()?.salary | number }} / mo</span></div>
-            <div><span class="text-slate-400 block">{{ 'Contract Type:' | translate }}</span> <span class="font-bold">{{ 'Full Time Permanent' | translate }}</span></div>
-            <div><span class="text-slate-400 block">{{ 'HR:Department' | translate }}:</span> <span class="font-bold">{{ employee()?.departmentName }}</span></div>
-          </div>
-        }
-
-        <!-- Tab 4: Attendance -->
-        @if (activeTab() === 'HR:Attendance') {
-          <div class="space-y-3 text-xs">
-            <p class="text-slate-500">{{ 'Recent check-in records for' | translate }} {{ employee()?.name }}:</p>
-            @for (att of attendance(); track att.id) {
-              <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl flex items-center justify-between">
-                <div>
-                  <span class="font-bold block">{{ att.date }}</span>
-                  <span class="text-slate-400">{{ 'Check In:' | translate }} {{ att.checkIn }} | {{ 'Check Out:' | translate }} {{ att.checkOut }}</span>
-                </div>
-                <span class="status-badge active">{{ att.status | translate }}</span>
-              </div>
-            }
-          </div>
-        }
-
-        <!-- Tab 5: Leave -->
-        @if (activeTab() === 'HR:Leave') {
-          <div class="space-y-3 text-xs">
-            <p class="text-slate-500">{{ 'Leave history for' | translate }} {{ employee()?.name }}:</p>
-            @for (lv of leaveRequests(); track lv.id) {
-              <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl flex items-center justify-between">
-                <div>
-                  <span class="font-bold block">{{ lv.leaveType | translate }} {{ 'Leave' | translate }} ({{ lv.daysCount }} {{ 'days' | translate }})</span>
-                  <span class="text-slate-400">{{ lv.startDate }} {{ 'to' | translate }} {{ lv.endDate }} • {{ lv.reason | translate }}</span>
-                </div>
-                <span class="status-badge active">{{ lv.status | translate }}</span>
-              </div>
-            }
-          </div>
-        }
-
-        <!-- Tab 6: Documents -->
-        @if (activeTab() === 'HR:TabDocuments') {
-          <div class="space-y-2 text-xs">
-            <div class="p-3 border border-[var(--border-color)] rounded-xl flex items-center justify-between">
-              <div class="flex items-center gap-2"><i class="pi pi-file-pdf text-red-500 text-base"></i> <span>Employment_Contract_Signed.pdf</span></div>
-              <button class="text-blue-600 font-semibold hover:underline">{{ 'HR:Download' | translate }}</button>
-            </div>
-            <div class="p-3 border border-[var(--border-color)] rounded-xl flex items-center justify-between">
-              <div class="flex items-center gap-2"><i class="pi pi-file-pdf text-red-500 text-base"></i> <span>National_ID_Scan.pdf</span></div>
-              <button class="text-blue-600 font-semibold hover:underline">{{ 'HR:Download' | translate }}</button>
-            </div>
-          </div>
-        }
-
-        <!-- Tab 7: Performance -->
-        @if (activeTab() === 'HR:Performance') {
-          <div class="text-xs space-y-2">
-            <div class="p-4 bg-indigo-50 dark:bg-slate-800 rounded-xl border border-indigo-100 dark:border-slate-700">
-              <span class="font-bold block text-sm text-indigo-900 dark:text-indigo-200">{{ '2026 Q2 Performance Review' | translate }}: {{ 'Exceeds Expectations' | translate }} (4.9 / 5)</span>
-              <p class="text-indigo-700 dark:text-indigo-300 mt-1">{{ 'Demonstrated exemplary leadership in leading the ERP modularization and Angular PWA deployment.' | translate }}</p>
-            </div>
-          </div>
-        }
-
-        <!-- Tab 8: Activity -->
-        @if (activeTab() === 'HR:TabActivity') {
-          <div class="text-xs space-y-2">
-            <div class="p-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
-              <span class="font-bold">{{ 'Updated Profile Photo' | translate }}</span> <span class="text-slate-400 text-[10px] block">{{ 'Yesterday at 04:15 PM' | translate }}</span>
-            </div>
-          </div>
-        }
-
-      </div>
-
-      <!-- Edit Employee Profile Modal -->
-      @if (showEditModal()) {
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
-          <div class="w-full max-w-lg bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl overflow-hidden p-6 space-y-4">
-            <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
-              <h3 class="font-bold text-sm text-[var(--text-main)]">{{ 'HR:EditEmployeeProfile' | translate }}</h3>
-              <button (click)="showEditModal.set(false)" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times"></i></button>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3 text-xs">
-              <div>
-                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:FullName' | translate }}</label>
-                <input type="text" [(ngModel)]="editEmp.name" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
-              </div>
-              <div>
-                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:EmailAddress' | translate }}</label>
-                <input type="email" [(ngModel)]="editEmp.email" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
-              </div>
-              <div>
-                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:Phone' | translate }}</label>
-                <input type="text" [(ngModel)]="editEmp.phone" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
-              </div>
-              <div>
-                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:Department' | translate }}</label>
-                <input type="text" [(ngModel)]="editEmp.departmentName" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
-              </div>
-              <div>
-                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:Position' | translate }}</label>
-                <input type="text" [(ngModel)]="editEmp.position" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
-              </div>
-              <div>
-                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:Status' | translate }}</label>
-                <select [(ngModel)]="editEmp.status" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg">
-                  <option value="Active">{{ 'HR:Active' | translate }}</option>
-                  <option value="On Leave">{{ 'HR:OnLeave' | translate }}</option>
-                  <option value="Inactive">{{ 'HR:Inactive' | translate }}</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="pt-3 border-t border-[var(--border-color)] flex justify-end gap-2">
-              <button (click)="showEditModal.set(false)" class="btn-outline text-xs">{{ 'UI:Cancel' | translate }}</button>
-              <button (click)="saveEmployee()" class="btn-primary text-xs">{{ 'HR:SaveEmployee' | translate }}</button>
-            </div>
-          </div>
-        </div>
-      }
-
+<div class="space-y-6 animate-fade-in pb-12">
+  
+  <!-- Back Link & Action Bar -->
+  <div class="flex items-center justify-between">
+    <a routerLink="/hr/employees" class="text-xs text-blue-600 font-semibold hover:underline flex items-center gap-1">
+      <i class="pi pi-arrow-left"></i> {{ 'HR:BackToEmployeesDirectory' | translate }}
+    </a>
+    <div class="flex items-center gap-2">
+      <button (click)="openHrActionModal()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs">
+        <i class="pi pi-bolt"></i> {{ 'Execute HR Action' | translate }}
+      </button>
+      <button (click)="openNewContractModal()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs">
+        <i class="pi pi-file"></i> {{ 'Add Contract' | translate }}
+      </button>
+      <button (click)="openDocumentModal()" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs">
+        <i class="pi pi-upload"></i> {{ 'Upload Doc' | translate }}
+      </button>
     </div>
+  </div>
+
+  <!-- Employee Header Profile Card -->
+  <div class="card-panel relative overflow-hidden bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white !p-6 border-none shadow-xl">
+    <div class="flex flex-col md:flex-row items-center md:items-start gap-6 relative z-10">
+      <img [src]="employee()?.avatar" [alt]="employee()?.name" class="w-24 h-24 rounded-2xl object-cover ring-4 ring-white/20 shadow-lg" />
+      
+      <div class="flex-1 text-center md:text-left space-y-1.5">
+        <div class="flex flex-wrap items-center justify-center md:justify-start gap-2">
+          <h1 class="text-2xl font-black text-white tracking-tight">{{ employee()?.name }}</h1>
+          <span class="status-badge" [class.active]="employee()?.status === 'Active'" [class.inactive]="employee()?.status !== 'Active'">
+            {{ employee()?.status }}
+          </span>
+          <span class="px-2.5 py-0.5 bg-white/10 text-white/90 rounded-full text-[11px] font-medium border border-white/20">
+            {{ employee()?.employmentType || 'FullTime' }}
+          </span>
+        </div>
+        <p class="text-sm text-blue-200 font-medium">
+          {{ employee()?.position }} • {{ employee()?.departmentName }} 
+          @if (employee()?.jobGradeName) {
+            <span class="text-xs text-blue-300 font-semibold ml-1">({{ employee()?.jobGradeName }})</span>
+          }
+        </p>
+        <p class="text-xs text-blue-300">
+          {{ 'Code' | translate }}: <span class="font-mono font-bold">{{ employee()?.employeeCode }}</span> 
+          | {{ 'Joined:' | translate }} {{ employee()?.joiningDate }}
+          | {{ 'Location:' | translate }} {{ employee()?.location }}
+        </p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button (click)="sendEmail()" class="px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-semibold backdrop-blur-xs transition-colors">
+          <i class="pi pi-envelope"></i> {{ 'HR:SendEmail' | translate }}
+        </button>
+        <button (click)="openEditModal()" class="px-3 py-2 bg-white text-blue-900 hover:bg-blue-50 rounded-xl text-xs font-bold shadow-md transition-colors">
+          <i class="pi pi-pencil"></i> {{ 'HR:EditProfile' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Tabs Navigation -->
+  <div class="flex gap-1 border-b border-[var(--border-color)] overflow-x-auto text-xs font-semibold">
+    @for (tab of tabs; track tab) {
+      <button 
+        (click)="activeTab.set(tab)"
+        [class.border-blue-600]="activeTab() === tab"
+        [class.text-blue-600]="activeTab() === tab"
+        [class.border-transparent]="activeTab() !== tab"
+        [class.text-[var(--text-muted)]]="activeTab() !== tab"
+        class="px-4 py-3 border-b-2 hover:text-blue-600 transition-colors whitespace-nowrap">
+        {{ tab | translate }}
+      </button>
+    }
+  </div>
+
+  <!-- Tab Content Area -->
+  <div class="card-panel min-h-[350px]">
+    
+    <!-- Tab 1: Overview -->
+    @if (activeTab() === 'HR:TabOverview') {
+      <div class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+            <span class="text-[11px] text-[var(--text-muted)] block">{{ 'HR:Email' | translate }}</span>
+            <span class="font-semibold text-xs text-[var(--text-main)]">{{ employee()?.email }}</span>
+          </div>
+          <div class="p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+            <span class="text-[11px] text-[var(--text-muted)] block">{{ 'HR:Phone' | translate }}</span>
+            <span class="font-semibold text-xs text-[var(--text-main)]">{{ employee()?.phone }}</span>
+          </div>
+          <div class="p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+            <span class="text-[11px] text-[var(--text-muted)] block">{{ 'HR:DirectManager' | translate }}</span>
+            <span class="font-semibold text-xs text-[var(--text-main)]">{{ employee()?.managerName || 'None assigned' }}</span>
+          </div>
+          <div class="p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+            <span class="text-[11px] text-[var(--text-muted)] block">{{ 'HR:WorkLocation' | translate }}</span>
+            <span class="font-semibold text-xs text-[var(--text-main)]">{{ employee()?.location }}</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+          <div class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
+            <span class="text-2xl font-black text-blue-600 block">\${{ employee()?.salary | number:'1.2-2' }}</span>
+            <span class="text-xs text-slate-500 font-medium">{{ 'Current Gross Salary' | translate }}</span>
+          </div>
+          <div class="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-100 dark:border-emerald-800">
+            <span class="text-2xl font-black text-emerald-600 block">{{ employee()?.leaveBalance || 21 }} Days</span>
+            <span class="text-xs text-slate-500 font-medium">{{ 'Leave Balance' | translate }}</span>
+          </div>
+          <div class="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800">
+            <span class="text-2xl font-black text-indigo-600 block">{{ contracts().length }}</span>
+            <span class="text-xs text-slate-500 font-medium">{{ 'Contract History Records' | translate }}</span>
+          </div>
+        </div>
+
+        <!-- Quick Summary Breakdown -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-[var(--border-color)]">
+          <div class="space-y-3">
+            <h4 class="font-bold text-xs text-[var(--text-main)] uppercase tracking-wider flex items-center gap-1.5">
+              <i class="pi pi-id-card text-blue-600"></i> {{ 'Identification & Demographics' | translate }}
+            </h4>
+            <div class="space-y-2 text-xs">
+              <div class="flex justify-between py-1 border-b border-[var(--border-color)]">
+                <span class="text-slate-400">{{ 'National ID:' | translate }}</span>
+                <span class="font-medium font-mono">{{ employee()?.nationalId || 'Not registered' }}</span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-[var(--border-color)]">
+                <span class="text-slate-400">{{ 'Passport Number:' | translate }}</span>
+                <span class="font-medium font-mono">{{ employee()?.passportNumber || 'N/A' }}</span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-[var(--border-color)]">
+                <span class="text-slate-400">{{ 'Nationality:' | translate }}</span>
+                <span class="font-medium">{{ employee()?.nationality || 'Egyptian' }}</span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-[var(--border-color)]">
+                <span class="text-slate-400">{{ 'Gender / Marital:' | translate }}</span>
+                <span class="font-medium">{{ employee()?.gender || 'Male' }} • {{ employee()?.maritalStatus || 'Single' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <h4 class="font-bold text-xs text-[var(--text-main)] uppercase tracking-wider flex items-center gap-1.5">
+              <i class="pi pi-credit-card text-emerald-600"></i> {{ 'Banking & Payroll Settlement' | translate }}
+            </h4>
+            <div class="space-y-2 text-xs">
+              <div class="flex justify-between py-1 border-b border-[var(--border-color)]">
+                <span class="text-slate-400">{{ 'Bank Name:' | translate }}</span>
+                <span class="font-medium">{{ employee()?.bankName || 'CIB Egypt' }}</span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-[var(--border-color)]">
+                <span class="text-slate-400">{{ 'Account Number:' | translate }}</span>
+                <span class="font-medium font-mono">{{ employee()?.bankAccountNumber || '••••••••••' }}</span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-[var(--border-color)]">
+                <span class="text-slate-400">{{ 'IBAN:' | translate }}</span>
+                <span class="font-medium font-mono text-[11px]">{{ employee()?.iban || 'EG••••••••••••••••••••' }}</span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-[var(--border-color)]">
+                <span class="text-slate-400">{{ 'Cost Center:' | translate }}</span>
+                <span class="font-medium">{{ employee()?.costCenterCode || 'CC-CORP-01' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Tab 2: Personal Information -->
+    @if (activeTab() === 'HR:TabPersonalInfo') {
+      <div class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+          <div class="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
+            <span class="text-slate-400 block">{{ 'Full Legal Name' | translate }}</span>
+            <span class="font-bold text-sm text-[var(--text-main)]">{{ employee()?.name }}</span>
+          </div>
+          <div class="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
+            <span class="text-slate-400 block">{{ 'National ID Number' | translate }}</span>
+            <span class="font-bold text-sm font-mono text-[var(--text-main)]">{{ employee()?.nationalId || '—' }}</span>
+          </div>
+          <div class="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
+            <span class="text-slate-400 block">{{ 'Passport Number' | translate }}</span>
+            <span class="font-bold text-sm font-mono text-[var(--text-main)]">{{ employee()?.passportNumber || '—' }}</span>
+          </div>
+          <div class="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
+            <span class="text-slate-400 block">{{ 'Date of Birth' | translate }}</span>
+            <span class="font-bold text-sm text-[var(--text-main)]">{{ employee()?.dateOfBirth || '—' }}</span>
+          </div>
+          <div class="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
+            <span class="text-slate-400 block">{{ 'Gender' | translate }}</span>
+            <span class="font-bold text-sm text-[var(--text-main)]">{{ employee()?.gender || 'Male' }}</span>
+          </div>
+          <div class="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
+            <span class="text-slate-400 block">{{ 'Marital Status' | translate }}</span>
+            <span class="font-bold text-sm text-[var(--text-main)]">{{ employee()?.maritalStatus || 'Single' }}</span>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-[var(--border-color)]">
+          <h4 class="font-bold text-xs text-[var(--text-main)] mb-3 uppercase tracking-wider flex items-center gap-1.5">
+            <i class="pi pi-phone text-rose-500"></i> {{ 'Emergency Contact Details' | translate }}
+          </h4>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            <div class="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
+              <span class="text-slate-400 block">{{ 'Contact Person Name' | translate }}</span>
+              <span class="font-bold text-sm text-[var(--text-main)]">{{ employee()?.emergencyContactName || '—' }}</span>
+            </div>
+            <div class="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
+              <span class="text-slate-400 block">{{ 'Emergency Phone Number' | translate }}</span>
+              <span class="font-bold text-sm font-mono text-[var(--text-main)]">{{ employee()?.emergencyContactPhone || '—' }}</span>
+            </div>
+            <div class="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
+              <span class="text-slate-400 block">{{ 'Relationship' | translate }}</span>
+              <span class="font-bold text-sm text-[var(--text-main)]">{{ employee()?.emergencyContactRelation || '—' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Tab 3: Employment -->
+    @if (activeTab() === 'HR:TabEmployment') {
+      <div class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+          <div class="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
+            <span class="text-slate-400 block">{{ 'Employment Type' | translate }}</span>
+            <span class="font-bold text-sm text-[var(--text-main)]">{{ employee()?.employmentType || 'FullTime' }}</span>
+          </div>
+          <div class="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
+            <span class="text-slate-400 block">{{ 'Job Grade' | translate }}</span>
+            <span class="font-bold text-sm text-[var(--text-main)]">{{ employee()?.jobGradeName || 'Standard' }}</span>
+          </div>
+          <div class="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
+            <span class="text-slate-400 block">{{ 'Notice Period' | translate }}</span>
+            <span class="font-bold text-sm text-[var(--text-main)]">{{ employee()?.noticePeriodDays || 30 }} {{ 'Days' | translate }}</span>
+          </div>
+          <div class="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
+            <span class="text-slate-400 block">{{ 'Probation End Date' | translate }}</span>
+            <span class="font-bold text-sm text-[var(--text-main)]">{{ employee()?.probationEndDate || 'Passed' }}</span>
+          </div>
+          <div class="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
+            <span class="text-slate-400 block">{{ 'Contract Expiration' | translate }}</span>
+            <span class="font-bold text-sm text-[var(--text-main)]">{{ employee()?.contractEndDate || 'Permanent' }}</span>
+          </div>
+          <div class="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
+            <span class="text-slate-400 block">{{ 'Cost Center' | translate }}</span>
+            <span class="font-bold text-sm text-[var(--text-main)]">{{ employee()?.costCenterCode || 'General' }}</span>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Tab 4: Contracts -->
+    @if (activeTab() === 'HR:Contracts') {
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h4 class="font-bold text-xs text-[var(--text-main)] uppercase tracking-wider">
+            {{ 'Contract History & Compensation Terms' | translate }}
+          </h4>
+          <button (click)="openNewContractModal()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1">
+            <i class="pi pi-plus"></i> {{ 'New Contract' | translate }}
+          </button>
+        </div>
+
+        @if (contracts().length === 0) {
+          <div class="text-center py-8 text-slate-400 text-xs">
+            <i class="pi pi-file-o text-2xl block mb-2"></i>
+            {{ 'No contracts recorded yet for this employee.' | translate }}
+          </div>
+        } @else {
+          <div class="space-y-3">
+            @for (c of contracts(); track c.id) {
+              <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-[var(--border-color)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div class="space-y-1">
+                  <div class="flex items-center gap-2">
+                    <span class="font-bold text-xs text-[var(--text-main)]">{{ c.contractNumber }}</span>
+                    <span class="status-badge" [class.active]="c.status === 'Active'" [class.inactive]="c.status !== 'Active'">
+                      {{ c.status }}
+                    </span>
+                    <span class="text-[11px] px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 rounded-md font-medium">
+                      {{ c.contractType }}
+                    </span>
+                  </div>
+                  <div class="text-xs text-slate-500">
+                    <span>{{ 'Term:' | translate }} {{ c.startDate }} → {{ c.endDate || ('Permanent' | translate) }}</span>
+                    • <span class="text-emerald-600 font-bold">\${{ c.basicSalary | number:'1.2-2' }}</span> {{ 'Base' | translate }}
+                    @if (c.housingAllowance > 0) { • <span>\${{ c.housingAllowance | number }} Housing</span> }
+                    @if (c.transportationAllowance > 0) { • <span>\${{ c.transportationAllowance | number }} Transport</span> }
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                  @if (c.status === 'Active') {
+                    <button (click)="openRenewModal(c)" class="px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-lg text-xs font-semibold transition-colors">
+                      <i class="pi pi-refresh"></i> {{ 'Renew' | translate }}
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Tab 5: HR Actions & Lifecycle -->
+    @if (activeTab() === 'HR:HrActions') {
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h4 class="font-bold text-xs text-[var(--text-main)] uppercase tracking-wider">
+            {{ 'Lifecycle Events, Promotions & Salary Adjustments' | translate }}
+          </h4>
+          <button (click)="openHrActionModal()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1">
+            <i class="pi pi-plus"></i> {{ 'Execute Action' | translate }}
+          </button>
+        </div>
+
+        @if (hrActions().length === 0) {
+          <div class="text-center py-8 text-slate-400 text-xs">
+            <i class="pi pi-history text-2xl block mb-2"></i>
+            {{ 'No HR lifecycle actions recorded for this employee yet.' | translate }}
+          </div>
+        } @else {
+          <div class="space-y-3">
+            @for (act of hrActions(); track act.id) {
+              <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-[var(--border-color)]">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="flex items-center gap-2">
+                    <span class="px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 rounded-md font-bold text-xs">
+                      {{ act.actionType }}
+                    </span>
+                    <span class="font-mono text-xs text-slate-400">{{ act.actionCode }}</span>
+                  </div>
+                  <span class="text-xs text-slate-400">{{ 'Effective:' | translate }} {{ act.effectiveDate }}</span>
+                </div>
+                <p class="text-xs text-[var(--text-main)] font-medium">{{ act.remarks || ('Applied updates to employee record' | translate) }}</p>
+                <div class="text-[11px] text-slate-400 mt-2">
+                  {{ 'Approved by:' | translate }} {{ act.approvedBy || 'HR Admin' }} ({{ act.status }})
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Tab 6: Attendance -->
+    @if (activeTab() === 'HR:Attendance') {
+      <div class="space-y-3 text-xs">
+        <p class="text-slate-500">{{ 'Recent check-in records for' | translate }} {{ employee()?.name }}:</p>
+        @for (att of attendance(); track att.id) {
+          <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl flex items-center justify-between">
+            <div>
+              <span class="font-bold block">{{ att.date }}</span>
+              <span class="text-slate-400">{{ 'Check In:' | translate }} {{ att.checkIn }} | {{ 'Check Out:' | translate }} {{ att.checkOut }}</span>
+            </div>
+            <span class="status-badge active">{{ att.status | translate }}</span>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Tab 7: Leave -->
+    @if (activeTab() === 'HR:Leave') {
+      <div class="space-y-3 text-xs">
+        <p class="text-slate-500">{{ 'Leave history for' | translate }} {{ employee()?.name }}:</p>
+        @for (lv of leaveRequests(); track lv.id) {
+          <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl flex items-center justify-between">
+            <div>
+              <span class="font-bold block">{{ lv.leaveType | translate }} {{ 'Leave' | translate }} ({{ lv.daysCount }} {{ 'days' | translate }})</span>
+              <span class="text-slate-400">{{ lv.startDate }} {{ 'to' | translate }} {{ lv.endDate }} • {{ lv.reason | translate }}</span>
+            </div>
+            <span class="status-badge active">{{ lv.status | translate }}</span>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Tab 8: Documents Vault -->
+    @if (activeTab() === 'HR:TabDocuments') {
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h4 class="font-bold text-xs text-[var(--text-main)] uppercase tracking-wider">
+            {{ 'Employee Document Vault & Verification Status' | translate }}
+          </h4>
+          <button (click)="openDocumentModal()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1">
+            <i class="pi pi-upload"></i> {{ 'Upload Document' | translate }}
+          </button>
+        </div>
+
+        @if (documents().length === 0) {
+          <div class="text-center py-8 text-slate-400 text-xs">
+            <i class="pi pi-folder-open text-2xl block mb-2"></i>
+            {{ 'No documents uploaded yet for this employee.' | translate }}
+          </div>
+        } @else {
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            @for (doc of documents(); track doc.id) {
+              <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-[var(--border-color)] flex items-start justify-between gap-3">
+                <div class="flex items-start gap-3">
+                  <div class="w-9 h-9 rounded-lg bg-blue-100 dark:bg-blue-900/40 text-blue-600 flex items-center justify-center shrink-0">
+                    <i class="pi pi-file text-base"></i>
+                  </div>
+                  <div>
+                    <span class="font-bold text-xs text-[var(--text-main)] block">{{ doc.documentTitle || doc.documentType }}</span>
+                    <span class="text-[11px] text-slate-400 block">{{ doc.documentType }} • {{ doc.documentNumber || 'No ID' }}</span>
+                    @if (doc.expiryDate) {
+                      <span class="text-[11px] text-amber-600 font-medium block mt-1">
+                        {{ 'Expires:' | translate }} {{ doc.expiryDate }}
+                      </span>
+                    }
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                  @if (doc.isVerified) {
+                    <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-md text-[11px] font-bold flex items-center gap-1">
+                      <i class="pi pi-check-circle"></i> {{ 'Verified' | translate }}
+                    </span>
+                  } @else {
+                    <button (click)="verifyDocument(doc)" class="px-2.5 py-1 bg-white dark:bg-slate-700 hover:bg-emerald-50 hover:text-emerald-700 border border-[var(--border-color)] rounded-md text-[11px] font-semibold transition-colors">
+                      {{ 'Verify' | translate }}
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+  </div>
+</div>
+
+<!-- ================= MODALS ================= -->
+
+<!-- 1. Edit Profile Modal -->
+@if (showEditModal()) {
+  <div class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
+        <h3 class="text-sm font-bold text-[var(--text-main)]">{{ 'Edit Employee Profile' | translate }}</h3>
+        <button (click)="showEditModal.set(false)" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times"></i></button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+        <div>
+          <label class="block text-slate-400 mb-1">{{ 'Full Name' | translate }}</label>
+          <input type="text" [(ngModel)]="editEmp.name" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">{{ 'Email' | translate }}</label>
+          <input type="email" [(ngModel)]="editEmp.email" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">{{ 'Phone' | translate }}</label>
+          <input type="text" [(ngModel)]="editEmp.phone" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">{{ 'Position' | translate }}</label>
+          <input type="text" [(ngModel)]="editEmp.position" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">{{ 'Department' | translate }}</label>
+          <select [(ngModel)]="editEmp.departmentName" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent">
+            @for (d of departments(); track d.id) {
+              <option [value]="d.name">{{ d.name }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">{{ 'Gross Salary ($)' | translate }}</label>
+          <input type="number" [(ngModel)]="editEmp.salary" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">{{ 'National ID' | translate }}</label>
+          <input type="text" [(ngModel)]="editEmp.nationalId" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">{{ 'Bank Account / IBAN' | translate }}</label>
+          <input type="text" [(ngModel)]="editEmp.bankAccountNumber" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">{{ 'Employment Type' | translate }}</label>
+          <select [(ngModel)]="editEmp.employmentType" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent">
+            <option value="FullTime">Full Time</option>
+            <option value="PartTime">Part Time</option>
+            <option value="Contractor">Contractor</option>
+            <option value="Intern">Intern</option>
+            <option value="Remote">Remote</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">{{ 'Status' | translate }}</label>
+          <select [(ngModel)]="editEmp.status" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent">
+            <option value="Active">Active</option>
+            <option value="On Leave">On Leave</option>
+            <option value="Suspended">Suspended</option>
+            <option value="Inactive">Inactive</option>
+            <option value="Terminated">Terminated</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-4 border-t border-[var(--border-color)]">
+        <button (click)="showEditModal.set(false)" class="px-4 py-2 border border-[var(--border-color)] rounded-xl text-xs font-semibold">
+          {{ 'Cancel' | translate }}
+        </button>
+        <button (click)="saveEmployee()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md">
+          {{ 'Save Changes' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- 2. Execute HR Action Modal -->
+@if (showHrActionModal()) {
+  <div class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
+        <h3 class="text-sm font-bold text-[var(--text-main)]">{{ 'Execute HR Lifecycle Action' | translate }}</h3>
+        <button (click)="showHrActionModal.set(false)" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times"></i></button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-400 mb-1">{{ 'Action Type' | translate }}</label>
+          <select [(ngModel)]="newAction.actionType" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent">
+            <option value="Promotion">Promotion</option>
+            <option value="Transfer">Transfer</option>
+            <option value="SalaryChange">Salary Change</option>
+            <option value="DepartmentChange">Department Change</option>
+            <option value="ManagerChange">Manager Change</option>
+            <option value="Suspension">Suspension</option>
+            <option value="Termination">Termination</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 mb-1">{{ 'Effective Date' | translate }}</label>
+            <input type="date" [(ngModel)]="newAction.effectiveDate" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">{{ 'New Position' | translate }}</label>
+            <input type="text" [(ngModel)]="newAction.newPosition" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 mb-1">{{ 'New Gross Salary ($)' | translate }}</label>
+            <input type="number" [(ngModel)]="newAction.newSalary" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">{{ 'New Department' | translate }}</label>
+            <select [(ngModel)]="newAction.newDepartmentName" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent">
+              @for (d of departments(); track d.id) {
+                <option [value]="d.name">{{ d.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">{{ 'Reason & Justification Remarks' | translate }}</label>
+          <textarea [(ngModel)]="newAction.remarks" rows="2" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" placeholder="e.g. Annual merit promotion approved by VP"></textarea>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-4 border-t border-[var(--border-color)]">
+        <button (click)="showHrActionModal.set(false)" class="px-4 py-2 border border-[var(--border-color)] rounded-xl text-xs font-semibold">
+          {{ 'Cancel' | translate }}
+        </button>
+        <button (click)="submitHrAction()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md">
+          {{ 'Execute & Apply' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- 3. New Contract Modal -->
+@if (showContractModal()) {
+  <div class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
+        <h3 class="text-sm font-bold text-[var(--text-main)]">{{ 'Create New Contract' | translate }}</h3>
+        <button (click)="showContractModal.set(false)" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times"></i></button>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 text-xs">
+        <div>
+          <label class="block text-slate-400 mb-1">{{ 'Contract Type' | translate }}</label>
+          <select [(ngModel)]="newContract.contractType" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent">
+            <option value="Permanent">Permanent</option>
+            <option value="FixedTerm">Fixed Term</option>
+            <option value="Probation">Probation</option>
+            <option value="Contractor">Contractor</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">{{ 'Start Date' | translate }}</label>
+          <input type="date" [(ngModel)]="newContract.startDate" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">{{ 'End Date (Optional)' | translate }}</label>
+          <input type="date" [(ngModel)]="newContract.endDate" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">{{ 'Basic Salary ($)' | translate }}</label>
+          <input type="number" [(ngModel)]="newContract.basicSalary" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">{{ 'Housing Allowance ($)' | translate }}</label>
+          <input type="number" [(ngModel)]="newContract.housingAllowance" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">{{ 'Transport Allowance ($)' | translate }}</label>
+          <input type="number" [(ngModel)]="newContract.transportationAllowance" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-4 border-t border-[var(--border-color)]">
+        <button (click)="showContractModal.set(false)" class="px-4 py-2 border border-[var(--border-color)] rounded-xl text-xs font-semibold">
+          {{ 'Cancel' | translate }}
+        </button>
+        <button (click)="saveContract()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md">
+          {{ 'Save Contract' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- 4. Renew Contract Modal -->
+@if (showRenewContractModal()) {
+  <div class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
+        <h3 class="text-sm font-bold text-[var(--text-main)]">{{ 'Renew Employment Contract' | translate }}</h3>
+        <button (click)="showRenewContractModal.set(false)" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times"></i></button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-400 mb-1">{{ 'New Start Date' | translate }}</label>
+          <input type="date" [(ngModel)]="renewData.newStartDate" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">{{ 'New End Date (Optional for permanent)' | translate }}</label>
+          <input type="date" [(ngModel)]="renewData.newEndDate" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">{{ 'New Base Salary ($)' | translate }}</label>
+          <input type="number" [(ngModel)]="renewData.newBasicSalary" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">{{ 'Renewal Notes' | translate }}</label>
+          <input type="text" [(ngModel)]="renewData.notes" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" placeholder="e.g. 1-year contract extension" />
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-4 border-t border-[var(--border-color)]">
+        <button (click)="showRenewContractModal.set(false)" class="px-4 py-2 border border-[var(--border-color)] rounded-xl text-xs font-semibold">
+          {{ 'Cancel' | translate }}
+        </button>
+        <button (click)="submitContractRenewal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md">
+          {{ 'Renew Contract' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- 5. Upload Document Modal -->
+@if (showDocumentModal()) {
+  <div class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
+        <h3 class="text-sm font-bold text-[var(--text-main)]">{{ 'Upload Employee Document' | translate }}</h3>
+        <button (click)="showDocumentModal.set(false)" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times"></i></button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-400 mb-1">{{ 'Document Type' | translate }}</label>
+          <select [(ngModel)]="newDoc.documentType" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent">
+            <option value="NationalId">National ID</option>
+            <option value="Passport">Passport</option>
+            <option value="Contract">Contract</option>
+            <option value="Certificate">Certificate / Degree</option>
+            <option value="Medical">Medical Document</option>
+            <option value="Tax">Tax Document</option>
+            <option value="Visa">Visa / Work Permit</option>
+            <option value="Warning">Disciplinary / Warning</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">{{ 'Document Title' | translate }}</label>
+          <input type="text" [(ngModel)]="newDoc.documentTitle" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" placeholder="e.g. National ID Copy 2026" />
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">{{ 'Document / Serial Number' | translate }}</label>
+          <input type="text" [(ngModel)]="newDoc.documentNumber" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">{{ 'Expiry Date (Optional)' | translate }}</label>
+          <input type="date" [(ngModel)]="newDoc.expiryDate" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-4 border-t border-[var(--border-color)]">
+        <button (click)="showDocumentModal.set(false)" class="px-4 py-2 border border-[var(--border-color)] rounded-xl text-xs font-semibold">
+          {{ 'Cancel' | translate }}
+        </button>
+        <button (click)="saveDocument()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md">
+          {{ 'Save Document' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

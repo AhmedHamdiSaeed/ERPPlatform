@@ -64,4 +64,10 @@
     <None Remove="Logs\**" />
   </ItemGroup>
 
+  <!-- Automatically unlock locked binary files by stopping any running host instance before build -->
+  <Target Name="KillRunningHostBeforeBuild" BeforeTargets="BeforeBuild" Condition="'$(OS)' == 'Windows_NT'">
+    <Exec Command="taskkill /F /IM ERPPlatform.HttpApi.Host.exe 2&gt;NUL || exit 0" ContinueOnError="true" IgnoreExitCode="true" />
+    <Exec Command="taskkill /F /IM iisexpress.exe 2&gt;NUL || exit 0" ContinueOnError="true" IgnoreExitCode="true" />
+  </Target>
+
 </Project>

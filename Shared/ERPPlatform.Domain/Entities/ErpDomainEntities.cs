@@ -76,7 +76,7 @@ namespace ERPPlatform.Domain.Entities
         public long? LimitValue { get; set; }
     }
 
-    // HR Entities
+    // HR Entities & Core Master Data (Phase 1 Enterprise Suite)
     public class Employee : FullAuditedAggregateRoot<Guid>
     {
         public string EmployeeCode { get; set; } = string.Empty;
@@ -90,11 +90,115 @@ namespace ERPPlatform.Domain.Entities
         public string BranchName { get; set; } = string.Empty;
         public decimal Salary { get; set; }
         public DateTime JoiningDate { get; set; }
-        public string Status { get; set; } = "Active";
+        public string Status { get; set; } = "Active"; // Active, On Leave, Inactive, Suspended, Terminated
         public string Avatar { get; set; } = string.Empty;
         public string ManagerName { get; set; } = string.Empty;
         public string Location { get; set; } = "Cairo HQ";
         public decimal LeaveBalance { get; set; } = 21.0m; // Annual leave balance in days
+
+        // Master Data Enrichment
+        public string NationalId { get; set; } = string.Empty;
+        public string PassportNumber { get; set; } = string.Empty;
+        public string Nationality { get; set; } = "Egyptian";
+        public DateTime? DateOfBirth { get; set; }
+        public string Gender { get; set; } = "Male"; // Male, Female
+        public string MaritalStatus { get; set; } = "Single"; // Single, Married, Divorced, Widowed
+        public string EmergencyContactName { get; set; } = string.Empty;
+        public string EmergencyContactPhone { get; set; } = string.Empty;
+        public string EmergencyContactRelation { get; set; } = string.Empty;
+        public string BankName { get; set; } = string.Empty;
+        public string BankAccountNumber { get; set; } = string.Empty;
+        public string Iban { get; set; } = string.Empty;
+        public string SwiftCode { get; set; } = string.Empty;
+        public string EmploymentType { get; set; } = "FullTime"; // FullTime, PartTime, Contractor, Intern, Remote
+        public DateTime? ProbationEndDate { get; set; }
+        public DateTime? ContractEndDate { get; set; }
+        public Guid? JobGradeId { get; set; }
+        public string JobGradeName { get; set; } = string.Empty;
+        public string CostCenterCode { get; set; } = string.Empty;
+        public int NoticePeriodDays { get; set; } = 30;
+    }
+
+    public class JobGrade : FullAuditedAggregateRoot<Guid>
+    {
+        public string GradeCode { get; set; } = string.Empty; // e.g. "GR-1", "L3"
+        public string GradeName { get; set; } = string.Empty; // e.g. "Senior Associate", "Lead"
+        public string Level { get; set; } = "Mid"; // Entry, Mid, Senior, Executive
+        public decimal MinSalary { get; set; }
+        public decimal MaxSalary { get; set; }
+        public string Description { get; set; } = string.Empty;
+        public bool IsActive { get; set; } = true;
+    }
+
+    public class JobPosition : FullAuditedAggregateRoot<Guid>
+    {
+        public string Code { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public Guid? DepartmentId { get; set; }
+        public string DepartmentName { get; set; } = string.Empty;
+        public Guid? JobGradeId { get; set; }
+        public string JobGradeName { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string Requirements { get; set; } = string.Empty;
+        public decimal MinSalary { get; set; }
+        public decimal MaxSalary { get; set; }
+        public bool IsActive { get; set; } = true;
+    }
+
+    public class EmployeeContract : FullAuditedAggregateRoot<Guid>
+    {
+        public string ContractNumber { get; set; } = string.Empty;
+        public Guid EmployeeId { get; set; }
+        public string EmployeeName { get; set; } = string.Empty;
+        public string ContractType { get; set; } = "Permanent"; // Permanent, FixedTerm, Probation, Contractor
+        public DateTime StartDate { get; set; } = DateTime.UtcNow;
+        public DateTime? EndDate { get; set; }
+        public DateTime? ProbationEndDate { get; set; }
+        public decimal BasicSalary { get; set; }
+        public decimal HousingAllowance { get; set; }
+        public decimal TransportationAllowance { get; set; }
+        public decimal OtherAllowances { get; set; }
+        public decimal TotalGrossSalary => BasicSalary + HousingAllowance + TransportationAllowance + OtherAllowances;
+        public int WorkingHoursPerWeek { get; set; } = 40;
+        public int NoticePeriodDays { get; set; } = 30;
+        public string Status { get; set; } = "Active"; // Active, Expired, Terminated, Draft, Renewed
+        public DateTime? SignedAt { get; set; }
+        public string SignedDocumentUrl { get; set; } = string.Empty;
+        public string Notes { get; set; } = string.Empty;
+    }
+
+    public class HrAction : FullAuditedAggregateRoot<Guid>
+    {
+        public string ActionCode { get; set; } = string.Empty; // e.g. "HRA-2026-001"
+        public Guid EmployeeId { get; set; }
+        public string EmployeeName { get; set; } = string.Empty;
+        public string ActionType { get; set; } = "Promotion"; // Hire, Promotion, Transfer, SalaryChange, DepartmentChange, ManagerChange, Suspension, Termination, Resignation
+        public DateTime EffectiveDate { get; set; } = DateTime.UtcNow;
+        public string Status { get; set; } = "Approved"; // Pending, Approved, Rejected, Implemented
+        public string PreviousValuesJson { get; set; } = "{}"; // JSON snapshot of previous values
+        public string NewValuesJson { get; set; } = "{}"; // JSON snapshot of new values
+        public string RequestedBy { get; set; } = string.Empty;
+        public string ApprovedBy { get; set; } = string.Empty;
+        public DateTime? ApprovalDate { get; set; }
+        public string Remarks { get; set; } = string.Empty;
+    }
+
+    public class EmployeeDocument : FullAuditedAggregateRoot<Guid>
+    {
+        public Guid EmployeeId { get; set; }
+        public string EmployeeName { get; set; } = string.Empty;
+        public string DocumentType { get; set; } = "NationalId"; // NationalId, Passport, Contract, Medical, Certificate, Degree, Tax, Visa, Warning, Other
+        public string DocumentTitle { get; set; } = string.Empty;
+        public string DocumentNumber { get; set; } = string.Empty;
+        public string FileUrl { get; set; } = string.Empty;
+        public string FileName { get; set; } = string.Empty;
+        public long FileSize { get; set; }
+        public DateTime? IssueDate { get; set; }
+        public DateTime? ExpiryDate { get; set; }
+        public bool IsVerified { get; set; } = false;
+        public string VerifiedBy { get; set; } = string.Empty;
+        public DateTime? VerificationDate { get; set; }
+        public string Notes { get; set; } = string.Empty;
     }
 
     public class Department : FullAuditedAggregateRoot<Guid>
@@ -998,19 +1102,140 @@ namespace ERPPlatform.Domain.Entities
         public bool IsDefault { get; set; } = false;
     }
 
-    // Recruitment / Applicant Tracking Entity
+    // Recruitment & ATS Domain Entities
+    public class JobRequisition : FullAuditedAggregateRoot<Guid>
+    {
+        public string RequisitionCode { get; set; } = string.Empty; // e.g. "REQ-2026-001"
+        public string Title { get; set; } = string.Empty;
+        public Guid? DepartmentId { get; set; }
+        public string DepartmentName { get; set; } = string.Empty;
+        public int VacanciesCount { get; set; } = 1;
+        public string EmploymentType { get; set; } = "FullTime";
+        public decimal MinSalary { get; set; }
+        public decimal MaxSalary { get; set; }
+        public string ExperienceLevel { get; set; } = "Mid";
+        public string JobDescription { get; set; } = string.Empty;
+        public string Requirements { get; set; } = string.Empty;
+        public string HiringManager { get; set; } = string.Empty;
+        public string Status { get; set; } = "Open"; // Draft, Open, InProgress, Filled, Cancelled
+        public DateTime TargetStartDate { get; set; } = DateTime.UtcNow.AddMonths(1);
+    }
+
     public class Candidate : FullAuditedAggregateRoot<Guid>
     {
         public string Name { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string Phone { get; set; } = string.Empty;
         public string AppliedPosition { get; set; } = string.Empty;
+        public Guid? JobRequisitionId { get; set; }
         public decimal ExperienceYears { get; set; }
-        public string Stage { get; set; } = "Applied"; // Applied, Screening, Interview, Technical, Offer, Hired
+        public string Stage { get; set; } = "Applied"; // Applied, Screening, Interview, Technical, Offer, Hired, Rejected
         public decimal Rating { get; set; }
         public string SkillsJson { get; set; } = "[]"; // JSON string array of skill names
         public DateTime AppliedDate { get; set; } = DateTime.UtcNow;
+        public string CvUrl { get; set; } = string.Empty;
+        public string ExpectedSalary { get; set; } = string.Empty;
+        public string NoticePeriod { get; set; } = "1 Month";
         public string Notes { get; set; } = string.Empty;
+        public Guid? ConvertedEmployeeId { get; set; }
+    }
+
+    public class Interview : FullAuditedAggregateRoot<Guid>
+    {
+        public Guid CandidateId { get; set; }
+        public string CandidateName { get; set; } = string.Empty;
+        public string InterviewType { get; set; } = "Technical"; // Screening, Technical, HR, Managerial, Final
+        public DateTime ScheduledTime { get; set; } = DateTime.UtcNow.AddDays(2);
+        public string InterviewerName { get; set; } = string.Empty;
+        public string MeetingLink { get; set; } = string.Empty;
+        public decimal Score { get; set; } // 1 - 10
+        public string Status { get; set; } = "Scheduled"; // Scheduled, Completed, Cancelled, Rescheduled
+        public string Recommendation { get; set; } = "Pending"; // Advance, StrongHire, Hire, Hold, Reject
+        public string FeedbackNotes { get; set; } = string.Empty;
+    }
+
+    public class OfferLetter : FullAuditedAggregateRoot<Guid>
+    {
+        public string OfferCode { get; set; } = string.Empty;
+        public Guid CandidateId { get; set; }
+        public string CandidateName { get; set; } = string.Empty;
+        public string PositionTitle { get; set; } = string.Empty;
+        public string DepartmentName { get; set; } = string.Empty;
+        public decimal OfferedBasicSalary { get; set; }
+        public decimal HousingAllowance { get; set; }
+        public decimal TransportAllowance { get; set; }
+        public decimal TotalMonthlyPackage => OfferedBasicSalary + HousingAllowance + TransportAllowance;
+        public DateTime ProposedStartDate { get; set; } = DateTime.UtcNow.AddMonths(1);
+        public DateTime ExpiryDate { get; set; } = DateTime.UtcNow.AddDays(7);
+        public string Status { get; set; } = "Draft"; // Draft, Sent, Accepted, Declined, Expired
+        public DateTime? AcceptedAt { get; set; }
+        public string SignedDocumentUrl { get; set; } = string.Empty;
+        public string Notes { get; set; } = string.Empty;
+    }
+
+    // Onboarding & Offboarding Lifecycle Entities
+    public class OnboardingTask : FullAuditedAggregateRoot<Guid>
+    {
+        public Guid EmployeeId { get; set; }
+        public string EmployeeName { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public string Category { get; set; } = "IT"; // IT, HR, Finance, Admin, Department
+        public string AssignedTo { get; set; } = string.Empty;
+        public DateTime DueDate { get; set; } = DateTime.UtcNow.AddDays(7);
+        public string Status { get; set; } = "Pending"; // Pending, InProgress, Completed, Blocked
+        public DateTime? CompletedAt { get; set; }
+        public string Notes { get; set; } = string.Empty;
+    }
+
+    public class OffboardingRequest : FullAuditedAggregateRoot<Guid>
+    {
+        public string RequestNumber { get; set; } = string.Empty;
+        public Guid EmployeeId { get; set; }
+        public string EmployeeName { get; set; } = string.Empty;
+        public string DepartmentName { get; set; } = string.Empty;
+        public DateTime ResignationDate { get; set; } = DateTime.UtcNow;
+        public DateTime LastWorkingDay { get; set; } = DateTime.UtcNow.AddDays(30);
+        public string Reason { get; set; } = string.Empty;
+        public string Status { get; set; } = "ClearanceInProgress"; // Submitted, ClearanceInProgress, FinanceApproved, HandoverComplete, Finalized, Cancelled
+        public string ItClearanceStatus { get; set; } = "Pending"; // Pending, Cleared
+        public string AdminClearanceStatus { get; set; } = "Pending";
+        public string FinanceClearanceStatus { get; set; } = "Pending";
+        public decimal OutstandingLoanBalance { get; set; }
+        public decimal AccruedLeavePayout { get; set; }
+        public decimal EndOfServiceGratuity { get; set; }
+        public decimal NetFinalSettlement => AccruedLeavePayout + EndOfServiceGratuity - OutstandingLoanBalance;
+        public string ExitInterviewNotes { get; set; } = string.Empty;
+    }
+
+    // Employee Financial Requests & Loans
+    public class EmployeeLoan : FullAuditedAggregateRoot<Guid>
+    {
+        public string LoanNumber { get; set; } = string.Empty; // e.g. "LN-2026-001"
+        public Guid EmployeeId { get; set; }
+        public string EmployeeName { get; set; } = string.Empty;
+        public string LoanType { get; set; } = "Personal"; // Personal, Advance, Emergency, Housing
+        public decimal PrincipalAmount { get; set; }
+        public int TotalInstallments { get; set; } = 12;
+        public decimal MonthlyInstallment => TotalInstallments > 0 ? (PrincipalAmount / TotalInstallments) : 0;
+        public decimal TotalPaidAmount { get; set; }
+        public decimal RemainingBalance => PrincipalAmount - TotalPaidAmount;
+        public DateTime StartDeductionPeriod { get; set; } = DateTime.UtcNow;
+        public string Status { get; set; } = "PendingApproval"; // PendingApproval, Approved, Active, FullyRepaid, Rejected
+        public string ApprovedBy { get; set; } = string.Empty;
+        public string Purpose { get; set; } = string.Empty;
+    }
+
+    public class LoanInstallment : FullAuditedAggregateRoot<Guid>
+    {
+        public Guid LoanId { get; set; }
+        public Guid EmployeeId { get; set; }
+        public string Period { get; set; } = string.Empty; // e.g. "2026-09"
+        public int InstallmentNumber { get; set; }
+        public decimal Amount { get; set; }
+        public DateTime DueDate { get; set; }
+        public bool IsDeducted { get; set; } = false;
+        public Guid? PayrollRunId { get; set; }
+        public DateTime? DeductedAt { get; set; }
     }
 
     // Workflow Execution History Entities
@@ -1143,5 +1368,143 @@ namespace ERPPlatform.Domain.Entities
         public decimal Delta { get; set; }
         public bool IsResolved { get; set; }
         public string ResolutionNote { get; set; } = string.Empty;
+    }
+
+    // ────────────────────────────────────────────────────────────────
+    // Performance Management & Goals / KPIs (Module 11)
+    // ────────────────────────────────────────────────────────────────
+    public class PerformanceReview : FullAuditedAggregateRoot<Guid>
+    {
+        public Guid EmployeeId { get; set; }
+        public string EmployeeName { get; set; } = string.Empty;
+        public string ReviewCycle { get; set; } = "2026 Annual"; // e.g. "2026 Q1", "2026 Annual"
+        public DateTime PeriodStart { get; set; } = DateTime.UtcNow.AddMonths(-6);
+        public DateTime PeriodEnd { get; set; } = DateTime.UtcNow;
+        public string ReviewerName { get; set; } = string.Empty;
+        public decimal SelfRating { get; set; } // 1.0 - 5.0
+        public decimal ManagerRating { get; set; } // 1.0 - 5.0
+        public decimal FinalRating { get; set; } // 1.0 - 5.0
+        public string Status { get; set; } = "Draft"; // Draft, SelfAssessment, ManagerReview, Completed
+        public decimal GoalsAchievedPercentage { get; set; }
+        public string Strengths { get; set; } = string.Empty;
+        public string AreasForImprovement { get; set; } = string.Empty;
+        public bool PromotionRecommended { get; set; } = false;
+        public string ManagerFeedback { get; set; } = string.Empty;
+        public DateTime? CompletedAt { get; set; }
+    }
+
+    public class PerformanceGoal : FullAuditedAggregateRoot<Guid>
+    {
+        public Guid EmployeeId { get; set; }
+        public string EmployeeName { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string Category { get; set; } = "Operational"; // Strategic, Operational, Learning, KPI
+        public int Weight { get; set; } = 20; // Percentage weight (e.g. 20%)
+        public decimal TargetValue { get; set; } = 100;
+        public decimal CurrentValue { get; set; } = 0;
+        public string MetricUnit { get; set; } = "%";
+        public DateTime DueDate { get; set; } = DateTime.UtcNow.AddMonths(3);
+        public string Status { get; set; } = "InProgress"; // NotStarted, InProgress, Achieved, Behind
+        public decimal Score { get; set; } // 1 - 5
+    }
+
+    // ────────────────────────────────────────────────────────────────
+    // Learning & Development / Training (Module 12)
+    // ────────────────────────────────────────────────────────────────
+    public class TrainingCourse : FullAuditedAggregateRoot<Guid>
+    {
+        public string CourseCode { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string Category { get; set; } = "Technical"; // Technical, Compliance, Leadership, SoftSkills
+        public string TrainerName { get; set; } = string.Empty;
+        public int DurationHours { get; set; } = 16;
+        public decimal CostPerAttendee { get; set; } = 0;
+        public int MaxAttendees { get; set; } = 25;
+        public string DeliveryMethod { get; set; } = "Online"; // Online, Classroom, Hybrid
+        public string Status { get; set; } = "Active"; // Active, Upcoming, Completed, Archived
+        public decimal PassingScore { get; set; } = 70.0m;
+    }
+
+    public class TrainingEnrollment : FullAuditedAggregateRoot<Guid>
+    {
+        public Guid CourseId { get; set; }
+        public string CourseTitle { get; set; } = string.Empty;
+        public Guid EmployeeId { get; set; }
+        public string EmployeeName { get; set; } = string.Empty;
+        public DateTime EnrollmentDate { get; set; } = DateTime.UtcNow;
+        public DateTime? CompletionDate { get; set; }
+        public string Status { get; set; } = "Enrolled"; // Enrolled, InProgress, Completed, Failed, Cancelled
+        public decimal Score { get; set; }
+        public bool CertificateIssued { get; set; } = false;
+        public string Feedback { get; set; } = string.Empty;
+    }
+
+    public class EmployeeCertification : FullAuditedAggregateRoot<Guid>
+    {
+        public Guid EmployeeId { get; set; }
+        public string EmployeeName { get; set; } = string.Empty;
+        public string CertificationName { get; set; } = string.Empty;
+        public string IssuingOrganization { get; set; } = string.Empty;
+        public DateTime IssueDate { get; set; } = DateTime.UtcNow;
+        public DateTime? ExpiryDate { get; set; }
+        public string CredentialId { get; set; } = string.Empty;
+        public string CertificateUrl { get; set; } = string.Empty;
+        public string Status { get; set; } = "Active"; // Active, ExpiringSoon, Expired
+    }
+
+    // ────────────────────────────────────────────────────────────────
+    // Benefits & Corporate Insurance (Module 13)
+    // ────────────────────────────────────────────────────────────────
+    public class BenefitPlan : FullAuditedAggregateRoot<Guid>
+    {
+        public string PlanCode { get; set; } = string.Empty;
+        public string PlanName { get; set; } = string.Empty;
+        public string Category { get; set; } = "MedicalInsurance"; // MedicalInsurance, LifeInsurance, Retirement, GymWellness, Allowance
+        public string ProviderName { get; set; } = string.Empty;
+        public string CoverageDetails { get; set; } = string.Empty;
+        public decimal EmployerContributionMonthly { get; set; }
+        public decimal EmployeeContributionMonthly { get; set; }
+        public bool IsActive { get; set; } = true;
+    }
+
+    public class EmployeeBenefit : FullAuditedAggregateRoot<Guid>
+    {
+        public Guid EmployeeId { get; set; }
+        public string EmployeeName { get; set; } = string.Empty;
+        public Guid BenefitPlanId { get; set; }
+        public string PlanName { get; set; } = string.Empty;
+        public string Category { get; set; } = "MedicalInsurance";
+        public DateTime EnrollmentDate { get; set; } = DateTime.UtcNow;
+        public decimal CoverageAmount { get; set; }
+        public decimal EmployerContribution { get; set; }
+        public decimal EmployeeDeduction { get; set; }
+        public string Status { get; set; } = "Active"; // Active, Terminated, Suspended
+    }
+
+    // ────────────────────────────────────────────────────────────────
+    // Work Shifts & Scheduling (Module 6)
+    // ────────────────────────────────────────────────────────────────
+    public class WorkShift : FullAuditedAggregateRoot<Guid>
+    {
+        public string ShiftCode { get; set; } = string.Empty;
+        public string ShiftName { get; set; } = string.Empty;
+        public string StartTime { get; set; } = "09:00";
+        public string EndTime { get; set; } = "17:00";
+        public int BreakMinutes { get; set; } = 60;
+        public bool IsNightShift { get; set; } = false;
+        public bool IsActive { get; set; } = true;
+    }
+
+    public class ShiftAssignment : FullAuditedAggregateRoot<Guid>
+    {
+        public Guid EmployeeId { get; set; }
+        public string EmployeeName { get; set; } = string.Empty;
+        public Guid WorkShiftId { get; set; }
+        public string ShiftName { get; set; } = string.Empty;
+        public DateTime StartDate { get; set; } = DateTime.UtcNow;
+        public DateTime? EndDate { get; set; }
+        public string Notes { get; set; } = string.Empty;
     }
 }
