@@ -1,138 +1,140 @@
-<div class="space-y-6">
+<div class="space-y-6 animate-fade-in pb-8">
   <!-- Header -->
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div>
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Learning & Development (L&D)</h1>
-      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Training catalog, employee course enrollments, skills matrix, and corporate certifications.</p>
+      <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">{{ 'Learning & Development (L&D)' | translate }}</h1>
+      <p class="text-xs text-[var(--text-muted)] mt-0.5">{{ 'Training catalog, employee course enrollments, skills matrix, and corporate certifications.' | translate }}</p>
     </div>
-    <div class="flex items-center gap-3">
-      <button *ngIf="activeTab === 'courses'" (click)="showNewCourseModal = true" class="btn btn-primary flex items-center gap-2">
-        <i class="pi pi-plus text-sm"></i>
-        <span>New Training Course</span>
+    <div class="flex items-center gap-2">
+      <button *ngIf="activeTab === 'courses'" (click)="showNewCourseModal = true" class="btn-primary text-xs flex items-center gap-1.5 cursor-pointer">
+        <i class="pi pi-plus"></i>
+        <span>{{ 'New Training Course' | translate }}</span>
       </button>
-      <button (click)="openEnrollModal()" class="btn btn-secondary flex items-center gap-2">
-        <i class="pi pi-user-plus text-sm"></i>
-        <span>Enroll Employee</span>
+      <button (click)="openEnrollModal()" class="btn-outline text-xs flex items-center gap-1.5 cursor-pointer">
+        <i class="pi pi-user-plus"></i>
+        <span>{{ 'Enroll Employee' | translate }}</span>
       </button>
     </div>
   </div>
 
   <!-- KPI Summary Cards -->
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-    <div class="card p-4 flex items-center gap-4">
-      <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 flex items-center justify-center text-xl">
+    <div class="card-panel p-4 flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 flex items-center justify-center text-xl shrink-0">
         <i class="pi pi-book"></i>
       </div>
       <div>
-        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Catalog Courses</p>
-        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ courses.length }}</p>
+        <p class="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">{{ 'Catalog Courses' | translate }}</p>
+        <p class="text-2xl font-black text-[var(--text-main)]">{{ courses.length }}</p>
       </div>
     </div>
-    <div class="card p-4 flex items-center gap-4">
-      <div class="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 flex items-center justify-center text-xl">
+    <div class="card-panel p-4 flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 flex items-center justify-center text-xl shrink-0">
         <i class="pi pi-check-circle"></i>
       </div>
       <div>
-        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Active Enrollments</p>
-        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ enrollments.length }}</p>
+        <p class="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">{{ 'Active Enrollments' | translate }}</p>
+        <p class="text-2xl font-black text-[var(--text-main)]">{{ enrollments.length }}</p>
       </div>
     </div>
-    <div class="card p-4 flex items-center gap-4">
-      <div class="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30 text-amber-600 flex items-center justify-center text-xl">
+    <div class="card-panel p-4 flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30 text-amber-600 flex items-center justify-center text-xl shrink-0">
         <i class="pi pi-verified"></i>
       </div>
       <div>
-        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Issued Certifications</p>
-        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ certifications.length }}</p>
+        <p class="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">{{ 'Issued Certifications' | translate }}</p>
+        <p class="text-2xl font-black text-[var(--text-main)]">{{ certifications.length }}</p>
       </div>
     </div>
   </div>
 
   <!-- Navigation Tabs -->
-  <div class="border-b border-gray-200 dark:border-gray-800">
+  <div class="border-b border-[var(--border-color)]">
     <nav class="flex gap-6 -mb-px">
       <button (click)="activeTab = 'courses'" [class.border-blue-600]="activeTab === 'courses'" [class.text-blue-600]="activeTab === 'courses'"
-              class="pb-3 font-semibold text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
-        Course Catalog
+              class="pb-3 font-semibold text-xs border-b-2 border-transparent text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors cursor-pointer">
+        {{ 'Course Catalog' | translate }}
       </button>
       <button (click)="activeTab = 'enrollments'" [class.border-blue-600]="activeTab === 'enrollments'" [class.text-blue-600]="activeTab === 'enrollments'"
-              class="pb-3 font-semibold text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
-        Employee Enrollments
+              class="pb-3 font-semibold text-xs border-b-2 border-transparent text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors cursor-pointer">
+        {{ 'Employee Enrollments' | translate }}
       </button>
       <button (click)="activeTab = 'certifications'" [class.border-blue-600]="activeTab === 'certifications'" [class.text-blue-600]="activeTab === 'certifications'"
-              class="pb-3 font-semibold text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
-        Certification Tracker
+              class="pb-3 font-semibold text-xs border-b-2 border-transparent text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors cursor-pointer">
+        {{ 'Certification Tracker' | translate }}
       </button>
     </nav>
   </div>
 
   <!-- Courses View -->
   <div *ngIf="activeTab === 'courses'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-    <div *ngFor="let course of courses" class="card p-5 space-y-3">
-      <div class="flex items-start justify-between">
-        <span class="text-xs font-semibold px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
-          {{ course.category }}
-        </span>
-        <span class="text-xs font-semibold text-gray-500">{{ course.deliveryMethod }}</span>
-      </div>
-      <h3 class="font-bold text-gray-900 dark:text-white text-base">{{ course.title }}</h3>
-      <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">{{ course.description || 'Comprehensive training curriculum.' }}</p>
+    <div *ngFor="let course of courses" class="card-panel p-5 space-y-3 flex flex-col justify-between">
+      <div class="space-y-2">
+        <div class="flex items-start justify-between">
+          <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">
+            {{ course.category | translate }}
+          </span>
+          <span class="text-xs font-semibold text-[var(--text-muted)]">{{ course.deliveryMethod | translate }}</span>
+        </div>
+        <h3 class="font-bold text-sm text-[var(--text-main)]">{{ course.title }}</h3>
+        <p class="text-xs text-[var(--text-muted)] line-clamp-2 leading-relaxed">{{ course.description || ('Comprehensive training curriculum.' | translate) }}</p>
 
-      <div class="grid grid-cols-2 gap-2 text-xs text-gray-600 dark:text-gray-300 pt-2 border-t dark:border-gray-800">
-        <div><strong>Trainer:</strong> {{ course.trainerName || 'Internal Expert' }}</div>
-        <div><strong>Duration:</strong> {{ course.durationHours }} Hours</div>
-        <div><strong>Cost:</strong> {{ course.costPerAttendee | currency:'USD' }}</div>
-        <div><strong>Passing Score:</strong> {{ course.passingScore }}%</div>
+        <div class="grid grid-cols-2 gap-2 text-xs text-[var(--text-muted)] pt-2 border-t border-[var(--border-color)]">
+          <div><strong class="text-[var(--text-main)]">{{ 'Trainer:' | translate }}</strong> {{ course.trainerName || ('Internal Expert' | translate) }}</div>
+          <div><strong class="text-[var(--text-main)]">{{ 'Duration:' | translate }}</strong> {{ course.durationHours }} {{ 'Hours' | translate }}</div>
+          <div><strong class="text-[var(--text-main)]">{{ 'Cost:' | translate }}</strong> \${{ course.costPerAttendee | number:'1.2-2' }}</div>
+          <div><strong class="text-[var(--text-main)]">{{ 'Passing Score:' | translate }}</strong> {{ course.passingScore }}%</div>
+        </div>
       </div>
 
       <div class="pt-2">
-        <button (click)="openEnrollModal(course)" class="btn btn-primary w-full text-xs py-2">
-          Enroll Employees
+        <button (click)="openEnrollModal(course)" class="btn-primary w-full text-xs py-2 cursor-pointer">
+          {{ 'Enroll Employees' | translate }}
         </button>
       </div>
     </div>
   </div>
 
   <!-- Enrollments View -->
-  <div *ngIf="activeTab === 'enrollments'" class="card overflow-hidden">
+  <div *ngIf="activeTab === 'enrollments'" class="card-panel !p-0 overflow-hidden">
     <div class="overflow-x-auto">
-      <table class="w-full text-left text-sm text-gray-600 dark:text-gray-300">
-        <thead class="bg-gray-50 dark:bg-gray-800/60 text-xs uppercase font-semibold text-gray-700 dark:text-gray-300">
+      <table class="w-full text-start text-xs border-collapse">
+        <thead class="bg-slate-100/70 dark:bg-slate-800/70 text-[11px] uppercase font-bold text-slate-500">
           <tr>
-            <th class="px-6 py-3.5">Employee</th>
-            <th class="px-6 py-3.5">Course Title</th>
-            <th class="px-6 py-3.5">Enrolled Date</th>
-            <th class="px-6 py-3.5 text-center">Score</th>
-            <th class="px-6 py-3.5">Status</th>
-            <th class="px-6 py-3.5 text-right">Actions</th>
+            <th class="p-3.5">{{ 'HR:Employee' | translate }}</th>
+            <th class="p-3.5">{{ 'Course Title' | translate }}</th>
+            <th class="p-3.5">{{ 'Enrolled Date' | translate }}</th>
+            <th class="p-3.5 text-center">{{ 'Score' | translate }}</th>
+            <th class="p-3.5">{{ 'HR:Status' | translate }}</th>
+            <th class="p-3.5 text-end">{{ 'HR:Actions' | translate }}</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
-          <tr *ngFor="let enr of enrollments" class="hover:bg-gray-50 dark:hover:bg-gray-800/40">
-            <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">{{ enr.employeeName }}</td>
-            <td class="px-6 py-4">{{ enr.courseTitle }}</td>
-            <td class="px-6 py-4">{{ enr.enrollmentDate | date:'mediumDate' }}</td>
-            <td class="px-6 py-4 text-center font-bold">{{ enr.score > 0 ? enr.score + '%' : '-' }}</td>
-            <td class="px-6 py-4">
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
-                    [class.bg-emerald-100.text-emerald-800]="enr.status === 'Completed'"
-                    [class.bg-blue-100.text-blue-800]="enr.status === 'Enrolled'"
-                    [class.bg-amber-100.text-amber-800]="enr.status === 'InProgress'"
-                    [class.bg-red-100.text-red-800]="enr.status === 'Failed'">
-                {{ enr.status }}
+        <tbody class="divide-y divide-[var(--border-color)] text-[var(--text-main)]">
+          <tr *ngFor="let enr of enrollments" class="hover:bg-slate-50/80 dark:bg-slate-800/50">
+            <td class="p-3.5 font-bold">{{ enr.employeeName }}</td>
+            <td class="p-3.5">{{ enr.courseTitle }}</td>
+            <td class="p-3.5 text-[var(--text-muted)]">{{ enr.enrollmentDate | date:'mediumDate' }}</td>
+            <td class="p-3.5 text-center font-bold">{{ enr.score > 0 ? enr.score + '%' : '-' }}</td>
+            <td class="p-3.5">
+              <span class="status-badge"
+                    [class.approved]="enr.status === 'Completed'"
+                    [class.active]="enr.status === 'Enrolled'"
+                    [class.pending]="enr.status === 'InProgress'"
+                    [class.rejected]="enr.status === 'Failed'">
+                {{ enr.status | translate }}
               </span>
             </td>
-            <td class="px-6 py-4 text-right">
-              <button *ngIf="enr.status !== 'Completed'" (click)="openGradingModal(enr)" class="btn btn-secondary text-xs px-3 py-1">
-                Grade & Certify
+            <td class="p-3.5 text-end">
+              <button *ngIf="enr.status !== 'Completed'" (click)="openGradingModal(enr)" class="btn-outline text-xs px-3 py-1 cursor-pointer">
+                {{ 'Grade & Certify' | translate }}
               </button>
               <span *ngIf="enr.status === 'Completed'" class="text-xs text-emerald-600 font-semibold flex items-center justify-end gap-1">
-                <i class="pi pi-check"></i> Certified
+                <i class="pi pi-check"></i> {{ 'Certified' | translate }}
               </span>
             </td>
           </tr>
           <tr *ngIf="enrollments.length === 0">
-            <td colspan="6" class="px-6 py-8 text-center text-gray-400">No active course enrollments.</td>
+            <td colspan="6" class="p-8 text-center text-[var(--text-muted)]">{{ 'No active course enrollments.' | translate }}</td>
           </tr>
         </tbody>
       </table>
@@ -140,39 +142,30 @@
   </div>
 
   <!-- Certifications View -->
-  <div *ngIf="activeTab === 'certifications'" class="card overflow-hidden">
+  <div *ngIf="activeTab === 'certifications'" class="card-panel !p-0 overflow-hidden">
     <div class="overflow-x-auto">
-      <table class="w-full text-left text-sm text-gray-600 dark:text-gray-300">
-        <thead class="bg-gray-50 dark:bg-gray-800/60 text-xs uppercase font-semibold text-gray-700 dark:text-gray-300">
+      <table class="w-full text-start text-xs border-collapse">
+        <thead class="bg-slate-100/70 dark:bg-slate-800/70 text-[11px] uppercase font-bold text-slate-500">
           <tr>
-            <th class="px-6 py-3.5">Employee</th>
-            <th class="px-6 py-3.5">Certification</th>
-            <th class="px-6 py-3.5">Issuing Organization</th>
-            <th class="px-6 py-3.5">Credential ID</th>
-            <th class="px-6 py-3.5">Issued Date</th>
-            <th class="px-6 py-3.5">Expiry Date</th>
-            <th class="px-6 py-3.5">Status</th>
+            <th class="p-3.5">{{ 'HR:Employee' | translate }}</th>
+            <th class="p-3.5">{{ 'Certification' | translate }}</th>
+            <th class="p-3.5">{{ 'Issuing Organization' | translate }}</th>
+            <th class="p-3.5">{{ 'Issue Date' | translate }}</th>
+            <th class="p-3.5">{{ 'Expiry Date' | translate }}</th>
+            <th class="p-3.5">{{ 'Credential ID' | translate }}</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
-          <tr *ngFor="let cert of certifications" class="hover:bg-gray-50 dark:hover:bg-gray-800/40">
-            <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">{{ cert.employeeName }}</td>
-            <td class="px-6 py-4 font-semibold text-blue-600">{{ cert.certificationName }}</td>
-            <td class="px-6 py-4">{{ cert.issuingOrganization }}</td>
-            <td class="px-6 py-4 font-mono text-xs">{{ cert.credentialId }}</td>
-            <td class="px-6 py-4">{{ cert.issueDate | date:'mediumDate' }}</td>
-            <td class="px-6 py-4">{{ cert.expiryDate ? (cert.expiryDate | date:'mediumDate') : 'Permanent' }}</td>
-            <td class="px-6 py-4">
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
-                    [class.bg-emerald-100.text-emerald-800]="cert.status === 'Active'"
-                    [class.bg-amber-100.text-amber-800]="cert.status === 'ExpiringSoon'"
-                    [class.bg-red-100.text-red-800]="cert.status === 'Expired'">
-                {{ cert.status }}
-              </span>
-            </td>
+        <tbody class="divide-y divide-[var(--border-color)] text-[var(--text-main)]">
+          <tr *ngFor="let cert of certifications" class="hover:bg-slate-50/80 dark:bg-slate-800/50">
+            <td class="p-3.5 font-bold">{{ cert.employeeName }}</td>
+            <td class="p-3.5 font-semibold text-blue-600">{{ cert.certificationName }}</td>
+            <td class="p-3.5 text-[var(--text-muted)]">{{ cert.issuingOrganization }}</td>
+            <td class="p-3.5 text-[var(--text-muted)]">{{ cert.issueDate | date:'mediumDate' }}</td>
+            <td class="p-3.5 text-[var(--text-muted)]">{{ cert.expiryDate ? (cert.expiryDate | date:'mediumDate') : ('Permanent' | translate) }}</td>
+            <td class="p-3.5 font-mono text-[11px] text-slate-500">{{ cert.credentialId || '-' }}</td>
           </tr>
           <tr *ngIf="certifications.length === 0">
-            <td colspan="7" class="px-6 py-8 text-center text-gray-400">No certifications recorded.</td>
+            <td colspan="6" class="p-8 text-center text-[var(--text-muted)]">{{ 'No certifications issued yet.' | translate }}</td>
           </tr>
         </tbody>
       </table>
@@ -180,93 +173,117 @@
   </div>
 
   <!-- New Course Modal -->
-  <div *ngIf="showNewCourseModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-    <div class="card w-full max-w-md p-6 space-y-4">
-      <h3 class="text-lg font-bold text-gray-900 dark:text-white">Create Training Course</h3>
-      <div>
-        <label class="block text-xs font-semibold mb-1">Course Title</label>
-        <input type="text" [(ngModel)]="newCourse.title" class="form-input w-full" placeholder="e.g. Advanced ERP Financial Operations" />
-      </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="block text-xs font-semibold mb-1">Category</label>
-          <select [(ngModel)]="newCourse.category" class="form-select w-full">
-            <option value="Technical">Technical</option>
-            <option value="Compliance">Compliance & ISO</option>
-            <option value="Leadership">Leadership</option>
-            <option value="SoftSkills">Soft Skills</option>
-          </select>
+  @if (showNewCourseModal) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
+      <div class="w-full max-w-md bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl p-6 space-y-4 max-h-[85vh] overflow-y-auto text-[var(--text-main)]">
+        <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
+          <h3 class="text-sm font-bold text-[var(--text-main)]">{{ 'Create Training Course' | translate }}</h3>
+          <button (click)="showNewCourseModal = false" class="text-slate-400 hover:text-slate-600 cursor-pointer"><i class="pi pi-times"></i></button>
         </div>
-        <div>
-          <label class="block text-xs font-semibold mb-1">Delivery Method</label>
-          <select [(ngModel)]="newCourse.deliveryMethod" class="form-select w-full">
-            <option value="Online">Online / Self-Paced</option>
-            <option value="Classroom">Classroom Workshop</option>
-            <option value="Hybrid">Hybrid</option>
-          </select>
+        <div class="space-y-3 text-xs">
+          <div>
+            <label class="block font-bold text-slate-400 mb-1">{{ 'Course Title' | translate }}</label>
+            <input type="text" [(ngModel)]="newCourse.title" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-[var(--border-color)] rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden" placeholder="e.g. Advanced Leadership & Communication" />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-slate-400 mb-1">{{ 'Category' | translate }}</label>
+              <select [(ngModel)]="newCourse.category" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-[var(--border-color)] rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden">
+                <option value="Technical">{{ 'Technical' | translate }}</option>
+                <option value="Leadership">{{ 'Leadership' | translate }}</option>
+                <option value="Compliance">{{ 'Compliance & Security' | translate }}</option>
+                <option value="SoftSkills">{{ 'Soft Skills' | translate }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-bold text-slate-400 mb-1">{{ 'Delivery Method' | translate }}</label>
+              <select [(ngModel)]="newCourse.deliveryMethod" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-[var(--border-color)] rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden">
+                <option value="Classroom">{{ 'Classroom' | translate }}</option>
+                <option value="Online">{{ 'Online' | translate }}</option>
+                <option value="Blended">{{ 'Blended' | translate }}</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-400 mb-1">{{ 'Trainer / Instructor Name' | translate }}</label>
+            <input type="text" [(ngModel)]="newCourse.trainerName" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-[var(--border-color)] rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden" />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-slate-400 mb-1">{{ 'Duration (Hours)' | translate }}</label>
+              <input type="number" [(ngModel)]="newCourse.durationHours" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-[var(--border-color)] rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden" />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-400 mb-1">{{ 'Cost Per Attendee ($)' | translate }}</label>
+              <input type="number" [(ngModel)]="newCourse.costPerAttendee" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-[var(--border-color)] rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden" />
+            </div>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-400 mb-1">{{ 'Passing Score (%)' | translate }}</label>
+            <input type="number" [(ngModel)]="newCourse.passingScore" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-[var(--border-color)] rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden" />
+          </div>
+          <div>
+            <label class="block font-bold text-slate-400 mb-1">{{ 'Course Description' | translate }}</label>
+            <textarea [(ngModel)]="newCourse.description" rows="2" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-[var(--border-color)] rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden"></textarea>
+          </div>
         </div>
-      </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="block text-xs font-semibold mb-1">Duration (Hours)</label>
-          <input type="number" [(ngModel)]="newCourse.durationHours" class="form-input w-full" />
+        <div class="flex justify-end gap-2 pt-3 border-t border-[var(--border-color)]">
+          <button (click)="showNewCourseModal = false" class="btn-outline text-xs cursor-pointer">{{ 'UI:Cancel' | translate }}</button>
+          <button (click)="createCourse()" class="btn-primary text-xs cursor-pointer">{{ 'Save Course' | translate }}</button>
         </div>
-        <div>
-          <label class="block text-xs font-semibold mb-1">Passing Score (%)</label>
-          <input type="number" [(ngModel)]="newCourse.passingScore" class="form-input w-full" />
-        </div>
-      </div>
-      <div>
-        <label class="block text-xs font-semibold mb-1">Instructor / Trainer Name</label>
-        <input type="text" [(ngModel)]="newCourse.trainerName" class="form-input w-full" />
-      </div>
-      <div class="flex justify-end gap-3 pt-4">
-        <button (click)="showNewCourseModal = false" class="btn btn-secondary">Cancel</button>
-        <button (click)="createCourse()" class="btn btn-primary">Save Course</button>
       </div>
     </div>
-  </div>
+  }
 
   <!-- Enroll Modal -->
-  <div *ngIf="showEnrollModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-    <div class="card w-full max-w-md p-6 space-y-4">
-      <h3 class="text-lg font-bold text-gray-900 dark:text-white">Enroll Employee in Training</h3>
-      <div>
-        <label class="block text-xs font-semibold mb-1">Select Course</label>
-        <select [(ngModel)]="enrollForm.courseId" class="form-select w-full">
-          <option *ngFor="let c of courses" [value]="c.id">{{ c.title }} ({{ c.category }})</option>
-        </select>
-      </div>
-      <div>
-        <label class="block text-xs font-semibold mb-1">Select Employee</label>
-        <select [(ngModel)]="enrollForm.employeeId" class="form-select w-full">
-          <option *ngFor="let emp of employees" [value]="emp.id">{{ emp.name }} - {{ emp.departmentName }}</option>
-        </select>
-      </div>
-      <div class="flex justify-end gap-3 pt-4">
-        <button (click)="showEnrollModal = false" class="btn btn-secondary">Cancel</button>
-        <button (click)="enroll()" class="btn btn-primary">Confirm Enrollment</button>
+  @if (showEnrollModal) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
+      <div class="w-full max-w-md bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl p-6 space-y-4 max-h-[85vh] overflow-y-auto text-[var(--text-main)]">
+        <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
+          <h3 class="text-sm font-bold text-[var(--text-main)]">{{ 'Enroll Employee in Course' | translate }}</h3>
+          <button (click)="showEnrollModal = false" class="text-slate-400 hover:text-slate-600 cursor-pointer"><i class="pi pi-times"></i></button>
+        </div>
+        <div class="space-y-3 text-xs">
+          <div>
+            <label class="block font-bold text-slate-400 mb-1">{{ 'Select Course' | translate }}</label>
+            <select [(ngModel)]="enrollForm.courseId" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-[var(--border-color)] rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden">
+              <option *ngFor="let c of courses" [value]="c.id">{{ c.title }} ({{ c.category | translate }})</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-400 mb-1">{{ 'Select Employee' | translate }}</label>
+            <select [(ngModel)]="enrollForm.employeeId" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-[var(--border-color)] rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden">
+              <option *ngFor="let emp of employees" [value]="emp.id">{{ emp.name }} ({{ emp.departmentName }})</option>
+            </select>
+          </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-3 border-t border-[var(--border-color)]">
+          <button (click)="showEnrollModal = false" class="btn-outline text-xs cursor-pointer">{{ 'UI:Cancel' | translate }}</button>
+          <button (click)="enroll()" class="btn-primary text-xs cursor-pointer">{{ 'Enroll Employee' | translate }}</button>
+        </div>
       </div>
     </div>
-  </div>
+  }
 
-  <!-- Grading Modal -->
-  <div *ngIf="showGradingModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-    <div class="card w-full max-w-md p-6 space-y-4">
-      <h3 class="text-lg font-bold text-gray-900 dark:text-white">Grade Course: {{ selectedEnrollment?.courseTitle }}</h3>
-      <p class="text-xs text-gray-500">Employee: <strong>{{ selectedEnrollment?.employeeName }}</strong></p>
-      <div>
-        <label class="block text-xs font-semibold mb-1">Score achieved (%)</label>
-        <input type="number" min="0" max="100" [(ngModel)]="gradeForm.score" class="form-input w-full" />
-      </div>
-      <div>
-        <label class="block text-xs font-semibold mb-1">Instructor Feedback</label>
-        <textarea [(ngModel)]="gradeForm.feedback" rows="3" class="form-input w-full"></textarea>
-      </div>
-      <div class="flex justify-end gap-3 pt-4">
-        <button (click)="showGradingModal = false" class="btn btn-secondary">Cancel</button>
-        <button (click)="submitGrading()" class="btn btn-primary">Complete & Issue Certificate</button>
+  <!-- Grade Modal -->
+  @if (showGradingModal) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
+      <div class="w-full max-w-md bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl p-6 space-y-4 max-h-[85vh] overflow-y-auto text-[var(--text-main)]">
+        <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
+          <h3 class="text-sm font-bold text-[var(--text-main)]">{{ 'Grade Course & Issue Certification' | translate }}</h3>
+          <button (click)="showGradingModal = false" class="text-slate-400 hover:text-slate-600 cursor-pointer"><i class="pi pi-times"></i></button>
+        </div>
+        <div class="space-y-3 text-xs">
+          <div>
+            <label class="block font-bold text-slate-400 mb-1">{{ 'Final Assessment Score (%)' | translate }}</label>
+            <input type="number" [(ngModel)]="gradeForm.score" min="0" max="100" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-[var(--border-color)] rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden" />
+          </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-3 border-t border-[var(--border-color)]">
+          <button (click)="showGradingModal = false" class="btn-outline text-xs cursor-pointer">{{ 'UI:Cancel' | translate }}</button>
+          <button (click)="submitGrade()" class="btn-primary text-xs cursor-pointer">{{ 'Save & Issue' | translate }}</button>
+        </div>
       </div>
     </div>
-  </div>
+  }
 </div>

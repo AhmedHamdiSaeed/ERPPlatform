@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { HrApiService } from '../../../core/services/api/hr-api.service';
 import { BenefitPlan, EmployeeBenefit, Employee } from '../../../core/models/erp-models';
 import { StateService } from '../../../core/services/state.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-benefits',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslatePipe],
   templateUrl: './benefits.component.html'
 })
 export class BenefitsComponent implements OnInit {

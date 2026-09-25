@@ -6,25 +6,25 @@
         <img [src]="currentEmployee?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'"
              alt="Avatar" class="w-16 h-16 rounded-full border-2 border-white/50 object-cover shadow" />
         <div>
-          <h1 class="text-2xl font-bold">{{ currentEmployee?.name || 'Welcome Employee' }}</h1>
+          <h1 class="text-2xl font-bold">{{ currentEmployee?.name || ('Welcome' | translate) }}</h1>
           <p class="text-blue-200 text-sm mt-0.5">
-            {{ currentEmployee?.position }} &bull; {{ currentEmployee?.departmentName }} &bull; ID: {{ currentEmployee?.employeeCode }}
+            {{ currentEmployee?.position }} &bull; {{ currentEmployee?.departmentName }} &bull; {{ 'HR:IdCode' | translate }}: {{ currentEmployee?.employeeCode }}
           </p>
           <div class="flex items-center gap-4 mt-2 text-xs text-blue-100">
-            <span><i class="pi pi-user mr-1"></i> Manager: <strong>{{ currentEmployee?.managerName || 'HR Admin' }}</strong></span>
-            <span><i class="pi pi-map-marker mr-1"></i> {{ currentEmployee?.location || 'Cairo HQ' }}</span>
+            <span><i class="pi pi-user mr-1 rtl:mr-0 rtl:ml-1"></i> {{ 'Manager:' | translate }} <strong>{{ currentEmployee?.managerName || 'HR Admin' }}</strong></span>
+            <span><i class="pi pi-map-marker mr-1 rtl:mr-0 rtl:ml-1"></i> {{ currentEmployee?.location || 'HQ' }}</span>
           </div>
         </div>
       </div>
 
       <div class="flex items-center gap-3">
-        <button (click)="quickClockIn()" class="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm shadow-md transition-all flex items-center gap-2">
+        <button (click)="quickClockIn()" class="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm shadow-md transition-all flex items-center gap-2 cursor-pointer">
           <i class="pi pi-clock text-base"></i>
-          <span>Clock In / Out</span>
+          <span>{{ 'Clock In / Out' | translate }}</span>
         </button>
-        <button (click)="showLeaveModal = true" class="px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 text-white font-semibold text-sm backdrop-blur-md transition-all flex items-center gap-2">
+        <button (click)="showLeaveModal = true" class="px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 text-white font-semibold text-sm backdrop-blur-md transition-all flex items-center gap-2 cursor-pointer">
           <i class="pi pi-calendar-plus text-base"></i>
-          <span>Request Leave</span>
+          <span>{{ 'Request Leave' | translate }}</span>
         </button>
       </div>
     </div>
@@ -42,8 +42,8 @@
         <i class="pi pi-sun"></i>
       </div>
       <div>
-        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Leave Balance</p>
-        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ currentEmployee?.leaveBalance || 21 }} Days</p>
+        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ 'Leave Balance' | translate }}</p>
+        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ currentEmployee?.leaveBalance || 21 }} {{ 'Days' | translate }}</p>
       </div>
     </div>
     <div class="card p-4 flex items-center gap-4">
@@ -51,7 +51,7 @@
         <i class="pi pi-calendar"></i>
       </div>
       <div>
-        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Leave Requests</p>
+        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ 'Leave Requests' | translate }}</p>
         <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ myLeaves.length }}</p>
       </div>
     </div>
@@ -60,7 +60,7 @@
         <i class="pi pi-file-pdf"></i>
       </div>
       <div>
-        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">My Documents</p>
+        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ 'My Documents' | translate }}</p>
         <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ myDocuments.length }}</p>
       </div>
     </div>
@@ -69,7 +69,7 @@
         <i class="pi pi-dollar"></i>
       </div>
       <div>
-        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Active Loans</p>
+        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ 'Active Loans' | translate }}</p>
         <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ myLoans.length }}</p>
       </div>
     </div>
@@ -80,18 +80,18 @@
     <div class="card p-5 space-y-4">
       <div class="flex items-center justify-between">
         <h3 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
-          <i class="pi pi-history text-blue-600"></i> My Recent Attendance
+          <i class="pi pi-history text-blue-600"></i> {{ 'My Recent Attendance' | translate }}
         </h3>
       </div>
       <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs text-gray-600 dark:text-gray-300">
+        <table class="w-full text-start text-xs text-gray-600 dark:text-gray-300">
           <thead class="bg-gray-50 dark:bg-gray-800/60 uppercase font-semibold text-gray-700 dark:text-gray-300">
             <tr>
-              <th class="px-3 py-2.5">Date</th>
-              <th class="px-3 py-2.5">Clock In</th>
-              <th class="px-3 py-2.5">Clock Out</th>
-              <th class="px-3 py-2.5">Hours</th>
-              <th class="px-3 py-2.5">Status</th>
+              <th class="px-3 py-2.5">{{ 'HR:Date' | translate }}</th>
+              <th class="px-3 py-2.5">{{ 'Clock In' | translate }}</th>
+              <th class="px-3 py-2.5">{{ 'Clock Out' | translate }}</th>
+              <th class="px-3 py-2.5">{{ 'Hours' | translate }}</th>
+              <th class="px-3 py-2.5">{{ 'HR:Status' | translate }}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
@@ -99,17 +99,17 @@
               <td class="px-3 py-2 font-medium">{{ att.date | date:'mediumDate' }}</td>
               <td class="px-3 py-2 font-mono">{{ att.checkIn }}</td>
               <td class="px-3 py-2 font-mono">{{ att.checkOut }}</td>
-              <td class="px-3 py-2 font-bold">{{ att.workingHours }} hrs</td>
+              <td class="px-3 py-2 font-bold">{{ att.workingHours }} {{ 'hrs' | translate }}</td>
               <td class="px-3 py-2">
                 <span class="px-2 py-0.5 rounded text-[11px] font-semibold"
                       [class.bg-emerald-100.text-emerald-800]="att.status === 'Present'"
                       [class.bg-amber-100.text-amber-800]="att.status === 'Late'">
-                  {{ att.status }}
+                  {{ att.status | translate }}
                 </span>
               </td>
             </tr>
             <tr *ngIf="myAttendance.length === 0">
-              <td colspan="5" class="px-3 py-4 text-center text-gray-400">No recent attendance recorded.</td>
+              <td colspan="5" class="px-3 py-4 text-center text-gray-400">{{ 'No recent attendance recorded.' | translate }}</td>
             </tr>
           </tbody>
         </table>
@@ -120,23 +120,23 @@
     <div class="card p-5 space-y-4">
       <div class="flex items-center justify-between">
         <h3 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
-          <i class="pi pi-calendar text-emerald-600"></i> My Leave Applications
+          <i class="pi pi-calendar text-emerald-600"></i> {{ 'My Leave Applications' | translate }}
         </h3>
-        <button (click)="showLeaveModal = true" class="btn btn-secondary text-xs px-3 py-1">Apply Leave</button>
+        <button (click)="showLeaveModal = true" class="btn btn-secondary text-xs px-3 py-1 cursor-pointer">{{ 'Apply Leave' | translate }}</button>
       </div>
       <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs text-gray-600 dark:text-gray-300">
+        <table class="w-full text-start text-xs text-gray-600 dark:text-gray-300">
           <thead class="bg-gray-50 dark:bg-gray-800/60 uppercase font-semibold text-gray-700 dark:text-gray-300">
             <tr>
-              <th class="px-3 py-2.5">Leave Type</th>
-              <th class="px-3 py-2.5">Dates</th>
-              <th class="px-3 py-2.5">Days</th>
-              <th class="px-3 py-2.5">Status</th>
+              <th class="px-3 py-2.5">{{ 'HR:LeaveType' | translate }}</th>
+              <th class="px-3 py-2.5">{{ 'Dates' | translate }}</th>
+              <th class="px-3 py-2.5">{{ 'Days' | translate }}</th>
+              <th class="px-3 py-2.5">{{ 'HR:Status' | translate }}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
             <tr *ngFor="let lv of myLeaves.slice(0, 5)">
-              <td class="px-3 py-2 font-medium">{{ lv.leaveType }}</td>
+              <td class="px-3 py-2 font-medium">{{ lv.leaveType | translate }}</td>
               <td class="px-3 py-2">{{ lv.startDate | date:'shortDate' }} - {{ lv.endDate | date:'shortDate' }}</td>
               <td class="px-3 py-2 font-bold">{{ lv.daysCount }}</td>
               <td class="px-3 py-2">
@@ -144,12 +144,12 @@
                       [class.bg-emerald-100.text-emerald-800]="lv.status === 'Approved'"
                       [class.bg-amber-100.text-amber-800]="lv.status === 'Pending'"
                       [class.bg-red-100.text-red-800]="lv.status === 'Rejected'">
-                  {{ lv.status }}
+                  {{ lv.status | translate }}
                 </span>
               </td>
             </tr>
             <tr *ngIf="myLeaves.length === 0">
-              <td colspan="4" class="px-3 py-4 text-center text-gray-400">No leave applications found.</td>
+              <td colspan="4" class="px-3 py-4 text-center text-gray-400">{{ 'No leave requests submitted.' | translate }}</td>
             </tr>
           </tbody>
         </table>
@@ -157,40 +157,39 @@
     </div>
   </div>
 
-  <!-- Leave Modal -->
-  <div *ngIf="showLeaveModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-    <div class="card w-full max-w-md p-6 space-y-4">
-      <h3 class="text-lg font-bold text-gray-900 dark:text-white">Submit Leave Request</h3>
+  <!-- Leave Application Modal -->
+  <div *ngIf="showLeaveModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
+    <div class="w-full max-w-md bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl p-6 space-y-4 max-h-[85vh] overflow-y-auto text-[var(--text-main)]">
+      <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ 'Submit Leave Application' | translate }}</h3>
+        <button (click)="showLeaveModal = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"><i class="pi pi-times"></i></button>
+      </div>
       <div>
-        <label class="block text-xs font-semibold mb-1">Leave Type</label>
-        <select [(ngModel)]="leaveForm.leaveType" class="form-select w-full">
-          <option value="Annual">Annual Vacation</option>
-          <option value="Sick">Sick Leave</option>
-          <option value="Emergency">Emergency Leave</option>
-          <option value="Unpaid">Unpaid Leave</option>
+        <label class="block text-xs font-semibold mb-1 text-[var(--text-main)]">{{ 'HR:LeaveType' | translate }}</label>
+        <select [(ngModel)]="leaveForm.leaveType" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-[var(--border-color)] rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden">
+          <option value="Annual">{{ 'HR:AnnualLeave' | translate }}</option>
+          <option value="Sick">{{ 'HR:SickLeave' | translate }}</option>
+          <option value="Casual">{{ 'HR:CasualLeave' | translate }}</option>
+          <option value="Unpaid">{{ 'HR:UnpaidLeave' | translate }}</option>
         </select>
       </div>
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="block text-xs font-semibold mb-1">Start Date</label>
-          <input type="date" [(ngModel)]="leaveForm.startDate" class="form-input w-full" />
+          <label class="block text-xs font-semibold mb-1 text-[var(--text-main)]">{{ 'HR:StartDate' | translate }}</label>
+          <input type="date" [(ngModel)]="leaveForm.startDate" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-[var(--border-color)] rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden" />
         </div>
         <div>
-          <label class="block text-xs font-semibold mb-1">End Date</label>
-          <input type="date" [(ngModel)]="leaveForm.endDate" class="form-input w-full" />
+          <label class="block text-xs font-semibold mb-1 text-[var(--text-main)]">{{ 'HR:EndDate' | translate }}</label>
+          <input type="date" [(ngModel)]="leaveForm.endDate" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-[var(--border-color)] rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden" />
         </div>
       </div>
       <div>
-        <label class="block text-xs font-semibold mb-1">Days Count</label>
-        <input type="number" [(ngModel)]="leaveForm.daysCount" class="form-input w-full" />
+        <label class="block text-xs font-semibold mb-1 text-[var(--text-main)]">{{ 'Leave Reason & Notes' | translate }}</label>
+        <textarea [(ngModel)]="leaveForm.reason" rows="2" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-[var(--border-color)] rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden"></textarea>
       </div>
-      <div>
-        <label class="block text-xs font-semibold mb-1">Reason / Notes</label>
-        <textarea [(ngModel)]="leaveForm.reason" rows="2" class="form-input w-full"></textarea>
-      </div>
-      <div class="flex justify-end gap-3 pt-4">
-        <button (click)="showLeaveModal = false" class="btn btn-secondary">Cancel</button>
-        <button (click)="submitLeaveRequest()" class="btn btn-primary">Submit Application</button>
+      <div class="flex justify-end gap-3 pt-4 border-t border-[var(--border-color)]">
+        <button (click)="showLeaveModal = false" class="btn btn-outline text-xs cursor-pointer">{{ 'UI:Cancel' | translate }}</button>
+        <button (click)="submitLeave()" class="btn btn-primary text-xs cursor-pointer">{{ 'Submit Request' | translate }}</button>
       </div>
     </div>
   </div>

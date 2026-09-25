@@ -4,16 +4,18 @@ import { FormsModule } from '@angular/forms';
 import { WorkflowTask } from '../../../core/models/erp-models';
 import { WorkflowApiService } from '../../../core/services/api/workflow-api.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { DialogService } from '../../../core/services/dialog.service';
 import { TranslatePipe } from 'src/app/shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-my-tasks',
   standalone: true,
-  imports: [FormsModule, RouterModule,TranslatePipe],
+  imports: [FormsModule, RouterModule, TranslatePipe],
   templateUrl: './my-tasks.component.html'
 })
 export class MyTasksComponent {
   private toast = inject(ToastService);
+  private dialog = inject(DialogService);
   private workflowApi = inject(WorkflowApiService);
 
   tasks = signal<WorkflowTask[]>([]);
@@ -54,9 +56,22 @@ export class MyTasksComponent {
   }
 
   async requestChanges(id: string) {
-    const comments = prompt('Please describe the changes needed:') || 'Modifications requested';
+    const comments = await this.dialog.prompt({
+      title: 'Request Task Modifications',
+      message: 'Please describe the required changes or missing information:',
+      placeholder: 'e.g. Please attach the invoice receipt and updated quotation...',
+      confirmText: 'Submit Request',
+      cancelText: 'Cancel',
+      type: 'warning',
+      multiline: true
+    });
+
+    if (comments === null) {
+      return;
+    }
+
     try {
-      await this.workflowApi.requestChanges(id, comments);
+      await this.workflowApi.requestChanges(id, comments || 'Modifications requested');
       await this.loadTasks();
       this.toast.warning('Requested modifications sent back to task submitter.', 'Changes Requested');
     } catch (e) {
@@ -77,7 +92,15 @@ export class MyTasksComponent {
   }
 
   async delegateTask(taskId: string) {
-    const user = prompt('Enter delegate user / manager ID to assign:');
+    const user = await this.dialog.prompt({
+      title: 'Delegate Workflow Task',
+      message: 'Enter delegate user or supervisor email / username to reassign this task:',
+      placeholder: 'e.g. sarah.manager@company.com',
+      confirmText: 'Delegate Task',
+      cancelText: 'Cancel',
+      type: 'info'
+    });
+
     if (!user) return;
     try {
       await this.workflowApi.delegateTask(taskId, user, 'Vacation / Out of office auto-delegation');

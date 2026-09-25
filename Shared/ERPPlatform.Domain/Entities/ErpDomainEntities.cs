@@ -76,6 +76,36 @@ namespace ERPPlatform.Domain.Entities
         public long? LimitValue { get; set; }
     }
 
+    public class TenantProfile : FullAuditedAggregateRoot<Guid>
+    {
+        public Guid TenantId { get; set; }
+        public string Code { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string LegalName { get; set; } = string.Empty;
+        public string Subdomain { get; set; } = string.Empty;
+        public string CustomDomain { get; set; } = string.Empty;
+        public string TaxNumber { get; set; } = string.Empty;
+        public string Currency { get; set; } = "USD";
+        public string Timezone { get; set; } = "UTC";
+        public string LogoUrl { get; set; } = string.Empty;
+        public string PrimaryColor { get; set; } = "#4f46e5";
+        public string PlanTier { get; set; } = "Starter"; // Trial, Starter, Professional, Enterprise
+        public string Status { get; set; } = "Active"; // Active, Suspended, Trial, Expired
+        public int MaxUsers { get; set; } = 10;
+        public int StorageLimitGb { get; set; } = 10;
+        public double UsedStorageMb { get; set; } = 120.5;
+        public int ActiveUserCount { get; set; } = 1;
+        public string AdminEmail { get; set; } = string.Empty;
+        public string AdminFullName { get; set; } = string.Empty;
+        public string AdminPhone { get; set; } = string.Empty;
+        public bool IsDedicatedDb { get; set; } = false;
+        public string CustomConnectionString { get; set; } = string.Empty;
+        public string EnabledModulesJson { get; set; } = "[\"HR\",\"Finance\",\"Sales\",\"Inventory\",\"AI\",\"Workflow\"]";
+        public DateTime? TrialEndDate { get; set; }
+        public DateTime? SubscriptionRenewalDate { get; set; }
+        public decimal MonthlyFee { get; set; } = 99m;
+    }
+
     // HR Entities & Core Master Data (Phase 1 Enterprise Suite)
     public class Employee : FullAuditedAggregateRoot<Guid>
     {

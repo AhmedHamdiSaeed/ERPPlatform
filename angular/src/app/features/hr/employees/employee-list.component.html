@@ -1,200 +1,200 @@
 <div class="space-y-6 animate-fade-in pb-8">
-      
-      <!-- Page Header -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">{{ 'HR:EmployeesDirectory' | translate }}</h1>
-          <p class="text-xs text-[var(--text-muted)] mt-0.5">{{ 'HR:EmployeesDirectoryDesc' | translate }}</p>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <button (click)="openAddModal()" class="btn-primary text-xs cursor-pointer">
-            <i class="pi pi-user-plus"></i> {{ 'HR:AddEmployee' | translate }}
-          </button>
-          <button (click)="showImportModal.set(true)" class="btn-outline text-xs cursor-pointer flex items-center gap-1.5">
-            <i class="pi pi-file-excel text-emerald-600"></i> {{ 'HR:ImportEmployees' | translate }}
-          </button>
-        </div>
-      </div>
-
-      <!-- Filters & Search Bar -->
-      <div class="card-panel flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div class="relative w-full sm:w-80">
-          <i class="pi pi-search absolute left-3 top-3 text-slate-400 text-xs"></i>
-          <input 
-            type="text" 
-            [(ngModel)]="searchQuery" 
-            (ngModelChange)="onSearchChange()"
-            placeholder="{{ 'HR:SearchPlaceholder' | translate }}"
-            class="w-full pl-9 pr-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden"
-          />
-        </div>
-
-        <div class="flex items-center gap-2 w-full sm:w-auto overflow-x-auto">
-          <select [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()" class="px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-[var(--text-main)]">
-            <option value="ALL">{{ 'HR:AllStatuses' | translate }}</option>
-            <option value="Active">{{ 'HR:Active' | translate }}</option>
-            <option value="On Leave">{{ 'HR:OnLeave' | translate }}</option>
-            <option value="Inactive">{{ 'HR:Inactive' | translate }}</option>
-          </select>
-
-          <!-- Page Size Selector -->
-          <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-xl text-xs">
-            <span class="text-slate-400 text-[11px] font-semibold">Page Size:</span>
-            <select [ngModel]="pageSize" (ngModelChange)="onPageSizeChange($event)" class="bg-transparent font-bold text-blue-600 dark:text-blue-400 focus:outline-none cursor-pointer">
-              @for (size of pageSizeOptions; track size) {
-                <option [value]="size" class="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200">{{ size }}</option>
-              }
-            </select>
-          </div>
-
-          <span class="text-xs text-[var(--text-muted)] font-semibold whitespace-nowrap">
-            {{ 'HR:Showing' | translate }} {{ startIndex }}-{{ endIndex }} / {{ totalCount() }} {{ 'HR:Employees' | translate }}
-          </span>
-        </div>
-      </div>
-
-      <!-- Employee Table -->
-      <div class="card-panel !p-0 overflow-hidden">
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-slate-100/70 dark:bg-slate-800/70 text-slate-500 dark:text-slate-400 text-[11px] font-bold uppercase tracking-wider border-b border-[var(--border-color)]">
-                <th class="p-3.5">{{ 'HR:Employee' | translate }}</th>
-                <th class="p-3.5">{{ 'HR:IdCode' | translate }}</th>
-                <th class="p-3.5">{{ 'HR:Department' | translate }}</th>
-                <th class="p-3.5">{{ 'HR:Position' | translate }}</th>
-                <th class="p-3.5">{{ 'HR:JoiningDate' | translate }}</th>
-                <th class="p-3.5">{{ 'HR:Status' | translate }}</th>
-                <th class="p-3.5 text-right">{{ 'HR:Actions' | translate }}</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-[var(--border-color)] text-xs text-[var(--text-main)]">
-              @for (emp of employees(); track emp.id) {
-                <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
-                  
-                  <!-- Avatar & Name -->
-                  <td class="p-3.5">
-                    <a [routerLink]="['/hr/employees', emp.id]" class="flex items-center gap-3 decoration-none group">
-                      <img [src]="emp.avatar" [alt]="emp.name" class="w-9 h-9 rounded-full object-cover ring-2 ring-blue-500/20 group-hover:ring-blue-500 transition-all" />
-                      <div>
-                        <span class="font-bold block text-[var(--text-main)] group-hover:text-blue-600 transition-colors">{{ emp.name }}</span>
-                        <span class="text-[11px] text-[var(--text-muted)] block">{{ emp.email }}</span>
-                      </div>
-                    </a>
-                  </td>
-
-                  <td class="p-3.5 font-mono text-[11px] font-semibold text-slate-500">{{ emp.employeeCode }}</td>
-                  <td class="p-3.5 font-medium">{{ emp.departmentName | translate }}</td>
-                  <td class="p-3.5 text-slate-600 dark:text-slate-300">{{ emp.position | translate }}</td>
-                  <td class="p-3.5 text-slate-500">{{ emp.joiningDate | appDate }}</td>
-
-                  <td class="p-3.5">
-                    <span class="status-badge" [class.active]="emp.status === 'Active'" [class.on_leave]="emp.status === 'On Leave'" [class.inactive]="emp.status === 'Inactive'">
-                      {{ emp.status | translate }}
-                    </span>
-                  </td>
-
-                  <td class="p-3.5 text-right space-x-1">
-                    <a [routerLink]="['/hr/employees', emp.id]" class="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-800 rounded-md inline-block" title="View Profile">
-                      <i class="pi pi-eye"></i>
-                    </a>
-                    <button (click)="openEditModal(emp)" class="p-1.5 text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md" title="Edit">
-                      <i class="pi pi-pencil"></i>
-                    </button>
-                    <button (click)="deleteEmployee(emp.id)" class="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-slate-800 rounded-md" title="Delete">
-                      <i class="pi pi-trash"></i>
-                    </button>
-                  </td>
-
-                </tr>
-              } @empty {
-                <tr>
-                  <td colspan="7" class="p-8 text-center text-xs text-[var(--text-muted)]">
-                    No employee records found.
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-
-        <!-- DB Server Pagination Bar -->
-        <div class="px-4 py-3 bg-slate-50/70 dark:bg-slate-800/50 border-t border-[var(--border-color)] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-          <div class="text-[var(--text-muted)] font-medium">
-            Showing <span class="font-bold text-[var(--text-main)]">{{ startIndex }}</span> to <span class="font-bold text-[var(--text-main)]">{{ endIndex }}</span> of <span class="font-bold text-[var(--text-main)]">{{ totalCount() }}</span> employees
-          </div>
-
-          <div class="flex items-center gap-2">
-            <!-- Page Size Dropdown -->
-            <div class="flex items-center gap-1 text-[var(--text-muted)] mr-2">
-              <span>Per page:</span>
-              <select [ngModel]="pageSize" (ngModelChange)="onPageSizeChange($event)" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-1 rounded-lg font-bold text-blue-600 cursor-pointer">
-                @for (size of pageSizeOptions; track size) {
-                  <option [value]="size">{{ size }}</option>
-                }
-              </select>
-            </div>
-
-            <!-- Page Buttons -->
-            <button 
-              (click)="goToPage(currentPage - 1)" 
-              [disabled]="currentPage === 1 || loading()"
-              class="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 disabled:opacity-40 text-xs font-semibold hover:bg-slate-100 cursor-pointer">
-              <i class="pi pi-chevron-left text-[10px]"></i> Prev
-            </button>
-
-            <span class="px-3 py-1 font-extrabold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 rounded-lg">
-              Page {{ currentPage }} / {{ totalPages() }}
-            </span>
-
-            <button 
-              (click)="goToPage(currentPage + 1)" 
-              [disabled]="currentPage >= totalPages() || loading()"
-              class="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 disabled:opacity-40 text-xs font-semibold hover:bg-slate-100 cursor-pointer">
-              Next <i class="pi pi-chevron-right text-[10px]"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Add/Edit Employee Dialog -->
-      @if (showModal()) {
-        <div class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
-          <div class="w-full max-w-lg bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl overflow-hidden p-6 space-y-4">
-            <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
-              <h3 class="font-bold text-sm text-[var(--text-main)]">{{ isEditMode ? ('HR:EditEmployeeProfile' | translate) : ('HR:AddNewEmployee' | translate) }}</h3>
-              <button (click)="showModal.set(false)" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times"></i></button>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3 text-xs">
-              <div>
-                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:FullName' | translate }}</label>
-                <input type="text" [(ngModel)]="currentEmp.name" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
-              </div>
-              <div>
-                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:EmailAddress' | translate }}</label>
-                <input type="email" [(ngModel)]="currentEmp.email" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
-              </div>
-              <div>
-                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:Department' | translate }}</label>
-                <input type="text" [(ngModel)]="currentEmp.departmentName" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
-              </div>
-              <div>
-                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:Position' | translate }}</label>
-                <input type="text" [(ngModel)]="currentEmp.position" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
-              </div>
-            </div>
-
-            <div class="pt-3 border-t border-[var(--border-color)] flex justify-end gap-2">
-              <button (click)="showModal.set(false)" class="btn-outline text-xs">{{ 'UI:Cancel' | translate }}</button>
-              <button (click)="saveEmployee()" class="btn-primary text-xs">{{ 'HR:SaveEmployee' | translate }}</button>
-            </div>
-          </div>
-        </div>
-      }
-
-      <!-- Dedicated 13-Step Excel Import Modal -->
-      <app-employee-import-modal [(visible)]="showImportModal" (importCompleted)="loadEmployees()"></app-employee-import-modal>
-
+  
+  <!-- Page Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-xl font-extrabold text-[var(--text-main)] tracking-tight">{{ 'HR:EmployeesDirectory' | translate }}</h1>
+      <p class="text-xs text-[var(--text-muted)] mt-0.5">{{ 'HR:EmployeesDirectoryDesc' | translate }}</p>
     </div>
+
+    <div class="flex items-center gap-2">
+      <button (click)="openAddModal()" class="btn-primary text-xs cursor-pointer">
+        <i class="pi pi-user-plus"></i> {{ 'HR:AddEmployee' | translate }}
+      </button>
+      <button (click)="showImportModal.set(true)" class="btn-outline text-xs cursor-pointer flex items-center gap-1.5">
+        <i class="pi pi-file-excel text-emerald-600"></i> {{ 'HR:ImportEmployees' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters & Search Bar -->
+  <div class="card-panel flex flex-col sm:flex-row items-center justify-between gap-3">
+    <div class="relative w-full sm:w-80">
+      <i class="pi pi-search absolute left-3 rtl:left-auto rtl:right-3 top-3 text-slate-400 text-xs"></i>
+      <input 
+        type="text" 
+        [(ngModel)]="searchQuery" 
+        (ngModelChange)="onSearchChange()"
+        [placeholder]="'HR:SearchPlaceholder' | translate"
+        class="w-full pl-9 rtl:pl-3 rtl:pr-9 pr-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden"
+      />
+    </div>
+
+    <div class="flex items-center gap-2 w-full sm:w-auto overflow-x-auto">
+      <select [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()" class="px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-[var(--text-main)]">
+        <option value="ALL">{{ 'HR:AllStatuses' | translate }}</option>
+        <option value="Active">{{ 'HR:Active' | translate }}</option>
+        <option value="On Leave">{{ 'HR:OnLeave' | translate }}</option>
+        <option value="Inactive">{{ 'HR:Inactive' | translate }}</option>
+      </select>
+
+      <!-- Page Size Selector -->
+      <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-xl text-xs">
+        <span class="text-slate-400 text-[11px] font-semibold">{{ 'Page Size:' | translate }}</span>
+        <select [ngModel]="pageSize" (ngModelChange)="onPageSizeChange($event)" class="bg-transparent font-bold text-blue-600 dark:text-blue-400 focus:outline-none cursor-pointer">
+          @for (size of pageSizeOptions; track size) {
+            <option [value]="size" class="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200">{{ size }}</option>
+          }
+        </select>
+      </div>
+
+      <span class="text-xs text-[var(--text-muted)] font-semibold whitespace-nowrap">
+        {{ 'Showing' | translate }} {{ startIndex }}-{{ endIndex }} / {{ totalCount() }} {{ 'Employees' | translate }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Employee Table -->
+  <div class="card-panel !p-0 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-start border-collapse">
+        <thead>
+          <tr class="bg-slate-100/70 dark:bg-slate-800/70 text-slate-500 dark:text-slate-400 text-[11px] font-bold uppercase tracking-wider border-b border-[var(--border-color)]">
+            <th class="p-3.5">{{ 'HR:Employee' | translate }}</th>
+            <th class="p-3.5">{{ 'HR:IdCode' | translate }}</th>
+            <th class="p-3.5">{{ 'HR:Department' | translate }}</th>
+            <th class="p-3.5">{{ 'HR:Position' | translate }}</th>
+            <th class="p-3.5">{{ 'HR:JoiningDate' | translate }}</th>
+            <th class="p-3.5">{{ 'HR:Status' | translate }}</th>
+            <th class="p-3.5 text-end">{{ 'HR:Actions' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[var(--border-color)] text-xs text-[var(--text-main)]">
+          @for (emp of employees(); track emp.id) {
+            <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+              
+              <!-- Avatar & Name -->
+              <td class="p-3.5">
+                <a [routerLink]="['/hr/employees', emp.id]" class="flex items-center gap-3 decoration-none group">
+                  <img [src]="emp.avatar" [alt]="emp.name" class="w-9 h-9 rounded-full object-cover ring-2 ring-blue-500/20 group-hover:ring-blue-500 transition-all" />
+                  <div>
+                    <span class="font-bold block text-[var(--text-main)] group-hover:text-blue-600 transition-colors">{{ emp.name }}</span>
+                    <span class="text-[11px] text-[var(--text-muted)] block">{{ emp.email }}</span>
+                  </div>
+                </a>
+              </td>
+
+              <td class="p-3.5 font-mono text-[11px] font-semibold text-slate-500">{{ emp.employeeCode }}</td>
+              <td class="p-3.5 font-medium">{{ emp.departmentName | translate }}</td>
+              <td class="p-3.5 text-slate-600 dark:text-slate-300">{{ emp.position | translate }}</td>
+              <td class="p-3.5 text-slate-500">{{ emp.joiningDate | appDate }}</td>
+
+              <td class="p-3.5">
+                <span class="status-badge" [class.active]="emp.status === 'Active'" [class.on_leave]="emp.status === 'On Leave'" [class.inactive]="emp.status === 'Inactive'">
+                  {{ emp.status | translate }}
+                </span>
+              </td>
+
+              <td class="p-3.5 text-end space-x-1 rtl:space-x-reverse">
+                <a [routerLink]="['/hr/employees', emp.id]" class="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-800 rounded-md inline-block" [title]="'View Profile' | translate">
+                  <i class="pi pi-eye"></i>
+                </a>
+                <button (click)="openEditModal(emp)" class="p-1.5 text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md cursor-pointer" [title]="'UI:Edit' | translate">
+                  <i class="pi pi-pencil"></i>
+                </button>
+                <button (click)="deleteEmployee(emp.id)" class="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-slate-800 rounded-md cursor-pointer" [title]="'UI:Delete' | translate">
+                  <i class="pi pi-trash"></i>
+                </button>
+              </td>
+
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="p-8 text-center text-xs text-[var(--text-muted)]">
+                {{ 'No employee records found.' | translate }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- DB Server Pagination Bar -->
+    <div class="px-4 py-3 bg-slate-50/70 dark:bg-slate-800/50 border-t border-[var(--border-color)] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+      <div class="text-[var(--text-muted)] font-medium">
+        {{ 'Showing' | translate }} <span class="font-bold text-[var(--text-main)]">{{ startIndex }}</span> {{ 'to' | translate }} <span class="font-bold text-[var(--text-main)]">{{ endIndex }}</span> {{ 'of' | translate }} <span class="font-bold text-[var(--text-main)]">{{ totalCount() }}</span> {{ 'employees' | translate }}
+      </div>
+
+      <div class="flex items-center gap-2">
+        <!-- Page Size Dropdown -->
+        <div class="flex items-center gap-1 text-[var(--text-muted)] mr-2 rtl:mr-0 rtl:ml-2">
+          <span>{{ 'Per page:' | translate }}</span>
+          <select [ngModel]="pageSize" (ngModelChange)="onPageSizeChange($event)" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-1 rounded-lg font-bold text-blue-600 cursor-pointer">
+            @for (size of pageSizeOptions; track size) {
+              <option [value]="size">{{ size }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Page Buttons -->
+        <button 
+          (click)="goToPage(currentPage - 1)" 
+          [disabled]="currentPage === 1 || loading()"
+          class="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 disabled:opacity-40 text-xs font-semibold hover:bg-slate-100 cursor-pointer">
+          <i class="pi pi-chevron-left text-[10px] rtl:rotate-180"></i> {{ 'Prev' | translate }}
+        </button>
+
+        <span class="px-3 py-1 font-extrabold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 rounded-lg">
+          {{ 'Page' | translate }} {{ currentPage }} / {{ totalPages() }}
+        </span>
+
+        <button 
+          (click)="goToPage(currentPage + 1)" 
+          [disabled]="currentPage >= totalPages() || loading()"
+          class="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 disabled:opacity-40 text-xs font-semibold hover:bg-slate-100 cursor-pointer">
+          {{ 'Next' | translate }} <i class="pi pi-chevron-right text-[10px] rtl:rotate-180"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Employee Dialog -->
+  @if (showModal()) {
+    <div class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
+      <div class="w-full max-w-lg bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl overflow-hidden p-6 space-y-4 max-h-[85vh] overflow-y-auto">
+        <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
+          <h3 class="font-bold text-sm text-[var(--text-main)]">{{ isEditMode ? ('HR:EditEmployeeProfile' | translate) : ('HR:AddNewEmployee' | translate) }}</h3>
+          <button (click)="showModal.set(false)" class="text-slate-400 hover:text-slate-600 cursor-pointer"><i class="pi pi-times"></i></button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 text-xs">
+          <div>
+            <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:FullName' | translate }}</label>
+            <input type="text" [(ngModel)]="currentEmp.name" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:EmailAddress' | translate }}</label>
+            <input type="email" [(ngModel)]="currentEmp.email" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:Department' | translate }}</label>
+            <input type="text" [(ngModel)]="currentEmp.departmentName" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">{{ 'HR:Position' | translate }}</label>
+            <input type="text" [(ngModel)]="currentEmp.position" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-[var(--border-color)] flex justify-end gap-2">
+          <button (click)="showModal.set(false)" class="btn-outline text-xs cursor-pointer">{{ 'UI:Cancel' | translate }}</button>
+          <button (click)="saveEmployee()" class="btn-primary text-xs cursor-pointer">{{ 'HR:SaveEmployee' | translate }}</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Dedicated 13-Step Excel Import Modal -->
+  <app-employee-import-modal [(visible)]="showImportModal" (importCompleted)="loadEmployees()"></app-employee-import-modal>
+
+</div>

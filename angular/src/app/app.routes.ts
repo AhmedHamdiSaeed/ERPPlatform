@@ -52,6 +52,10 @@ export const appRoutes: Routes = [
 
       // ─── SaaS Subscription & Usage Module ───
       {
+        path: 'saas/tenants',
+        loadComponent: () => import('./features/saas/tenants/tenant-management.component').then(m => m.TenantManagementComponent)
+      },
+      {
         path: 'saas/subscription',
         loadComponent: () => import('./features/saas/subscription/my-subscription.component').then(m => m.MySubscriptionComponent)
       },

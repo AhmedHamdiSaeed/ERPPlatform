@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { HrApiService } from '../../../core/services/api/hr-api.service';
 import { Employee, LeaveRequest, AttendanceRecord, EmployeeLoan, EmployeeDocument } from '../../../core/models/erp-models';
 import { StateService } from '../../../core/services/state.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-ess-portal',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslatePipe],
   templateUrl: './ess-portal.component.html'
 })
 export class EssPortalComponent implements OnInit {

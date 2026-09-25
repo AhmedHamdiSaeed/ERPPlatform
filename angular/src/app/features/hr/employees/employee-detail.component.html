@@ -3,16 +3,16 @@
   <!-- Back Link & Action Bar -->
   <div class="flex items-center justify-between">
     <a routerLink="/hr/employees" class="text-xs text-blue-600 font-semibold hover:underline flex items-center gap-1">
-      <i class="pi pi-arrow-left"></i> {{ 'HR:BackToEmployeesDirectory' | translate }}
+      <i class="pi pi-arrow-left rtl:rotate-180"></i> {{ 'HR:BackToEmployeesDirectory' | translate }}
     </a>
     <div class="flex items-center gap-2">
-      <button (click)="openHrActionModal()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs">
+      <button (click)="openHrActionModal()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer">
         <i class="pi pi-bolt"></i> {{ 'Execute HR Action' | translate }}
       </button>
-      <button (click)="openNewContractModal()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs">
+      <button (click)="openNewContractModal()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer">
         <i class="pi pi-file"></i> {{ 'Add Contract' | translate }}
       </button>
-      <button (click)="openDocumentModal()" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs">
+      <button (click)="openDocumentModal()" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer">
         <i class="pi pi-upload"></i> {{ 'Upload Doc' | translate }}
       </button>
     </div>
@@ -23,34 +23,34 @@
     <div class="flex flex-col md:flex-row items-center md:items-start gap-6 relative z-10">
       <img [src]="employee()?.avatar" [alt]="employee()?.name" class="w-24 h-24 rounded-2xl object-cover ring-4 ring-white/20 shadow-lg" />
       
-      <div class="flex-1 text-center md:text-left space-y-1.5">
+      <div class="flex-1 text-center md:text-start space-y-1.5">
         <div class="flex flex-wrap items-center justify-center md:justify-start gap-2">
           <h1 class="text-2xl font-black text-white tracking-tight">{{ employee()?.name }}</h1>
           <span class="status-badge" [class.active]="employee()?.status === 'Active'" [class.inactive]="employee()?.status !== 'Active'">
-            {{ employee()?.status }}
+            {{ employee()?.status | translate }}
           </span>
           <span class="px-2.5 py-0.5 bg-white/10 text-white/90 rounded-full text-[11px] font-medium border border-white/20">
-            {{ employee()?.employmentType || 'FullTime' }}
+            {{ employee()?.employmentType | translate }}
           </span>
         </div>
         <p class="text-sm text-blue-200 font-medium">
-          {{ employee()?.position }} • {{ employee()?.departmentName }} 
+          {{ employee()?.position | translate }} • {{ employee()?.departmentName | translate }} 
           @if (employee()?.jobGradeName) {
-            <span class="text-xs text-blue-300 font-semibold ml-1">({{ employee()?.jobGradeName }})</span>
+            <span class="text-xs text-blue-300 font-semibold ml-1 rtl:ml-0 rtl:mr-1">({{ employee()?.jobGradeName }})</span>
           }
         </p>
         <p class="text-xs text-blue-300">
-          {{ 'Code' | translate }}: <span class="font-mono font-bold">{{ employee()?.employeeCode }}</span> 
-          | {{ 'Joined:' | translate }} {{ employee()?.joiningDate }}
-          | {{ 'Location:' | translate }} {{ employee()?.location }}
+          {{ 'HR:Code' | translate }}: <span class="font-mono font-bold">{{ employee()?.employeeCode }}</span> 
+          | {{ 'HR:JoiningDate' | translate }}: {{ employee()?.joiningDate }}
+          | {{ 'HR:WorkLocation' | translate }}: {{ employee()?.location }}
         </p>
       </div>
 
       <div class="flex items-center gap-2">
-        <button (click)="sendEmail()" class="px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-semibold backdrop-blur-xs transition-colors">
+        <button (click)="sendEmail()" class="px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-semibold backdrop-blur-xs transition-colors cursor-pointer">
           <i class="pi pi-envelope"></i> {{ 'HR:SendEmail' | translate }}
         </button>
-        <button (click)="openEditModal()" class="px-3 py-2 bg-white text-blue-900 hover:bg-blue-50 rounded-xl text-xs font-bold shadow-md transition-colors">
+        <button (click)="openEditModal()" class="px-3 py-2 bg-white text-blue-900 hover:bg-blue-50 rounded-xl text-xs font-bold shadow-md transition-colors cursor-pointer">
           <i class="pi pi-pencil"></i> {{ 'HR:EditProfile' | translate }}
         </button>
       </div>
@@ -66,7 +66,7 @@
         [class.text-blue-600]="activeTab() === tab"
         [class.border-transparent]="activeTab() !== tab"
         [class.text-[var(--text-muted)]]="activeTab() !== tab"
-        class="px-4 py-3 border-b-2 hover:text-blue-600 transition-colors whitespace-nowrap">
+        class="px-4 py-3 border-b-2 hover:text-blue-600 transition-colors whitespace-nowrap cursor-pointer">
         {{ tab | translate }}
       </button>
     }
@@ -89,7 +89,7 @@
           </div>
           <div class="p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
             <span class="text-[11px] text-[var(--text-muted)] block">{{ 'HR:DirectManager' | translate }}</span>
-            <span class="font-semibold text-xs text-[var(--text-main)]">{{ employee()?.managerName || 'None assigned' }}</span>
+            <span class="font-semibold text-xs text-[var(--text-main)]">{{ employee()?.managerName || ('None assigned' | translate) }}</span>
           </div>
           <div class="p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
             <span class="text-[11px] text-[var(--text-muted)] block">{{ 'HR:WorkLocation' | translate }}</span>
@@ -103,7 +103,7 @@
             <span class="text-xs text-slate-500 font-medium">{{ 'Current Gross Salary' | translate }}</span>
           </div>
           <div class="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-100 dark:border-emerald-800">
-            <span class="text-2xl font-black text-emerald-600 block">{{ employee()?.leaveBalance || 21 }} Days</span>
+            <span class="text-2xl font-black text-emerald-600 block">{{ employee()?.leaveBalance || 21 }} {{ 'Days' | translate }}</span>
             <span class="text-xs text-slate-500 font-medium">{{ 'Leave Balance' | translate }}</span>
           </div>
           <div class="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800">
@@ -121,7 +121,7 @@
             <div class="space-y-2 text-xs">
               <div class="flex justify-between py-1 border-b border-[var(--border-color)]">
                 <span class="text-slate-400">{{ 'National ID:' | translate }}</span>
-                <span class="font-medium font-mono">{{ employee()?.nationalId || 'Not registered' }}</span>
+                <span class="font-medium font-mono">{{ employee()?.nationalId || ('Not registered' | translate) }}</span>
               </div>
               <div class="flex justify-between py-1 border-b border-[var(--border-color)]">
                 <span class="text-slate-400">{{ 'Passport Number:' | translate }}</span>
@@ -133,7 +133,7 @@
               </div>
               <div class="flex justify-between py-1 border-b border-[var(--border-color)]">
                 <span class="text-slate-400">{{ 'Gender / Marital:' | translate }}</span>
-                <span class="font-medium">{{ employee()?.gender || 'Male' }} • {{ employee()?.maritalStatus || 'Single' }}</span>
+                <span class="font-medium">{{ (employee()?.gender || 'Male') | translate }} • {{ (employee()?.maritalStatus || 'Single') | translate }}</span>
               </div>
             </div>
           </div>
@@ -187,11 +187,11 @@
           </div>
           <div class="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
             <span class="text-slate-400 block">{{ 'Gender' | translate }}</span>
-            <span class="font-bold text-sm text-[var(--text-main)]">{{ employee()?.gender || 'Male' }}</span>
+            <span class="font-bold text-sm text-[var(--text-main)]">{{ (employee()?.gender || 'Male') | translate }}</span>
           </div>
           <div class="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
             <span class="text-slate-400 block">{{ 'Marital Status' | translate }}</span>
-            <span class="font-bold text-sm text-[var(--text-main)]">{{ employee()?.maritalStatus || 'Single' }}</span>
+            <span class="font-bold text-sm text-[var(--text-main)]">{{ (employee()?.maritalStatus || 'Single') | translate }}</span>
           </div>
         </div>
 
@@ -223,7 +223,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
           <div class="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
             <span class="text-slate-400 block">{{ 'Employment Type' | translate }}</span>
-            <span class="font-bold text-sm text-[var(--text-main)]">{{ employee()?.employmentType || 'FullTime' }}</span>
+            <span class="font-bold text-sm text-[var(--text-main)]">{{ (employee()?.employmentType || 'FullTime') | translate }}</span>
           </div>
           <div class="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
             <span class="text-slate-400 block">{{ 'Job Grade' | translate }}</span>
@@ -239,7 +239,7 @@
           </div>
           <div class="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
             <span class="text-slate-400 block">{{ 'Contract Expiration' | translate }}</span>
-            <span class="font-bold text-sm text-[var(--text-main)]">{{ employee()?.contractEndDate || 'Permanent' }}</span>
+            <span class="font-bold text-sm text-[var(--text-main)]">{{ employee()?.contractEndDate || ('Permanent' | translate) }}</span>
           </div>
           <div class="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
             <span class="text-slate-400 block">{{ 'Cost Center' | translate }}</span>
@@ -256,7 +256,7 @@
           <h4 class="font-bold text-xs text-[var(--text-main)] uppercase tracking-wider">
             {{ 'Contract History & Compensation Terms' | translate }}
           </h4>
-          <button (click)="openNewContractModal()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1">
+          <button (click)="openNewContractModal()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1 cursor-pointer">
             <i class="pi pi-plus"></i> {{ 'New Contract' | translate }}
           </button>
         </div>
@@ -274,24 +274,24 @@
                   <div class="flex items-center gap-2">
                     <span class="font-bold text-xs text-[var(--text-main)]">{{ c.contractNumber }}</span>
                     <span class="status-badge" [class.active]="c.status === 'Active'" [class.inactive]="c.status !== 'Active'">
-                      {{ c.status }}
+                      {{ c.status | translate }}
                     </span>
                     <span class="text-[11px] px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 rounded-md font-medium">
-                      {{ c.contractType }}
+                      {{ c.contractType | translate }}
                     </span>
                   </div>
                   <div class="text-xs text-slate-500">
-                    <span>{{ 'Term:' | translate }} {{ c.startDate }} → {{ c.endDate || ('Permanent' | translate) }}</span>
-                    • <span class="text-emerald-600 font-bold">\${{ c.basicSalary | number:'1.2-2' }}</span> {{ 'Base' | translate }}
-                    @if (c.housingAllowance > 0) { • <span>\${{ c.housingAllowance | number }} Housing</span> }
-                    @if (c.transportationAllowance > 0) { • <span>\${{ c.transportationAllowance | number }} Transport</span> }
+                    <span>{{ 'HR:StartDate' | translate }}: {{ c.startDate }} → {{ c.endDate || ('Permanent' | translate) }}</span>
+                    • <span class="text-emerald-600 font-bold">\${{ c.basicSalary | number:'1.2-2' }}</span> {{ 'Base / Allowances' | translate }}
+                    @if (c.housingAllowance > 0) { • <span>\${{ c.housingAllowance | number }} {{ 'Housing Allowance ($)' | translate }}</span> }
+                    @if (c.transportationAllowance > 0) { • <span>\${{ c.transportationAllowance | number }} {{ 'Transport Allowance ($)' | translate }}</span> }
                   </div>
                 </div>
 
                 <div class="flex items-center gap-2">
                   @if (c.status === 'Active') {
-                    <button (click)="openRenewModal(c)" class="px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-lg text-xs font-semibold transition-colors">
-                      <i class="pi pi-refresh"></i> {{ 'Renew' | translate }}
+                    <button (click)="openRenewModal(c)" class="px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-lg text-xs font-semibold transition-colors cursor-pointer">
+                      <i class="pi pi-refresh"></i> {{ 'Renew Contract' | translate }}
                     </button>
                   }
                 </div>
@@ -309,7 +309,7 @@
           <h4 class="font-bold text-xs text-[var(--text-main)] uppercase tracking-wider">
             {{ 'Lifecycle Events, Promotions & Salary Adjustments' | translate }}
           </h4>
-          <button (click)="openHrActionModal()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1">
+          <button (click)="openHrActionModal()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1 cursor-pointer">
             <i class="pi pi-plus"></i> {{ 'Execute Action' | translate }}
           </button>
         </div>
@@ -326,15 +326,15 @@
                 <div class="flex items-center justify-between mb-2">
                   <div class="flex items-center gap-2">
                     <span class="px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 rounded-md font-bold text-xs">
-                      {{ act.actionType }}
+                      {{ act.actionType | translate }}
                     </span>
                     <span class="font-mono text-xs text-slate-400">{{ act.actionCode }}</span>
                   </div>
-                  <span class="text-xs text-slate-400">{{ 'Effective:' | translate }} {{ act.effectiveDate }}</span>
+                  <span class="text-xs text-slate-400">{{ 'Effective Date' | translate }}: {{ act.effectiveDate }}</span>
                 </div>
-                <p class="text-xs text-[var(--text-main)] font-medium">{{ act.remarks || ('Applied updates to employee record' | translate) }}</p>
+                <p class="text-xs text-[var(--text-main)] font-medium">{{ act.remarks }}</p>
                 <div class="text-[11px] text-slate-400 mt-2">
-                  {{ 'Approved by:' | translate }} {{ act.approvedBy || 'HR Admin' }} ({{ act.status }})
+                  {{ 'Approved by' | translate }}: {{ act.approvedBy || 'HR Admin' }} ({{ act.status | translate }})
                 </div>
               </div>
             }
@@ -351,7 +351,7 @@
           <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl flex items-center justify-between">
             <div>
               <span class="font-bold block">{{ att.date }}</span>
-              <span class="text-slate-400">{{ 'Check In:' | translate }} {{ att.checkIn }} | {{ 'Check Out:' | translate }} {{ att.checkOut }}</span>
+              <span class="text-slate-400">{{ 'HR:CheckIn' | translate }}: {{ att.checkIn }} | {{ 'HR:CheckOut' | translate }}: {{ att.checkOut }}</span>
             </div>
             <span class="status-badge active">{{ att.status | translate }}</span>
           </div>
@@ -366,8 +366,8 @@
         @for (lv of leaveRequests(); track lv.id) {
           <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl flex items-center justify-between">
             <div>
-              <span class="font-bold block">{{ lv.leaveType | translate }} {{ 'Leave' | translate }} ({{ lv.daysCount }} {{ 'days' | translate }})</span>
-              <span class="text-slate-400">{{ lv.startDate }} {{ 'to' | translate }} {{ lv.endDate }} • {{ lv.reason | translate }}</span>
+              <span class="font-bold block">{{ lv.leaveType | translate }} ({{ lv.daysCount }} {{ 'Days' | translate }})</span>
+              <span class="text-slate-400">{{ lv.startDate }} {{ 'to' | translate }} {{ lv.endDate }} • {{ lv.reason }}</span>
             </div>
             <span class="status-badge active">{{ lv.status | translate }}</span>
           </div>
@@ -382,7 +382,7 @@
           <h4 class="font-bold text-xs text-[var(--text-main)] uppercase tracking-wider">
             {{ 'Employee Document Vault & Verification Status' | translate }}
           </h4>
-          <button (click)="openDocumentModal()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1">
+          <button (click)="openDocumentModal()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1 cursor-pointer">
             <i class="pi pi-upload"></i> {{ 'Upload Document' | translate }}
           </button>
         </div>
@@ -402,10 +402,10 @@
                   </div>
                   <div>
                     <span class="font-bold text-xs text-[var(--text-main)] block">{{ doc.documentTitle || doc.documentType }}</span>
-                    <span class="text-[11px] text-slate-400 block">{{ doc.documentType }} • {{ doc.documentNumber || 'No ID' }}</span>
+                    <span class="text-[11px] text-slate-400 block">{{ doc.documentType | translate }} • {{ doc.documentNumber || 'No ID' }}</span>
                     @if (doc.expiryDate) {
                       <span class="text-[11px] text-amber-600 font-medium block mt-1">
-                        {{ 'Expires:' | translate }} {{ doc.expiryDate }}
+                        {{ 'Expiry Date' | translate }}: {{ doc.expiryDate }}
                       </span>
                     }
                   </div>
@@ -417,7 +417,7 @@
                       <i class="pi pi-check-circle"></i> {{ 'Verified' | translate }}
                     </span>
                   } @else {
-                    <button (click)="verifyDocument(doc)" class="px-2.5 py-1 bg-white dark:bg-slate-700 hover:bg-emerald-50 hover:text-emerald-700 border border-[var(--border-color)] rounded-md text-[11px] font-semibold transition-colors">
+                    <button (click)="verifyDocument(doc)" class="px-2.5 py-1 bg-white dark:bg-slate-700 hover:bg-emerald-50 hover:text-emerald-700 border border-[var(--border-color)] rounded-md text-[11px] font-semibold transition-colors cursor-pointer">
                       {{ 'Verify' | translate }}
                     </button>
                   }
@@ -436,32 +436,32 @@
 
 <!-- 1. Edit Profile Modal -->
 @if (showEditModal()) {
-  <div class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+  <div class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
+    <div class="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
         <h3 class="text-sm font-bold text-[var(--text-main)]">{{ 'Edit Employee Profile' | translate }}</h3>
-        <button (click)="showEditModal.set(false)" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times"></i></button>
+        <button (click)="showEditModal.set(false)" class="text-slate-400 hover:text-slate-600 cursor-pointer"><i class="pi pi-times"></i></button>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
         <div>
-          <label class="block text-slate-400 mb-1">{{ 'Full Name' | translate }}</label>
+          <label class="block text-slate-400 mb-1 font-bold">{{ 'Full Name' | translate }}</label>
           <input type="text" [(ngModel)]="editEmp.name" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
         </div>
         <div>
-          <label class="block text-slate-400 mb-1">{{ 'Email' | translate }}</label>
+          <label class="block text-slate-400 mb-1 font-bold">{{ 'HR:EmailAddress' | translate }}</label>
           <input type="email" [(ngModel)]="editEmp.email" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
         </div>
         <div>
-          <label class="block text-slate-400 mb-1">{{ 'Phone' | translate }}</label>
+          <label class="block text-slate-400 mb-1 font-bold">{{ 'HR:Phone' | translate }}</label>
           <input type="text" [(ngModel)]="editEmp.phone" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
         </div>
         <div>
-          <label class="block text-slate-400 mb-1">{{ 'Position' | translate }}</label>
+          <label class="block text-slate-400 mb-1 font-bold">{{ 'HR:Position' | translate }}</label>
           <input type="text" [(ngModel)]="editEmp.position" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
         </div>
         <div>
-          <label class="block text-slate-400 mb-1">{{ 'Department' | translate }}</label>
+          <label class="block text-slate-400 mb-1 font-bold">{{ 'HR:Department' | translate }}</label>
           <select [(ngModel)]="editEmp.departmentName" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent">
             @for (d of departments(); track d.id) {
               <option [value]="d.name">{{ d.name }}</option>
@@ -469,44 +469,43 @@
           </select>
         </div>
         <div>
-          <label class="block text-slate-400 mb-1">{{ 'Gross Salary ($)' | translate }}</label>
+          <label class="block text-slate-400 mb-1 font-bold">{{ 'Gross Salary ($)' | translate }}</label>
           <input type="number" [(ngModel)]="editEmp.salary" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
         </div>
         <div>
-          <label class="block text-slate-400 mb-1">{{ 'National ID' | translate }}</label>
+          <label class="block text-slate-400 mb-1 font-bold">{{ 'National ID' | translate }}</label>
           <input type="text" [(ngModel)]="editEmp.nationalId" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
         </div>
         <div>
-          <label class="block text-slate-400 mb-1">{{ 'Bank Account / IBAN' | translate }}</label>
+          <label class="block text-slate-400 mb-1 font-bold">{{ 'Bank Account / IBAN' | translate }}</label>
           <input type="text" [(ngModel)]="editEmp.bankAccountNumber" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
         </div>
         <div>
-          <label class="block text-slate-400 mb-1">{{ 'Employment Type' | translate }}</label>
+          <label class="block text-slate-400 mb-1 font-bold">{{ 'Employment Type' | translate }}</label>
           <select [(ngModel)]="editEmp.employmentType" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent">
-            <option value="FullTime">Full Time</option>
-            <option value="PartTime">Part Time</option>
-            <option value="Contractor">Contractor</option>
-            <option value="Intern">Intern</option>
-            <option value="Remote">Remote</option>
+            <option value="FullTime">{{ 'Full Time' | translate }}</option>
+            <option value="PartTime">{{ 'Part Time' | translate }}</option>
+            <option value="Contractor">{{ 'Contractor' | translate }}</option>
+            <option value="Intern">{{ 'Intern' | translate }}</option>
           </select>
         </div>
         <div>
-          <label class="block text-slate-400 mb-1">{{ 'Status' | translate }}</label>
+          <label class="block text-slate-400 mb-1 font-bold">{{ 'HR:Status' | translate }}</label>
           <select [(ngModel)]="editEmp.status" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent">
-            <option value="Active">Active</option>
-            <option value="On Leave">On Leave</option>
-            <option value="Suspended">Suspended</option>
-            <option value="Inactive">Inactive</option>
-            <option value="Terminated">Terminated</option>
+            <option value="Active">{{ 'Active' | translate }}</option>
+            <option value="On Leave">{{ 'On Leave' | translate }}</option>
+            <option value="Suspended">{{ 'Suspended' | translate }}</option>
+            <option value="Inactive">{{ 'Inactive' | translate }}</option>
+            <option value="Terminated">{{ 'Terminated' | translate }}</option>
           </select>
         </div>
       </div>
 
       <div class="flex justify-end gap-2 pt-4 border-t border-[var(--border-color)]">
-        <button (click)="showEditModal.set(false)" class="px-4 py-2 border border-[var(--border-color)] rounded-xl text-xs font-semibold">
-          {{ 'Cancel' | translate }}
+        <button (click)="showEditModal.set(false)" class="px-4 py-2 border border-[var(--border-color)] rounded-xl text-xs font-semibold cursor-pointer">
+          {{ 'UI:Cancel' | translate }}
         </button>
-        <button (click)="saveEmployee()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md">
+        <button (click)="saveEmployee()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md cursor-pointer">
           {{ 'Save Changes' | translate }}
         </button>
       </div>
@@ -516,43 +515,42 @@
 
 <!-- 2. Execute HR Action Modal -->
 @if (showHrActionModal()) {
-  <div class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+  <div class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
+    <div class="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
         <h3 class="text-sm font-bold text-[var(--text-main)]">{{ 'Execute HR Lifecycle Action' | translate }}</h3>
-        <button (click)="showHrActionModal.set(false)" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times"></i></button>
+        <button (click)="showHrActionModal.set(false)" class="text-slate-400 hover:text-slate-600 cursor-pointer"><i class="pi pi-times"></i></button>
       </div>
 
       <div class="space-y-3 text-xs">
         <div>
-          <label class="block text-slate-400 mb-1">{{ 'Action Type' | translate }}</label>
+          <label class="block text-slate-400 mb-1 font-bold">{{ 'Action Type' | translate }}</label>
           <select [(ngModel)]="newAction.actionType" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent">
-            <option value="Promotion">Promotion</option>
-            <option value="Transfer">Transfer</option>
-            <option value="SalaryChange">Salary Change</option>
-            <option value="DepartmentChange">Department Change</option>
-            <option value="ManagerChange">Manager Change</option>
-            <option value="Suspension">Suspension</option>
-            <option value="Termination">Termination</option>
+            <option value="Promotion">{{ 'Promotion' | translate }}</option>
+            <option value="Transfer">{{ 'Transfer' | translate }}</option>
+            <option value="SalaryChange">{{ 'SalaryRevision' | translate }}</option>
+            <option value="DepartmentChange">{{ 'Department Transfer' | translate }}</option>
+            <option value="Suspension">{{ 'Suspended' | translate }}</option>
+            <option value="Termination">{{ 'Terminated' | translate }}</option>
           </select>
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-slate-400 mb-1">{{ 'Effective Date' | translate }}</label>
+            <label class="block text-slate-400 mb-1 font-bold">{{ 'Effective Date' | translate }}</label>
             <input type="date" [(ngModel)]="newAction.effectiveDate" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
           </div>
           <div>
-            <label class="block text-slate-400 mb-1">{{ 'New Position' | translate }}</label>
+            <label class="block text-slate-400 mb-1 font-bold">{{ 'New Position' | translate }}</label>
             <input type="text" [(ngModel)]="newAction.newPosition" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
           </div>
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-slate-400 mb-1">{{ 'New Gross Salary ($)' | translate }}</label>
+            <label class="block text-slate-400 mb-1 font-bold">{{ 'New Gross Salary ($)' | translate }}</label>
             <input type="number" [(ngModel)]="newAction.newSalary" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
           </div>
           <div>
-            <label class="block text-slate-400 mb-1">{{ 'New Department' | translate }}</label>
+            <label class="block text-slate-400 mb-1 font-bold">{{ 'New Department' | translate }}</label>
             <select [(ngModel)]="newAction.newDepartmentName" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent">
               @for (d of departments(); track d.id) {
                 <option [value]="d.name">{{ d.name }}</option>
@@ -561,16 +559,16 @@
           </div>
         </div>
         <div>
-          <label class="block text-slate-400 mb-1">{{ 'Reason & Justification Remarks' | translate }}</label>
-          <textarea [(ngModel)]="newAction.remarks" rows="2" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" placeholder="e.g. Annual merit promotion approved by VP"></textarea>
+          <label class="block text-slate-400 mb-1 font-bold">{{ 'Reason & Justification Remarks' | translate }}</label>
+          <textarea [(ngModel)]="newAction.remarks" rows="2" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent"></textarea>
         </div>
       </div>
 
       <div class="flex justify-end gap-2 pt-4 border-t border-[var(--border-color)]">
-        <button (click)="showHrActionModal.set(false)" class="px-4 py-2 border border-[var(--border-color)] rounded-xl text-xs font-semibold">
-          {{ 'Cancel' | translate }}
+        <button (click)="showHrActionModal.set(false)" class="px-4 py-2 border border-[var(--border-color)] rounded-xl text-xs font-semibold cursor-pointer">
+          {{ 'UI:Cancel' | translate }}
         </button>
-        <button (click)="submitHrAction()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md">
+        <button (click)="submitHrAction()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md cursor-pointer">
           {{ 'Execute & Apply' | translate }}
         </button>
       </div>
@@ -580,50 +578,50 @@
 
 <!-- 3. New Contract Modal -->
 @if (showContractModal()) {
-  <div class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+  <div class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
+    <div class="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
         <h3 class="text-sm font-bold text-[var(--text-main)]">{{ 'Create New Contract' | translate }}</h3>
-        <button (click)="showContractModal.set(false)" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times"></i></button>
+        <button (click)="showContractModal.set(false)" class="text-slate-400 hover:text-slate-600 cursor-pointer"><i class="pi pi-times"></i></button>
       </div>
 
       <div class="grid grid-cols-2 gap-3 text-xs">
         <div>
-          <label class="block text-slate-400 mb-1">{{ 'Contract Type' | translate }}</label>
+          <label class="block text-slate-400 mb-1 font-bold">{{ 'Contract Type' | translate }}</label>
           <select [(ngModel)]="newContract.contractType" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent">
-            <option value="Permanent">Permanent</option>
-            <option value="FixedTerm">Fixed Term</option>
-            <option value="Probation">Probation</option>
-            <option value="Contractor">Contractor</option>
+            <option value="Permanent">{{ 'Permanent' | translate }}</option>
+            <option value="FixedTerm">{{ 'FixedTerm' | translate }}</option>
+            <option value="Probation">{{ 'Probation' | translate }}</option>
+            <option value="Contractor">{{ 'Contractor' | translate }}</option>
           </select>
         </div>
         <div>
-          <label class="block text-slate-400 mb-1">{{ 'Start Date' | translate }}</label>
+          <label class="block text-slate-400 mb-1 font-bold">{{ 'Start Date' | translate }}</label>
           <input type="date" [(ngModel)]="newContract.startDate" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
         </div>
         <div>
-          <label class="block text-slate-400 mb-1">{{ 'End Date (Optional)' | translate }}</label>
+          <label class="block text-slate-400 mb-1 font-bold">{{ 'End Date (Optional)' | translate }}</label>
           <input type="date" [(ngModel)]="newContract.endDate" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
         </div>
         <div>
-          <label class="block text-slate-400 mb-1">{{ 'Basic Salary ($)' | translate }}</label>
+          <label class="block text-slate-400 mb-1 font-bold">{{ 'Basic Monthly Salary ($)' | translate }}</label>
           <input type="number" [(ngModel)]="newContract.basicSalary" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
         </div>
         <div>
-          <label class="block text-slate-400 mb-1">{{ 'Housing Allowance ($)' | translate }}</label>
+          <label class="block text-slate-400 mb-1 font-bold">{{ 'Housing Allowance ($)' | translate }}</label>
           <input type="number" [(ngModel)]="newContract.housingAllowance" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
         </div>
         <div>
-          <label class="block text-slate-400 mb-1">{{ 'Transport Allowance ($)' | translate }}</label>
+          <label class="block text-slate-400 mb-1 font-bold">{{ 'Transport Allowance ($)' | translate }}</label>
           <input type="number" [(ngModel)]="newContract.transportationAllowance" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
         </div>
       </div>
 
       <div class="flex justify-end gap-2 pt-4 border-t border-[var(--border-color)]">
-        <button (click)="showContractModal.set(false)" class="px-4 py-2 border border-[var(--border-color)] rounded-xl text-xs font-semibold">
-          {{ 'Cancel' | translate }}
+        <button (click)="showContractModal.set(false)" class="px-4 py-2 border border-[var(--border-color)] rounded-xl text-xs font-semibold cursor-pointer">
+          {{ 'UI:Cancel' | translate }}
         </button>
-        <button (click)="saveContract()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md">
+        <button (click)="saveContract()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md cursor-pointer">
           {{ 'Save Contract' | translate }}
         </button>
       </div>
@@ -633,37 +631,37 @@
 
 <!-- 4. Renew Contract Modal -->
 @if (showRenewContractModal()) {
-  <div class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+  <div class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
+    <div class="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
         <h3 class="text-sm font-bold text-[var(--text-main)]">{{ 'Renew Employment Contract' | translate }}</h3>
-        <button (click)="showRenewContractModal.set(false)" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times"></i></button>
+        <button (click)="showRenewContractModal.set(false)" class="text-slate-400 hover:text-slate-600 cursor-pointer"><i class="pi pi-times"></i></button>
       </div>
 
       <div class="space-y-3 text-xs">
         <div>
-          <label class="block text-slate-400 mb-1">{{ 'New Start Date' | translate }}</label>
+          <label class="block text-slate-400 mb-1 font-bold">{{ 'New Start Date' | translate }}</label>
           <input type="date" [(ngModel)]="renewData.newStartDate" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
         </div>
         <div>
-          <label class="block text-slate-400 mb-1">{{ 'New End Date (Optional for permanent)' | translate }}</label>
+          <label class="block text-slate-400 mb-1 font-bold">{{ 'New End Date (Optional for permanent)' | translate }}</label>
           <input type="date" [(ngModel)]="renewData.newEndDate" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
         </div>
         <div>
-          <label class="block text-slate-400 mb-1">{{ 'New Base Salary ($)' | translate }}</label>
+          <label class="block text-slate-400 mb-1 font-bold">{{ 'New Base Salary ($)' | translate }}</label>
           <input type="number" [(ngModel)]="renewData.newBasicSalary" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
         </div>
         <div>
-          <label class="block text-slate-400 mb-1">{{ 'Renewal Notes' | translate }}</label>
-          <input type="text" [(ngModel)]="renewData.notes" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" placeholder="e.g. 1-year contract extension" />
+          <label class="block text-slate-400 mb-1 font-bold">{{ 'Renewal Notes' | translate }}</label>
+          <input type="text" [(ngModel)]="renewData.notes" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
         </div>
       </div>
 
       <div class="flex justify-end gap-2 pt-4 border-t border-[var(--border-color)]">
-        <button (click)="showRenewContractModal.set(false)" class="px-4 py-2 border border-[var(--border-color)] rounded-xl text-xs font-semibold">
-          {{ 'Cancel' | translate }}
+        <button (click)="showRenewContractModal.set(false)" class="px-4 py-2 border border-[var(--border-color)] rounded-xl text-xs font-semibold cursor-pointer">
+          {{ 'UI:Cancel' | translate }}
         </button>
-        <button (click)="submitContractRenewal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md">
+        <button (click)="submitContractRenewal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md cursor-pointer">
           {{ 'Renew Contract' | translate }}
         </button>
       </div>
@@ -673,16 +671,16 @@
 
 <!-- 5. Upload Document Modal -->
 @if (showDocumentModal()) {
-  <div class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+  <div class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
+    <div class="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
         <h3 class="text-sm font-bold text-[var(--text-main)]">{{ 'Upload Employee Document' | translate }}</h3>
-        <button (click)="showDocumentModal.set(false)" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times"></i></button>
+        <button (click)="showDocumentModal.set(false)" class="text-slate-400 hover:text-slate-600 cursor-pointer"><i class="pi pi-times"></i></button>
       </div>
 
       <div class="space-y-3 text-xs">
         <div>
-          <label class="block text-slate-400 mb-1">{{ 'Document Type' | translate }}</label>
+          <label class="block text-slate-400 mb-1 font-bold">{{ 'Document Type' | translate }}</label>
           <select [(ngModel)]="newDoc.documentType" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent">
             <option value="NationalId">National ID</option>
             <option value="Passport">Passport</option>
@@ -696,24 +694,24 @@
           </select>
         </div>
         <div>
-          <label class="block text-slate-400 mb-1">{{ 'Document Title' | translate }}</label>
-          <input type="text" [(ngModel)]="newDoc.documentTitle" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" placeholder="e.g. National ID Copy 2026" />
+          <label class="block text-slate-400 mb-1 font-bold">{{ 'Document Title' | translate }}</label>
+          <input type="text" [(ngModel)]="newDoc.documentTitle" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
         </div>
         <div>
-          <label class="block text-slate-400 mb-1">{{ 'Document / Serial Number' | translate }}</label>
+          <label class="block text-slate-400 mb-1 font-bold">{{ 'Document / Serial Number' | translate }}</label>
           <input type="text" [(ngModel)]="newDoc.documentNumber" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
         </div>
         <div>
-          <label class="block text-slate-400 mb-1">{{ 'Expiry Date (Optional)' | translate }}</label>
+          <label class="block text-slate-400 mb-1 font-bold">{{ 'Expiry Date (Optional)' | translate }}</label>
           <input type="date" [(ngModel)]="newDoc.expiryDate" class="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl bg-transparent" />
         </div>
       </div>
 
       <div class="flex justify-end gap-2 pt-4 border-t border-[var(--border-color)]">
-        <button (click)="showDocumentModal.set(false)" class="px-4 py-2 border border-[var(--border-color)] rounded-xl text-xs font-semibold">
-          {{ 'Cancel' | translate }}
+        <button (click)="showDocumentModal.set(false)" class="px-4 py-2 border border-[var(--border-color)] rounded-xl text-xs font-semibold cursor-pointer">
+          {{ 'UI:Cancel' | translate }}
         </button>
-        <button (click)="saveDocument()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md">
+        <button (click)="saveDocument()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md cursor-pointer">
           {{ 'Save Document' | translate }}
         </button>
       </div>

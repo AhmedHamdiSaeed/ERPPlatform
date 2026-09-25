@@ -15,7 +15,7 @@
           [class.bg-amber-100]="active.options.type === 'warning'" [class.text-amber-600]="active.options.type === 'warning'"
           [class.bg-emerald-100]="active.options.type === 'success'" [class.text-emerald-600]="active.options.type === 'success'"
           [class.bg-blue-100]="active.options.type === 'info'" [class.text-blue-600]="active.options.type === 'info'">
-          <i [class]="'pi ' + (active.options.icon || getIcon(active.options.type))"></i>
+          <i [class]="'pi ' + getIconClass(active.options.icon, active.options.type)"></i>
         </div>
 
         <div class="flex-1 min-w-0">
@@ -64,7 +64,7 @@
           [class.bg-amber-100]="activePrompt.options.type === 'warning'" [class.text-amber-600]="activePrompt.options.type === 'warning'"
           [class.bg-emerald-100]="activePrompt.options.type === 'success'" [class.text-emerald-600]="activePrompt.options.type === 'success'"
           [class.bg-blue-100]="activePrompt.options.type === 'info'" [class.text-blue-600]="activePrompt.options.type === 'info'">
-          <i [class]="'pi ' + (activePrompt.options.icon || getIcon(activePrompt.options.type))"></i>
+          <i [class]="'pi ' + getIconClass(activePrompt.options.icon, activePrompt.options.type)"></i>
         </div>
 
         <div class="flex-1 min-w-0">

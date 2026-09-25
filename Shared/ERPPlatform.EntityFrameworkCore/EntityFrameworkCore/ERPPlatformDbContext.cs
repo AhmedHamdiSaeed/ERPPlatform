@@ -41,6 +41,7 @@ public class ERPPlatformDbContext :
     // Tenant Management
     public DbSet<Tenant> Tenants { get; set; }
     public DbSet<TenantConnectionString> TenantConnectionStrings { get; set; }
+    public DbSet<TenantProfile> TenantProfiles { get; set; }
 
     // SaaS Subscription & Features Module DbSets
     public DbSet<Plan> Plans { get; set; }

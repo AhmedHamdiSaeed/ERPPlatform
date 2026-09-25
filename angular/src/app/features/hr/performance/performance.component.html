@@ -2,17 +2,17 @@
   <!-- Header -->
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div>
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Performance Management & KPIs</h1>
-      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Appraisal cycles, 360 evaluations, objective scorecards, and promotion recommendations.</p>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'Performance Management & KPIs' | translate }}</h1>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ 'Appraisal cycles, 360 evaluations, objective scorecards, and promotion recommendations.' | translate }}</p>
     </div>
     <div class="flex items-center gap-3">
-      <button *ngIf="activeTab === 'reviews'" (click)="showNewReviewModal = true" class="btn btn-primary flex items-center gap-2">
+      <button *ngIf="activeTab === 'reviews'" (click)="showNewReviewModal = true" class="btn btn-primary flex items-center gap-2 cursor-pointer">
         <i class="pi pi-plus text-sm"></i>
-        <span>Initiate Review Cycle</span>
+        <span>{{ 'Initiate Review Cycle' | translate }}</span>
       </button>
-      <button *ngIf="activeTab === 'goals'" (click)="showNewGoalModal = true" class="btn btn-primary flex items-center gap-2">
+      <button *ngIf="activeTab === 'goals'" (click)="showNewGoalModal = true" class="btn btn-primary flex items-center gap-2 cursor-pointer">
         <i class="pi pi-plus text-sm"></i>
-        <span>Add Employee KPI Goal</span>
+        <span>{{ 'Add Employee KPI Goal' | translate }}</span>
       </button>
     </div>
   </div>
@@ -24,7 +24,7 @@
         <i class="pi pi-star"></i>
       </div>
       <div>
-        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Reviews</p>
+        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ 'Total Reviews' | translate }}</p>
         <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ reviews.length }}</p>
       </div>
     </div>
@@ -33,7 +33,7 @@
         <i class="pi pi-check-circle"></i>
       </div>
       <div>
-        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Completed Appraisals</p>
+        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ 'Completed Appraisals' | translate }}</p>
         <p class="text-2xl font-bold text-gray-900 dark:text-white">
           {{ completedReviewsCount }}
         </p>
@@ -44,7 +44,7 @@
         <i class="pi pi-bolt"></i>
       </div>
       <div>
-        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Active Goals / KPIs</p>
+        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ 'Active Goals / KPIs' | translate }}</p>
         <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ goals.length }}</p>
       </div>
     </div>
@@ -53,7 +53,7 @@
         <i class="pi pi-arrow-up-right"></i>
       </div>
       <div>
-        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Promotion Recommendations</p>
+        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ 'Promotion Recommendations' | translate }}</p>
         <p class="text-2xl font-bold text-gray-900 dark:text-white">
           {{ promotionRecCount }}
         </p>
@@ -65,12 +65,12 @@
   <div class="border-b border-gray-200 dark:border-gray-800">
     <nav class="flex gap-6 -mb-px">
       <button (click)="activeTab = 'reviews'" [class.border-blue-600]="activeTab === 'reviews'" [class.text-blue-600]="activeTab === 'reviews'"
-              class="pb-3 font-semibold text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
-        Appraisal Reviews & Cycles
+              class="pb-3 font-semibold text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors cursor-pointer">
+        {{ 'Appraisal Reviews & Cycles' | translate }}
       </button>
       <button (click)="activeTab = 'goals'" [class.border-blue-600]="activeTab === 'goals'" [class.text-blue-600]="activeTab === 'goals'"
-              class="pb-3 font-semibold text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
-        Goal & KPI Scorecards
+              class="pb-3 font-semibold text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors cursor-pointer">
+        {{ 'Goal & KPI Scorecards' | translate }}
       </button>
     </nav>
   </div>
@@ -78,17 +78,17 @@
   <!-- Reviews View -->
   <div *ngIf="activeTab === 'reviews'" class="card overflow-hidden">
     <div class="overflow-x-auto">
-      <table class="w-full text-left text-sm text-gray-600 dark:text-gray-300">
+      <table class="w-full text-start text-sm text-gray-600 dark:text-gray-300">
         <thead class="bg-gray-50 dark:bg-gray-800/60 text-xs uppercase font-semibold text-gray-700 dark:text-gray-300">
           <tr>
-            <th class="px-6 py-3.5">Employee</th>
-            <th class="px-6 py-3.5">Review Cycle</th>
-            <th class="px-6 py-3.5">Reviewer</th>
-            <th class="px-6 py-3.5 text-center">Self Rating</th>
-            <th class="px-6 py-3.5 text-center">Manager Rating</th>
-            <th class="px-6 py-3.5 text-center">Final Score</th>
-            <th class="px-6 py-3.5">Status</th>
-            <th class="px-6 py-3.5 text-right">Actions</th>
+            <th class="px-6 py-3.5">{{ 'HR:Employee' | translate }}</th>
+            <th class="px-6 py-3.5">{{ 'Review Cycle' | translate }}</th>
+            <th class="px-6 py-3.5">{{ 'Reviewer' | translate }}</th>
+            <th class="px-6 py-3.5 text-center">{{ 'Self Rating' | translate }}</th>
+            <th class="px-6 py-3.5 text-center">{{ 'Manager Rating' | translate }}</th>
+            <th class="px-6 py-3.5 text-center">{{ 'Final Score' | translate }}</th>
+            <th class="px-6 py-3.5">{{ 'HR:Status' | translate }}</th>
+            <th class="px-6 py-3.5 text-end">{{ 'HR:Actions' | translate }}</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
@@ -107,17 +107,17 @@
               <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
                     [class.bg-emerald-100.text-emerald-800]="rev.status === 'Completed'"
                     [class.bg-amber-100.text-amber-800]="rev.status === 'Draft' || rev.status === 'ManagerReview'">
-                {{ rev.status }}
+                {{ rev.status | translate }}
               </span>
             </td>
-            <td class="px-6 py-4 text-right">
-              <button (click)="openEvalModal(rev)" class="btn btn-secondary text-xs px-3 py-1.5">
-                {{ rev.status === 'Completed' ? 'View Evaluation' : 'Evaluate & Score' }}
+            <td class="px-6 py-4 text-end">
+              <button (click)="openEvalModal(rev)" class="btn btn-secondary text-xs px-3 py-1.5 cursor-pointer">
+                {{ (rev.status === 'Completed' ? 'View Evaluation' : 'Evaluate & Score') | translate }}
               </button>
             </td>
           </tr>
           <tr *ngIf="reviews.length === 0">
-            <td colspan="8" class="px-6 py-8 text-center text-gray-400">No performance reviews found. Click "Initiate Review Cycle" to get started.</td>
+            <td colspan="8" class="px-6 py-8 text-center text-gray-400">{{ 'No performance reviews found.' | translate }}</td>
           </tr>
         </tbody>
       </table>
@@ -130,173 +130,140 @@
       <div class="flex items-start justify-between">
         <div>
           <span class="inline-block text-xs font-semibold px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 mb-1">
-            {{ goal.category }}
+            {{ goal.category | translate }}
           </span>
           <h3 class="font-bold text-gray-900 dark:text-white">{{ goal.title }}</h3>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Assigned to: <strong class="text-gray-700 dark:text-gray-300">{{ goal.employeeName }}</strong></p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ 'Assigned to:' | translate }} <strong class="text-gray-700 dark:text-gray-300">{{ goal.employeeName }}</strong></p>
         </div>
         <span class="text-xs font-semibold px-2.5 py-1 rounded-full"
               [class.bg-emerald-100.text-emerald-800]="goal.status === 'Achieved'"
               [class.bg-amber-100.text-amber-800]="goal.status === 'InProgress'"
               [class.bg-red-100.text-red-800]="goal.status === 'Behind'">
-          {{ goal.status }}
+          {{ goal.status | translate }}
         </span>
       </div>
 
-      <p class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">{{ goal.description || 'No description specified.' }}</p>
+      <p class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">{{ goal.description || ('No description specified.' | translate) }}</p>
 
       <!-- Progress Bar -->
       <div class="space-y-1.5">
         <div class="flex justify-between text-xs font-semibold">
-          <span>Progress</span>
-          <span>{{ goal.currentValue }} / {{ goal.targetValue }} {{ goal.metricUnit }} ({{ (goal.targetValue > 0 ? (goal.currentValue / goal.targetValue * 100) : 0) | number:'1.0-0' }}%)</span>
+          <span class="text-gray-500">{{ 'HR:Progress' | translate }}</span>
+          <span class="text-blue-600 font-mono">{{ (goal.currentValue / (goal.targetValue || 100)) * 100 | number:'1.0-0' }}%</span>
         </div>
-        <div class="w-full bg-gray-200 dark:bg-gray-700 h-2.5 rounded-full overflow-hidden">
-          <div class="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
-               [style.width.%]="goal.targetValue > 0 ? (goal.currentValue / goal.targetValue * 100) : 0"></div>
-        </div>
-      </div>
-
-      <div class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800 text-xs text-gray-500">
-        <span>Due: {{ goal.dueDate | date:'mediumDate' }}</span>
-        <div class="flex items-center gap-1">
-          <button (click)="updateGoalProgress(goal, 10)" class="btn btn-secondary px-2 py-1 text-xs">
-            +10 {{ goal.metricUnit }}
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Evaluation Modal -->
-  <div *ngIf="showEvalModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-    <div class="card w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 space-y-5">
-      <div class="flex items-center justify-between border-b pb-3 dark:border-gray-800">
-        <h3 class="text-lg font-bold text-gray-900 dark:text-white">
-          Performance Appraisal: {{ selectedReview?.employeeName }}
-        </h3>
-        <button (click)="showEvalModal = false" class="text-gray-400 hover:text-gray-600"><i class="pi pi-times"></i></button>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div>
-          <label class="block text-xs font-semibold mb-1">Self Rating (1-5)</label>
-          <input type="number" step="0.5" min="1" max="5" [(ngModel)]="evalForm.selfRating" class="form-input w-full" />
-        </div>
-        <div>
-          <label class="block text-xs font-semibold mb-1">Manager Rating (1-5)</label>
-          <input type="number" step="0.5" min="1" max="5" [(ngModel)]="evalForm.managerRating" class="form-input w-full" />
-        </div>
-        <div>
-          <label class="block text-xs font-semibold mb-1">Goals Achieved (%)</label>
-          <input type="number" min="0" max="100" [(ngModel)]="evalForm.goalsAchievedPercentage" class="form-input w-full" />
+        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+          <div class="bg-blue-600 h-2 rounded-full transition-all"
+               [style.width.%]="(goal.currentValue / (goal.targetValue || 100)) * 100"></div>
         </div>
       </div>
 
-      <div>
-        <label class="block text-xs font-semibold mb-1">Key Strengths</label>
-        <textarea [(ngModel)]="evalForm.strengths" rows="2" class="form-input w-full" placeholder="Notable achievements, competencies demonstrated..."></textarea>
+      <div class="grid grid-cols-2 gap-2 text-xs pt-2 border-t dark:border-gray-800 text-gray-500">
+        <div>{{ 'Target:' | translate }} <strong class="text-gray-700 dark:text-gray-300">{{ goal.targetValue }} {{ goal.metricUnit }}</strong></div>
+        <div>{{ 'Current:' | translate }} <strong class="text-gray-700 dark:text-gray-300">{{ goal.currentValue }} {{ goal.metricUnit }}</strong></div>
+        <div>{{ 'Weight:' | translate }} <strong class="text-gray-700 dark:text-gray-300">{{ goal.weight }}%</strong></div>
+        <div>{{ 'Due:' | translate }} <strong class="text-gray-700 dark:text-gray-300">{{ goal.dueDate | date:'shortDate' }}</strong></div>
       </div>
 
-      <div>
-        <label class="block text-xs font-semibold mb-1">Areas for Development & Training</label>
-        <textarea [(ngModel)]="evalForm.areasForImprovement" rows="2" class="form-input w-full" placeholder="Skills to improve, recommended courses..."></textarea>
-      </div>
-
-      <div>
-        <label class="block text-xs font-semibold mb-1">Manager Feedback & Development Plan</label>
-        <textarea [(ngModel)]="evalForm.managerFeedback" rows="2" class="form-input w-full" placeholder="Detailed feedback and expectations for next cycle..."></textarea>
-      </div>
-
-      <div class="flex items-center gap-2">
-        <input type="checkbox" id="promoRec" [(ngModel)]="evalForm.promotionRecommended" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500" />
-        <label for="promoRec" class="text-sm font-semibold text-gray-700 dark:text-gray-300">Recommend for Promotion / Salary Grade Increase</label>
-      </div>
-
-      <div class="flex justify-end gap-3 pt-4 border-t dark:border-gray-800">
-        <button (click)="showEvalModal = false" class="btn btn-secondary">Cancel</button>
-        <button (click)="submitEvaluation()" class="btn btn-primary">Finalize & Submit Review</button>
+      <div class="pt-2">
+        <button (click)="updateGoalProgress(goal)" class="btn btn-secondary w-full text-xs py-1.5 cursor-pointer">
+          {{ 'Update Progress' | translate }}
+        </button>
       </div>
     </div>
   </div>
 
   <!-- New Review Modal -->
-  <div *ngIf="showNewReviewModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-    <div class="card w-full max-w-md p-6 space-y-4">
-      <h3 class="text-lg font-bold text-gray-900 dark:text-white">Initiate Performance Review</h3>
+  <div *ngIf="showNewReviewModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
+    <div class="w-full max-w-md bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl p-6 space-y-4 max-h-[85vh] overflow-y-auto text-[var(--text-main)]">
+      <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ 'Initiate Appraisal Review Cycle' | translate }}</h3>
+        <button (click)="showNewReviewModal = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"><i class="pi pi-times"></i></button>
+      </div>
       <div>
-        <label class="block text-xs font-semibold mb-1">Employee</label>
-        <select [(ngModel)]="newReview.employeeId" class="form-select w-full">
-          <option value="">Select Employee</option>
-          <option *ngFor="let emp of employees" [value]="emp.id">{{ emp.name }} ({{ emp.position }})</option>
+        <label class="block text-xs font-semibold mb-1 text-[var(--text-main)]">{{ 'Select Employee' | translate }}</label>
+        <select [(ngModel)]="newReview.employeeId" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-[var(--border-color)] rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden">
+          <option *ngFor="let emp of employees" [value]="emp.id">{{ emp.name }} ({{ emp.departmentName }})</option>
         </select>
       </div>
       <div>
-        <label class="block text-xs font-semibold mb-1">Review Cycle</label>
-        <input type="text" [(ngModel)]="newReview.reviewCycle" class="form-input w-full" />
+        <label class="block text-xs font-semibold mb-1 text-[var(--text-main)]">{{ 'Review Cycle Name' | translate }}</label>
+        <input type="text" [(ngModel)]="newReview.reviewCycle" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-[var(--border-color)] rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden" placeholder="e.g. 2026 Mid-Year Review" />
       </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="block text-xs font-semibold mb-1">Period Start</label>
-          <input type="date" [(ngModel)]="newReview.periodStart" class="form-input w-full" />
-        </div>
-        <div>
-          <label class="block text-xs font-semibold mb-1">Period End</label>
-          <input type="date" [(ngModel)]="newReview.periodEnd" class="form-input w-full" />
-        </div>
+      <div>
+        <label class="block text-xs font-semibold mb-1 text-[var(--text-main)]">{{ 'Select Reviewer (Manager)' | translate }}</label>
+        <input type="text" [(ngModel)]="newReview.reviewerName" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-[var(--border-color)] rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden" placeholder="Manager full name" />
       </div>
-      <div class="flex justify-end gap-3 pt-4">
-        <button (click)="showNewReviewModal = false" class="btn btn-secondary">Cancel</button>
-        <button (click)="createReview()" class="btn btn-primary">Start Review</button>
+      <div class="flex justify-end gap-3 pt-4 border-t border-[var(--border-color)]">
+        <button (click)="showNewReviewModal = false" class="btn btn-outline text-xs cursor-pointer">{{ 'UI:Cancel' | translate }}</button>
+        <button (click)="createReview()" class="btn btn-primary text-xs cursor-pointer">{{ 'Start Cycle' | translate }}</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Evaluate Modal -->
+  <div *ngIf="showEvalModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
+    <div class="w-full max-w-md bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl p-6 space-y-4 max-h-[85vh] overflow-y-auto text-[var(--text-main)]">
+      <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ 'Performance Evaluation & Scoring' | translate }}</h3>
+        <button (click)="showEvalModal = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"><i class="pi pi-times"></i></button>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold mb-1 text-[var(--text-main)]">{{ 'Manager Score / Rating (1 to 5)' | translate }}</label>
+        <input type="number" [(ngModel)]="evalForm.managerRating" step="0.1" min="1" max="5" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-[var(--border-color)] rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden" />
+      </div>
+      <div>
+        <label class="block text-xs font-semibold mb-1 text-[var(--text-main)]">{{ 'Final Score' | translate }}</label>
+        <input type="number" [(ngModel)]="evalForm.finalRating" step="0.1" min="1" max="5" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-[var(--border-color)] rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden" />
+      </div>
+      <div class="flex items-center gap-2">
+        <input type="checkbox" [(ngModel)]="evalForm.promotionRecommended" id="promoCheck" class="rounded text-blue-600" />
+        <label for="promoCheck" class="text-xs font-semibold cursor-pointer text-[var(--text-main)]">{{ 'Recommend for Promotion' | translate }}</label>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold mb-1 text-[var(--text-main)]">{{ 'Manager Feedback & Appraisal Comments' | translate }}</label>
+        <textarea [(ngModel)]="evalForm.managerFeedback" rows="3" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-[var(--border-color)] rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden"></textarea>
+      </div>
+      <div class="flex justify-end gap-3 pt-4 border-t border-[var(--border-color)]">
+        <button (click)="showEvalModal = false" class="btn btn-outline text-xs cursor-pointer">{{ 'UI:Cancel' | translate }}</button>
+        <button (click)="submitEvaluation()" class="btn btn-primary text-xs cursor-pointer">{{ 'Save Evaluation' | translate }}</button>
       </div>
     </div>
   </div>
 
   <!-- New Goal Modal -->
-  <div *ngIf="showNewGoalModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-    <div class="card w-full max-w-md p-6 space-y-4">
-      <h3 class="text-lg font-bold text-gray-900 dark:text-white">Create KPI / Performance Goal</h3>
+  <div *ngIf="showNewGoalModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
+    <div class="w-full max-w-md bg-[var(--bg-card)] border border-[var(--border-color)] rounded-2xl shadow-2xl p-6 space-y-4 max-h-[85vh] overflow-y-auto text-[var(--text-main)]">
+      <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ 'Create Employee KPI Goal' | translate }}</h3>
+        <button (click)="showNewGoalModal = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"><i class="pi pi-times"></i></button>
+      </div>
       <div>
-        <label class="block text-xs font-semibold mb-1">Employee</label>
-        <select [(ngModel)]="newGoal.employeeId" class="form-select w-full">
-          <option value="">Select Employee</option>
-          <option *ngFor="let emp of employees" [value]="emp.id">{{ emp.name }} ({{ emp.position }})</option>
+        <label class="block text-xs font-semibold mb-1 text-[var(--text-main)]">{{ 'Select Employee' | translate }}</label>
+        <select [(ngModel)]="newGoal.employeeId" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-[var(--border-color)] rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden">
+          <option *ngFor="let emp of employees" [value]="emp.id">{{ emp.name }} ({{ emp.departmentName }})</option>
         </select>
       </div>
       <div>
-        <label class="block text-xs font-semibold mb-1">Goal Title</label>
-        <input type="text" [(ngModel)]="newGoal.title" class="form-input w-full" placeholder="e.g. Deliver ERP HR Release on schedule" />
+        <label class="block text-xs font-semibold mb-1 text-[var(--text-main)]">{{ 'Goal Title' | translate }}</label>
+        <input type="text" [(ngModel)]="newGoal.title" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-[var(--border-color)] rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden" placeholder="e.g. Increase sales conversion by 15%" />
       </div>
-      <div>
-        <label class="block text-xs font-semibold mb-1">Category</label>
-        <select [(ngModel)]="newGoal.category" class="form-select w-full">
-          <option value="Operational">Operational</option>
-          <option value="Strategic">Strategic</option>
-          <option value="KPI">KPI Metric</option>
-          <option value="Learning">Learning & Development</option>
-        </select>
-      </div>
-      <div class="grid grid-cols-3 gap-3">
+      <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="block text-xs font-semibold mb-1">Target</label>
-          <input type="number" [(ngModel)]="newGoal.targetValue" class="form-input w-full" />
+          <label class="block text-xs font-semibold mb-1 text-[var(--text-main)]">{{ 'Target Value' | translate }}</label>
+          <input type="number" [(ngModel)]="newGoal.targetValue" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-[var(--border-color)] rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden" />
         </div>
         <div>
-          <label class="block text-xs font-semibold mb-1">Unit</label>
-          <input type="text" [(ngModel)]="newGoal.metricUnit" class="form-input w-full" />
-        </div>
-        <div>
-          <label class="block text-xs font-semibold mb-1">Weight (%)</label>
-          <input type="number" [(ngModel)]="newGoal.weight" class="form-input w-full" />
+          <label class="block text-xs font-semibold mb-1 text-[var(--text-main)]">{{ 'Weight (%)' | translate }}</label>
+          <input type="number" [(ngModel)]="newGoal.weight" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-[var(--border-color)] rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden" />
         </div>
       </div>
       <div>
-        <label class="block text-xs font-semibold mb-1">Target Due Date</label>
-        <input type="date" [(ngModel)]="newGoal.dueDate" class="form-input w-full" />
+        <label class="block text-xs font-semibold mb-1 text-[var(--text-main)]">{{ 'Due Date' | translate }}</label>
+        <input type="date" [(ngModel)]="newGoal.dueDate" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-[var(--border-color)] rounded-xl text-xs text-[var(--text-main)] focus:outline-hidden" />
       </div>
-      <div class="flex justify-end gap-3 pt-4">
-        <button (click)="showNewGoalModal = false" class="btn btn-secondary">Cancel</button>
-        <button (click)="createGoal()" class="btn btn-primary">Save Goal</button>
+      <div class="flex justify-end gap-3 pt-4 border-t border-[var(--border-color)]">
+        <button (click)="showNewGoalModal = false" class="btn btn-outline text-xs cursor-pointer">{{ 'UI:Cancel' | translate }}</button>
+        <button (click)="createGoal()" class="btn btn-primary text-xs cursor-pointer">{{ 'Save Goal' | translate }}</button>
       </div>
     </div>
   </div>

@@ -41,6 +41,7 @@ export class SidebarComponent {
       icon: 'pi-star',
       expanded: true,
       items: [
+        { label: 'Tenant Management', key: 'Menu:TenantManagement', arLabel: 'إدارة المستأجرين', link: '/saas/tenants', icon: 'pi-building', badge: 'Hub' },
         { label: 'Tenant Subscription', key: 'Menu:TenantSubscription', arLabel: 'اشتراك المستأجر', link: '/saas/subscription', icon: 'pi-credit-card', badge: 'Tier' },
         { label: 'Feature Usage & Limits', key: 'Menu:FeatureUsageLimits', arLabel: 'استخدام الميزات والحدود', link: '/saas/usage', icon: 'pi-chart-pie', badge: 'Limits' },
         { label: 'Admin SaaS Plans', key: 'Menu:AdminSaasPlans', arLabel: 'خطط النظام', link: '/saas/plans', icon: 'pi-sliders-h', badge: 'Admin' }

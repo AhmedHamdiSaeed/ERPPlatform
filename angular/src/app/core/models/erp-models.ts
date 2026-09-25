@@ -737,3 +737,96 @@ export interface TeamSummary {
   teamMembers: Employee[];
 }
 
+// ─── Tenant Management & SaaS Onboarding Models ───
+export interface TenantProfile {
+  id: string;
+  tenantId: string;
+  code: string;
+  name: string;
+  legalName: string;
+  subdomain: string;
+  customDomain?: string;
+  taxNumber?: string;
+  currency: string;
+  timezone: string;
+  logoUrl?: string;
+  primaryColor?: string;
+  planTier: 'Trial' | 'Starter' | 'Professional' | 'Enterprise' | string;
+  status: 'Active' | 'Suspended' | 'Trial' | 'Expired' | string;
+  maxUsers: number;
+  storageLimitGb: number;
+  usedStorageMb: number;
+  activeUserCount: number;
+  adminEmail: string;
+  adminFullName: string;
+  adminPhone?: string;
+  isDedicatedDb?: boolean;
+  customConnectionString?: string;
+  enabledModules: string[];
+  trialEndDate?: string;
+  subscriptionRenewalDate?: string;
+  monthlyFee: number;
+  creationTime: string;
+}
+
+export interface CreateTenantInput {
+  name: string;
+  code?: string;
+  subdomain: string;
+  legalName?: string;
+  taxNumber?: string;
+  currency: string;
+  timezone: string;
+  logoUrl?: string;
+  primaryColor?: string;
+  planTier: 'Trial' | 'Starter' | 'Professional' | 'Enterprise' | string;
+  maxUsers: number;
+  storageLimitGb: number;
+  isDedicatedDb?: boolean;
+  customConnectionString?: string;
+  enabledModules: string[];
+  adminFullName: string;
+  adminEmail: string;
+  adminPassword?: string;
+  adminPhone?: string;
+  sendWelcomeEmail: boolean;
+}
+
+export interface UpdateTenantInput {
+  name?: string;
+  legalName?: string;
+  taxNumber?: string;
+  currency?: string;
+  timezone?: string;
+  logoUrl?: string;
+  primaryColor?: string;
+  planTier?: string;
+  status?: string;
+  maxUsers?: number;
+  storageLimitGb?: number;
+  isDedicatedDb?: boolean;
+  customConnectionString?: string;
+  enabledModules?: string[];
+}
+
+export interface TenantStatsSummary {
+  totalTenants: number;
+  activeTenants: number;
+  trialTenants: number;
+  suspendedTenants: number;
+  totalMRR: number;
+  totalUsersAcrossTenants: number;
+  totalStorageAllocatedGb: number;
+}
+
+export interface TenantImpersonationResult {
+  success: boolean;
+  tenantId: string;
+  tenantName: string;
+  impersonationToken?: string;
+  accessToken?: string;
+  redirectUrl: string;
+  message?: string;
+}
+
+

@@ -22,6 +22,13 @@ export class ConfirmDialogComponent {
     }
   }
 
+  getIconClass(icon?: string, type?: string): string {
+    if (icon) {
+      return icon.startsWith('pi-') ? icon : 'pi-' + icon;
+    }
+    return this.getIcon(type);
+  }
+
   getIcon(type?: string): string {
     switch (type) {
       case 'danger': return 'pi-exclamation-triangle';

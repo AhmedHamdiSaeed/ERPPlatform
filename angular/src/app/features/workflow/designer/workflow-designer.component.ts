@@ -15,6 +15,7 @@ import {
 } from '../../../core/models/erp-models';
 import { WorkflowApiService, WorkflowSimulationResult } from '../../../core/services/api/workflow-api.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { DialogService } from '../../../core/services/dialog.service';
 
 export interface PaletteItem {
   type: WorkflowNodeType;
@@ -33,6 +34,7 @@ export interface PaletteItem {
 })
 export class WorkflowDesignerComponent {
   private toast = inject(ToastService);
+  private dialog = inject(DialogService);
   private workflowApi = inject(WorkflowApiService);
 
   currentWorkflow = signal<WorkflowDefinition | null>(null);
@@ -461,9 +463,22 @@ export class WorkflowDesignerComponent {
       return;
     }
 
-    const notes = prompt('Enter changelog notes for this new version:') || 'Branched version';
+    const notes = await this.dialog.prompt({
+      title: 'Branch New Workflow Version',
+      message: 'Enter changelog notes or release description for this new version draft:',
+      placeholder: 'e.g. Added multi-level approval matrix and webhook notifications',
+      defaultValue: 'Branched version draft',
+      confirmText: 'Create Version',
+      cancelText: 'Cancel',
+      type: 'info'
+    });
+
+    if (notes === null) {
+      return;
+    }
+
     try {
-      const newVer = await this.workflowApi.createNewVersion(wf.id, notes);
+      const newVer = await this.workflowApi.createNewVersion(wf.id, notes || 'Branched version draft');
       this.currentWorkflow.set(newVer);
       await this.loadVersionsForCurrent();
       this.toast.success(`New draft version ${newVer.version} created successfully!`, 'Version Branched');

@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { HrApiService } from '../../../core/services/api/hr-api.service';
 import { TeamSummary, LeaveRequest, HrAction } from '../../../core/models/erp-models';
 import { StateService } from '../../../core/services/state.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-mss-portal',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslatePipe],
   templateUrl: './mss-portal.component.html'
 })
 export class MssPortalComponent implements OnInit {
