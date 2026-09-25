@@ -38,6 +38,11 @@ public class SignalRChatNotifier : IChatNotifier, ITransientDependency
         await SendToMembersAsync(message.ConversationId, "MessageEdited", message);
     }
 
+    public async Task NotifyMessagePinnedAsync(Guid conversationId, ChatMessageDto message)
+    {
+        await SendToMembersAsync(conversationId, "MessagePinned", message);
+    }
+
     public async Task NotifyMessageDeletedAsync(Guid conversationId, Guid messageId)
     {
         await SendToMembersAsync(conversationId, "MessageDeleted", new { conversationId, messageId });

@@ -629,17 +629,40 @@ namespace ERPPlatform.Domain.Entities
         public string Status { get; set; } = "Active";
         public string GraphJson { get; set; } = "{}";
         public int Version { get; set; } = 1;
+        public bool IsActiveVersion { get; set; } = true;
+        public Guid? ParentDefinitionId { get; set; }
+        public string VersionNotes { get; set; } = string.Empty;
+        public string TriggerType { get; set; } = "Manual"; // Manual, EntityCreated, EntityUpdated, Webhook, Schedule, Cron, EntityCdc
+        public string ExecutionMode { get; set; } = "Sequential"; // Sequential, Parallel, EventDriven
+        public int SlaHours { get; set; } = 24;
+        public string WebhookSecret { get; set; } = string.Empty;
+        public string CronExpression { get; set; } = string.Empty;
+        public string CdcEntityName { get; set; } = string.Empty;
+        public string CdcEvent { get; set; } = string.Empty;
     }
 
     public class WorkflowTask : FullAuditedAggregateRoot<Guid>
     {
         public string TaskNumber { get; set; } = string.Empty;
         public string WorkflowName { get; set; } = string.Empty;
+        public Guid? WorkflowDefinitionId { get; set; }
         public string RequestedBy { get; set; } = string.Empty;
         public string RequestedByAvatar { get; set; } = string.Empty;
+        public string AssignedToRole { get; set; } = string.Empty;
+        public string AssignedToUserId { get; set; } = string.Empty;
+        public string OriginalAssigneeId { get; set; } = string.Empty;
+        public string DelegatedFromUserId { get; set; } = string.Empty;
+        public bool IsEscalated { get; set; } = false;
+        public string EscalatedToUserId { get; set; } = string.Empty;
+        public DateTime? EscalatedAt { get; set; }
+        public string ActionToken { get; set; } = string.Empty;
+        public string Priority { get; set; } = "Normal"; // Low, Normal, High, Urgent
         public string Details { get; set; } = string.Empty;
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
-        public string Status { get; set; } = "Pending";
+        public DateTime? DueDate { get; set; }
+        public int StepOrder { get; set; } = 1;
+        public string CurrentNodeId { get; set; } = string.Empty;
+        public string Status { get; set; } = "Pending"; // Pending, Approved, Rejected, ChangesRequested
         public string Comments { get; set; } = string.Empty;
         public string SignatureBase64 { get; set; } = string.Empty;
         public string SignedBy { get; set; } = string.Empty;
@@ -906,6 +929,11 @@ namespace ERPPlatform.Domain.Entities
         public string AttachmentBlobName { get; set; } = string.Empty;
         public string AttachmentContentType { get; set; } = string.Empty;
         public long AttachmentSizeBytes { get; set; }
+
+        // --- Enterprise ERP Chat extensions ---
+        public bool IsPinned { get; set; }
+        public string CardDataJson { get; set; } = string.Empty;
+        public bool IsAiResponse { get; set; }
     }
 
     public class ChatMessageReaction : FullAuditedAggregateRoot<Guid>

@@ -7,7 +7,9 @@ import {
   ChatConversationDto,
   ChatMessageDto,
   ChatParticipantDto,
-  UserLookupDto
+  UserLookupDto,
+  ErpRecordCard,
+  ConversationSummaryDto
 } from '../../core/services/api/chat-api.service';
 import { ChatSignalrService } from '../../core/services/chat-signalr.service';
 import { StateService } from '../../core/services/state.service';
@@ -16,7 +18,11 @@ import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
 export interface TextSegment {
   text: string;
-  isMention: boolean;
+  isMention?: boolean;
+  isCode?: boolean;
+  isBold?: boolean;
+  isItalic?: boolean;
+  isLink?: boolean;
 }
 
 export interface ReactionGroup {
@@ -32,6 +38,7 @@ export interface MessageVm extends ChatMessageDto {
   dayLabel: string;
   showDay: boolean;
   mentionsMe: boolean;
+  card?: ErpRecordCard | null;
 }
 
 const QUICK_EMOJIS = ['👍', '❤️', '😂', '🎉', '🙏', '👀'];
@@ -82,8 +89,43 @@ export class TeamChatComponent implements OnInit, OnDestroy {
   emojiPickerFor = signal<string | null>(null);
   pendingFile = signal<File | null>(null);
 
+  // ---- audio voice notes ----
+  isRecordingAudio = signal(false);
+  recordingDuration = signal(0);
+  private mediaRecorder: MediaRecorder | null = null;
+  private audioChunks: Blob[] = [];
+  private recordingTimer: ReturnType<typeof setInterval> | null = null;
+
+  // ---- AI copilot & summarizer ----
+  isSummarizing = signal(false);
+  showSummaryModal = signal(false);
+  conversationSummary = signal<string | null>(null);
+
+  // ---- pinned messages ----
+  showPinnedDrawer = signal(false);
+  highlightedMessageId = signal<string | null>(null);
+
+  // ---- media preview & drag drop ----
+  previewImageUrl = signal<string | null>(null);
+  isDraggingOver = signal(false);
+
+  // ---- ERP record card sharing ----
+  showShareRecordModal = signal(false);
+  cardForm: ErpRecordCard = {
+    type: 'order',
+    id: '1',
+    code: 'SO-9421',
+    title: 'Sales Order - Enterprise Suite',
+    subtitle: 'Customer: Global Logistics Inc',
+    status: 'Pending Approval',
+    statusColor: 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300',
+    amount: '$14,500.00',
+    url: '/sales/orders'
+  };
+
   // ---- dialogs / panels ----
   showNewGroup = signal(false);
+  chatModalTab = signal<'direct' | 'group'>('direct');
   showMembers = signal(false);
   newGroupName = '';
   newGroupDescription = '';
@@ -119,6 +161,8 @@ export class TeamChatComponent implements OnInit, OnDestroy {
     return names;
   });
 
+  pinnedMessages = computed(() => this.messages().filter(m => m.isPinned && !m.isDeletedBySender));
+
   messageVms = computed<MessageVm[]>(() => {
     const me = this.currentUserId();
     const roster = new Map<string, string>();
@@ -133,13 +177,25 @@ export class TeamChatComponent implements OnInit, OnDestroy {
       const showDay = dayLabel !== lastDay;
       lastDay = dayLabel;
 
+      let card: ErpRecordCard | null = null;
+      if (m.cardData) {
+        card = m.cardData;
+      } else if (m.cardDataJson) {
+        try {
+          card = JSON.parse(m.cardDataJson);
+        } catch {
+          card = null;
+        }
+      }
+
       return {
         ...m,
         segments: this.segmentText(m.text, roster),
         grouped: this.groupReactions(m, me),
         dayLabel,
         showDay,
-        mentionsMe: (m.mentionedUserIds ?? []).includes(me)
+        mentionsMe: (m.mentionedUserIds ?? []).includes(me),
+        card
       };
     });
   });
@@ -154,6 +210,7 @@ export class TeamChatComponent implements OnInit, OnDestroy {
     this.typingTimers.forEach(t => clearTimeout(t));
     this.typingTimers.clear();
     if (this.typingTimer) clearTimeout(this.typingTimer);
+    if (this.recordingTimer) clearInterval(this.recordingTimer);
 
     const active = this.activeId();
     if (active) void this.signalr.leaveConversation(active);
@@ -174,6 +231,7 @@ export class TeamChatComponent implements OnInit, OnDestroy {
     this.subs.push(
       this.signalr.messageReceived$.subscribe(msg => this.onMessageReceived(msg)),
       this.signalr.messageEdited$.subscribe(msg => this.replaceMessage(msg)),
+      this.signalr.messagePinned$.subscribe(msg => this.replaceMessage(msg)),
       this.signalr.messageDeleted$.subscribe(e => {
         if (e.conversationId !== this.activeId()) return;
         this.messages.update(list => list.map(m =>
@@ -443,7 +501,8 @@ export class TeamChatComponent implements OnInit, OnDestroy {
 
   // ================= group management =================
 
-  openNewGroup(): void {
+  openNewChatModal(tab: 'direct' | 'group' = 'direct'): void {
+    this.chatModalTab.set(tab);
     this.showNewGroup.set(true);
     this.newGroupName = '';
     this.newGroupDescription = '';
@@ -452,8 +511,21 @@ export class TeamChatComponent implements OnInit, OnDestroy {
     void this.searchUsers();
   }
 
+  openNewGroup(): void {
+    this.openNewChatModal('group');
+  }
+
+  openDirectChatModal(): void {
+    this.openNewChatModal('direct');
+  }
+
   closeNewGroup(): void {
     this.showNewGroup.set(false);
+  }
+
+  async selectUserForDirectChat(user: UserLookupDto): Promise<void> {
+    this.closeNewGroup();
+    await this.startDirectChat(user.id);
   }
 
   async searchUsers(): Promise<void> {
@@ -552,6 +624,206 @@ export class TeamChatComponent implements OnInit, OnDestroy {
       this.conversations.update(list =>
         list.map(c => c.id === conversation.id ? { ...c, isMuted: next } : c));
     } catch { /* ignore */ }
+  }
+
+  // ================= pinned messages =================
+
+  async togglePin(msg: ChatMessageDto): Promise<void> {
+    try {
+      const updated = await this.api.togglePin(msg.id, !msg.isPinned);
+      this.replaceMessage(updated);
+      this.toast.success(updated.isPinned ? 'Message pinned.' : 'Message unpinned.', 'Chat');
+    } catch {
+      this.toast.error('Could not update pin status.', 'Chat');
+    }
+  }
+
+  togglePinnedDrawer(): void {
+    this.showPinnedDrawer.update(v => !v);
+  }
+
+  // ================= voice notes =================
+
+  async startVoiceRecording(): Promise<void> {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      this.audioChunks = [];
+      this.mediaRecorder = new MediaRecorder(stream);
+      this.mediaRecorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) this.audioChunks.push(e.data);
+      };
+      this.mediaRecorder.start();
+      this.isRecordingAudio.set(true);
+      this.recordingDuration.set(0);
+      this.recordingTimer = setInterval(() => {
+        this.recordingDuration.update(d => d + 1);
+      }, 1000);
+    } catch (err) {
+      console.error('Mic access failed', err);
+      this.toast.error('Microphone access is required to record voice notes.', 'Voice Note');
+    }
+  }
+
+  stopAndSendVoiceRecording(): void {
+    if (!this.mediaRecorder || !this.isRecordingAudio()) return;
+    if (this.recordingTimer) {
+      clearInterval(this.recordingTimer);
+      this.recordingTimer = null;
+    }
+
+    this.mediaRecorder.onstop = async () => {
+      const blob = new Blob(this.audioChunks, { type: 'audio/webm' });
+      const file = new File([blob], `voice_note_${Date.now()}.webm`, { type: 'audio/webm' });
+      this.audioChunks = [];
+      this.isRecordingAudio.set(false);
+      const id = this.activeId();
+      if (!id) return;
+
+      this.uploading.set(true);
+      try {
+        const msg = await this.api.sendAttachment(id, file, '🎤 Voice Note');
+        this.messages.update(list => [...list, msg]);
+        this.toast.success('Voice note sent.', 'Chat');
+      } catch {
+        this.toast.error('Failed to upload voice note.', 'Chat');
+      } finally {
+        this.uploading.set(false);
+      }
+    };
+
+    this.mediaRecorder.stop();
+    this.mediaRecorder.stream.getTracks().forEach(t => t.stop());
+  }
+
+  cancelVoiceRecording(): void {
+    if (this.recordingTimer) {
+      clearInterval(this.recordingTimer);
+      this.recordingTimer = null;
+    }
+    if (this.mediaRecorder) {
+      this.mediaRecorder.stop();
+      this.mediaRecorder.stream.getTracks().forEach(t => t.stop());
+    }
+    this.audioChunks = [];
+    this.isRecordingAudio.set(false);
+    this.recordingDuration.set(0);
+  }
+
+  formatRecordingDuration(seconds: number): string {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  }
+
+  isAudio(msg: ChatMessageDto): boolean {
+    return !!msg.attachmentContentType && msg.attachmentContentType.startsWith('audio/');
+  }
+
+  // ================= AI Copilot & Summarizer =================
+
+  async summarizeActiveThread(): Promise<void> {
+    const id = this.activeId();
+    if (!id) return;
+    this.isSummarizing.set(true);
+    this.showSummaryModal.set(true);
+    this.conversationSummary.set(null);
+    try {
+      const res = await this.api.summarizeConversation(id);
+      this.conversationSummary.set(res.summary);
+    } catch (err) {
+      console.error('Summary failed', err);
+      this.conversationSummary.set('Failed to summarize conversation. Please try again.');
+    } finally {
+      this.isSummarizing.set(false);
+    }
+  }
+
+  closeSummaryModal(): void {
+    this.showSummaryModal.set(false);
+    this.conversationSummary.set(null);
+  }
+
+  insertAiPrompt(prefix = '@ai '): void {
+    if (!this.messageText.startsWith(prefix)) {
+      this.messageText = `${prefix}${this.messageText}`.replace(/^\s+/, '');
+    }
+  }
+
+  // ================= ERP Record Card Sharing =================
+
+  openShareRecordModal(): void {
+    this.showShareRecordModal.set(true);
+    this.selectCardPreset('order');
+  }
+
+  closeShareRecordModal(): void {
+    this.showShareRecordModal.set(false);
+  }
+
+  selectCardPreset(type: 'order' | 'invoice' | 'requisition' | 'product'): void {
+    if (type === 'order') {
+      this.cardForm = {
+        type: 'order',
+        id: '1',
+        code: 'SO-' + Math.floor(1000 + Math.random() * 9000),
+        title: 'Sales Order - Enterprise Cloud',
+        subtitle: 'Customer: Global Logistics Inc',
+        status: 'Pending Approval',
+        statusColor: 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300',
+        amount: '$14,500.00',
+        url: '/sales/orders'
+      };
+    } else if (type === 'invoice') {
+      this.cardForm = {
+        type: 'invoice',
+        id: '2',
+        code: 'INV-' + Math.floor(2000 + Math.random() * 8000),
+        title: 'Customer Invoice - Q3 Services',
+        subtitle: 'Billed to: Apex Solutions Group',
+        status: 'Paid',
+        statusColor: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300',
+        amount: '$12,900.00',
+        url: '/finance/invoices'
+      };
+    } else if (type === 'requisition') {
+      this.cardForm = {
+        type: 'requisition',
+        id: '3',
+        code: 'PR-' + Math.floor(3000 + Math.random() * 7000),
+        title: 'Purchase Requisition - Warehouse Equipment',
+        subtitle: 'Department: Supply Chain',
+        status: 'Needs Review',
+        statusColor: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-300',
+        amount: '$3,250.00',
+        url: '/inventory/requisitions'
+      };
+    } else if (type === 'product') {
+      this.cardForm = {
+        type: 'product',
+        id: '4',
+        code: 'SKU-8820',
+        title: 'Industrial Optical Scanner V3',
+        subtitle: 'Warehouse Stock: 185 Units',
+        status: 'In Stock',
+        statusColor: 'bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300',
+        amount: '$499.00',
+        url: '/inventory/items'
+      };
+    }
+  }
+
+  async submitShareRecord(): Promise<void> {
+    const id = this.activeId();
+    if (!id) return;
+    try {
+      const msg = await this.api.sendErpCard(id, '', this.cardForm);
+      this.messages.update(list => [...list, msg]);
+      this.closeShareRecordModal();
+      this.toast.success('ERP Record Card shared in chat.', 'Chat');
+    } catch (err) {
+      console.error('Share card failed', err);
+      this.toast.error('Could not share record card.', 'Chat');
+    }
   }
 
   // ================= search =================
@@ -689,27 +961,108 @@ export class TeamChatComponent implements OnInit, OnDestroy {
     }
   }
 
+  // ================= UI Utilities & Drag Drop =================
+
+  scrollToMessage(messageId: string): void {
+    const el = document.getElementById('msg-' + messageId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      this.highlightedMessageId.set(messageId);
+      setTimeout(() => this.highlightedMessageId.set(null), 2500);
+    }
+  }
+
+  openImagePreview(url: string): void {
+    this.previewImageUrl.set(url);
+  }
+
+  closeImagePreview(): void {
+    this.previewImageUrl.set(null);
+  }
+
+  async approveRecordCard(card: ErpRecordCard): Promise<void> {
+    const id = this.activeId();
+    if (!id) return;
+    try {
+      await this.api.sendMessage(id, `✅ **Approved**: ${card.code} - ${card.title} (${card.amount || ''})`);
+      this.toast.success(`${card.code} approved.`, 'ERP Workflow');
+    } catch {
+      this.toast.error('Could not submit approval.', 'ERP Workflow');
+    }
+  }
+
+  async rejectRecordCard(card: ErpRecordCard): Promise<void> {
+    const id = this.activeId();
+    if (!id) return;
+    try {
+      await this.api.sendMessage(id, `❌ **Rejected**: ${card.code} - ${card.title}`);
+      this.toast.warning(`${card.code} rejected.`, 'ERP Workflow');
+    } catch {
+      this.toast.error('Could not submit rejection.', 'ERP Workflow');
+    }
+  }
+
+  onDragOver(e: DragEvent): void {
+    e.preventDefault();
+    e.stopPropagation();
+    this.isDraggingOver.set(true);
+  }
+
+  onDragLeave(e: DragEvent): void {
+    e.preventDefault();
+    e.stopPropagation();
+    this.isDraggingOver.set(false);
+  }
+
+  onDrop(e: DragEvent): void {
+    e.preventDefault();
+    e.stopPropagation();
+    this.isDraggingOver.set(false);
+    const file = e.dataTransfer?.files?.[0] ?? null;
+    if (file) {
+      this.pendingFile.set(file);
+      void this.sendAttachment();
+    }
+  }
+
   private segmentText(text: string, roster: Map<string, string>): TextSegment[] {
     if (!text) return [];
-    if (!text.includes('@')) return [{ text, isMention: false }];
 
     const known = new Set([...roster.values()].filter(Boolean).map(n => n.toLowerCase()));
     const segments: TextSegment[] = [];
-    const regex = /(@[\w.\-]+)/g;
+
+    // Master tokenizer: Matches code blocks ```...```, inline code `...`, mentions @user, bold **...**, links https?://...
+    const regex = /(```[\s\S]*?```|`[^`\n]+`|@[\w.\-]+|\*\*[^*]+\*\*|https?:\/\/[^\s]+)/g;
     let lastIndex = 0;
     let match: RegExpExecArray | null;
 
     while ((match = regex.exec(text)) !== null) {
       if (match.index > lastIndex) {
-        segments.push({ text: text.slice(lastIndex, match.index), isMention: false });
+        segments.push({ text: text.slice(lastIndex, match.index) });
       }
-      segments.push({ text: match[0], isMention: known.has(match[0].slice(1).toLowerCase()) });
-      lastIndex = match.index + match[0].length;
+
+      const val = match[0];
+      if (val.startsWith('```') && val.endsWith('```')) {
+        segments.push({ text: val.slice(3, -3).trim(), isCode: true });
+      } else if (val.startsWith('`') && val.endsWith('`')) {
+        segments.push({ text: val.slice(1, -1), isCode: true });
+      } else if (val.startsWith('**') && val.endsWith('**')) {
+        segments.push({ text: val.slice(2, -2), isBold: true });
+      } else if (val.startsWith('@')) {
+        segments.push({ text: val, isMention: known.has(val.slice(1).toLowerCase()) || val.toLowerCase() === '@ai' || val.toLowerCase() === '@assistant' });
+      } else if (val.startsWith('http://') || val.startsWith('https://')) {
+        segments.push({ text: val, isLink: true });
+      } else {
+        segments.push({ text: val });
+      }
+
+      lastIndex = match.index + val.length;
     }
 
     if (lastIndex < text.length) {
-      segments.push({ text: text.slice(lastIndex), isMention: false });
+      segments.push({ text: text.slice(lastIndex) });
     }
+
     return segments;
   }
 

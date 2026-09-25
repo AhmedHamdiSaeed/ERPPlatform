@@ -45,6 +45,24 @@ export interface ChatReactionDto {
   emoji: string;
 }
 
+export interface ErpRecordCard {
+  type: 'order' | 'invoice' | 'requisition' | 'product' | 'workflow' | 'task';
+  id: string;
+  code: string;
+  title: string;
+  subtitle?: string;
+  status: string;
+  statusColor?: string;
+  amount?: string;
+  url?: string;
+  attributes?: { label: string; value: string }[];
+}
+
+export interface ConversationSummaryDto {
+  summary: string;
+  timestamp: string;
+}
+
 export interface ChatMessageDto {
   id: string;
   conversationId: string;
@@ -66,6 +84,10 @@ export interface ChatMessageDto {
   attachmentUrl: string;
   reactions: ChatReactionDto[];
   isMine: boolean;
+  isPinned: boolean;
+  cardDataJson?: string;
+  cardData?: ErpRecordCard;
+  isAiResponse?: boolean;
 }
 
 export interface UserLookupDto {
@@ -164,6 +186,26 @@ export class ChatApiService extends ErpApiService {
       `chat-message/toggle-reaction/${encodeURIComponent(messageId)}?emoji=${encodeURIComponent(emoji)}`,
       null
     );
+  }
+
+  togglePin(messageId: string, isPinned: boolean): Promise<ChatMessageDto> {
+    return this.post<ChatMessageDto>(`chat-message/${encodeURIComponent(messageId)}/toggle-pin?isPinned=${isPinned}`, null);
+  }
+
+  getPinnedMessages(conversationId: string): Promise<ChatMessageDto[]> {
+    return this.getList<ChatMessageDto>(`chat-message/${encodeURIComponent(conversationId)}/pinned-messages`);
+  }
+
+  sendErpCard(conversationId: string, text: string, card: ErpRecordCard): Promise<ChatMessageDto> {
+    return this.post<ChatMessageDto>('chat-message/send-erp-card', {
+      conversationId,
+      text,
+      cardDataJson: JSON.stringify(card)
+    });
+  }
+
+  summarizeConversation(conversationId: string): Promise<ConversationSummaryDto> {
+    return this.post<ConversationSummaryDto>(`chat-message/${encodeURIComponent(conversationId)}/summarize-conversation`, null);
   }
 
   searchMessages(conversationId: string, keyword: string, maxResultCount = 50): Promise<ChatMessageDto[]> {

@@ -46,6 +46,7 @@ export class ChatSignalrService {
 
   private readonly messageReceived = new Subject<ChatMessageDto>();
   private readonly messageEdited = new Subject<ChatMessageDto>();
+  private readonly messagePinned = new Subject<ChatMessageDto>();
   private readonly messageDeleted = new Subject<MessageDeletedEvent>();
   private readonly reactionChanged = new Subject<ChatMessageDto>();
   private readonly userTyping = new Subject<TypingEvent>();
@@ -54,6 +55,7 @@ export class ChatSignalrService {
 
   readonly messageReceived$ = this.messageReceived.asObservable();
   readonly messageEdited$ = this.messageEdited.asObservable();
+  readonly messagePinned$ = this.messagePinned.asObservable();
   readonly messageDeleted$ = this.messageDeleted.asObservable();
   readonly reactionChanged$ = this.reactionChanged.asObservable();
   readonly userTyping$ = this.userTyping.asObservable();
@@ -88,6 +90,7 @@ export class ChatSignalrService {
 
     this.connection.on('MessageReceived', (message: ChatMessageDto) => this.messageReceived.next(message));
     this.connection.on('MessageEdited', (message: ChatMessageDto) => this.messageEdited.next(message));
+    this.connection.on('MessagePinned', (message: ChatMessageDto) => this.messagePinned.next(message));
     this.connection.on('MessageDeleted', (e: MessageDeletedEvent) => this.messageDeleted.next(e));
     this.connection.on('MessageReactionChanged', (message: ChatMessageDto) => this.reactionChanged.next(message));
     this.connection.on('UserTyping', (c: string, userId: string, userName: string, isTyping: boolean) =>

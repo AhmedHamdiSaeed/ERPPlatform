@@ -3,18 +3,25 @@
   <!-- ================= LEFT: conversations ================= -->
   <div class="w-80 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col overflow-hidden">
 
-    <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+    <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center gap-2">
       <h2 class="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
         <i class="pi pi-comments text-indigo-600 dark:text-indigo-400"></i> {{ 'Team Chat' | translate }}
         @if (totalUnread() > 0) {
           <span class="px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-rose-500 text-white">{{ totalUnread() }}</span>
         }
       </h2>
-      <button (click)="openNewGroup()"
-        class="px-2 py-1 text-xs font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition flex items-center gap-1"
-        [title]="'Create a group with multiple members' | translate">
-        <i class="pi pi-plus text-[10px]"></i> {{ 'New Group' | translate }}
-      </button>
+      <div class="flex items-center gap-1">
+        <button (click)="openDirectChatModal()"
+          class="px-2 py-1 text-xs font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition flex items-center gap-1"
+          [title]="'Start a 1-on-1 chat with a colleague' | translate">
+          <i class="pi pi-user-plus text-[10px]"></i> {{ 'New Chat' | translate }}
+        </button>
+        <button (click)="openNewGroup()"
+          class="p-1.5 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+          [title]="'Create a group' | translate">
+          <i class="pi pi-users text-xs"></i>
+        </button>
+      </div>
     </div>
 
     <div class="px-3 pt-3">
@@ -36,16 +43,21 @@
         <div class="text-center py-10 px-4">
           <i class="pi pi-comments text-3xl text-slate-300 dark:text-slate-600"></i>
           <p class="mt-3 text-sm text-slate-500 dark:text-slate-400">{{ 'No conversations yet.' | translate }}</p>
-          <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">{{ 'Create a group to get started.' | translate }}</p>
+          <div class="mt-4 flex flex-col gap-2">
+            <button (click)="openDirectChatModal()" class="w-full px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition">
+              <i class="pi pi-user-plus text-[10px] mr-1"></i> {{ 'Start Direct Chat' | translate }}
+            </button>
+            <button (click)="openNewGroup()" class="w-full px-3 py-1.5 text-xs font-medium rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+              <i class="pi pi-users text-[10px] mr-1"></i> {{ 'Create a Group' | translate }}
+            </button>
+          </div>
         </div>
       } @else {
         @for (c of filteredConversations(); track c.id) {
           <button (click)="selectConversation(c.id)"
-            [ngClass]="{ 'bg-indigo-50': activeId() === c.id, 'dark:bg-indigo-950/60': activeId() === c.id }"
+            [ngClass]="{ 'bg-indigo-50 dark:bg-indigo-950/60': activeId() === c.id }"
             class="w-full px-3 py-2.5 rounded-lg text-left flex items-start gap-3 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition">
 
-            <!-- Only phrasing content inside <button>; block elements would make the
-                 HTML parser implicitly close the button and break the markup. -->
             <span class="relative shrink-0">
               <span class="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
                 {{ initials(c) }}
@@ -58,10 +70,7 @@
             <span class="flex-1 min-w-0">
               <span class="flex items-center justify-between gap-2">
                 <span class="text-sm font-semibold truncate"
-                  [class.text-indigo-700]="activeId() === c.id"
-                  [class.dark:text-indigo-300]="activeId() === c.id"
-                  [class.text-slate-900]="activeId() !== c.id"
-                  [class.dark:text-white]="activeId() !== c.id">
+                  [ngClass]="activeId() === c.id ? 'text-indigo-700 dark:text-indigo-300' : 'text-slate-900 dark:text-white'">
                   {{ conversationTitle(c) }}
                 </span>
                 @if (c.unreadCount > 0) {
@@ -84,7 +93,21 @@
   </div>
 
   <!-- ================= RIGHT: conversation ================= -->
-  <div class="flex-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col overflow-hidden">
+  <div class="flex-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col overflow-hidden relative"
+    (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+
+    <!-- Drag & Drop overlay -->
+    @if (isDraggingOver()) {
+      <div class="absolute inset-0 z-30 bg-indigo-500/20 backdrop-blur-xs border-2 border-dashed border-indigo-500 rounded-xl flex items-center justify-center pointer-events-none">
+        <div class="bg-white dark:bg-slate-800 px-6 py-4 rounded-2xl shadow-xl flex items-center gap-3">
+          <i class="pi pi-cloud-upload text-3xl text-indigo-600 animate-bounce"></i>
+          <div>
+            <p class="font-bold text-slate-900 dark:text-white">{{ 'Drop file to upload' | translate }}</p>
+            <p class="text-xs text-slate-500">{{ 'Up to 10 MB' | translate }}</p>
+          </div>
+        </div>
+      </div>
+    }
 
     @if (!activeConversation()) {
       <div class="flex-1 flex flex-col items-center justify-center text-center p-8">
@@ -117,6 +140,26 @@
         </div>
 
         <div class="flex items-center gap-1">
+          <!-- AI Summarize Button -->
+          <button (click)="summarizeActiveThread()"
+            class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/50 transition flex items-center gap-1.5"
+            [title]="'Summarize conversation with AI' | translate">
+            <i class="pi pi-sparkles text-xs"></i> {{ 'AI Summary' | translate }}
+          </button>
+
+          <!-- Pinned Messages Toggle -->
+          <button (click)="togglePinnedDrawer()"
+            [ngClass]="{ 'text-amber-600 bg-amber-50 dark:bg-amber-950/40': showPinnedDrawer(), 'text-amber-600': !showPinnedDrawer() && pinnedMessages().length > 0 }"
+            class="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition relative"
+            [title]="'Pinned messages' | translate">
+            <i class="pi pi-thumbtack text-sm"></i>
+            @if (pinnedMessages().length > 0) {
+              <span class="absolute -top-1 -right-1 px-1.5 py-0.2 text-[9px] font-bold rounded-full bg-amber-500 text-white">
+                {{ pinnedMessages().length }}
+              </span>
+            }
+          </button>
+
           <button (click)="toggleMembersPanel()" class="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition" [title]="'Members' | translate">
             <i class="pi pi-users"></i>
           </button>
@@ -131,6 +174,27 @@
           }
         </div>
       </div>
+
+      <!-- pinned messages bar -->
+      @if (showPinnedDrawer() && pinnedMessages().length > 0) {
+        <div class="px-4 py-2 bg-amber-50 dark:bg-amber-950/40 border-b border-amber-200 dark:border-amber-900/50 flex items-center justify-between text-xs text-amber-900 dark:text-amber-200">
+          <div class="flex items-center gap-2 min-w-0 flex-1">
+            <i class="pi pi-thumbtack text-amber-600 dark:text-amber-400 shrink-0"></i>
+            <span class="font-semibold shrink-0">{{ 'Pinned' | translate }} ({{ pinnedMessages().length }}):</span>
+            <div class="flex gap-2 overflow-x-auto min-w-0">
+              @for (p of pinnedMessages(); track p.id) {
+                <button (click)="scrollToMessage(p.id)"
+                  class="px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-900/60 hover:bg-amber-200 dark:hover:bg-amber-800 transition truncate text-left max-w-xs font-medium">
+                  {{ p.text || p.attachmentName || ('ERP Record' | translate) }}
+                </button>
+              }
+            </div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0 ml-2">
+            <button (click)="togglePinnedDrawer()" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times text-xs"></i></button>
+          </div>
+        </div>
+      }
 
       <!-- message search -->
       <div class="px-4 py-2 border-b border-slate-200 dark:border-slate-700 flex items-center gap-2">
@@ -147,7 +211,7 @@
         </div>
       </div>
 
-      <!-- messages -->
+      <!-- messages list -->
       <div class="flex-1 overflow-y-auto p-5 space-y-3 bg-slate-50/50 dark:bg-slate-900/40">
 
         @if (loadingMessages()) {
@@ -165,7 +229,8 @@
             <p class="text-sm text-slate-500 dark:text-slate-400 text-center py-8">{{ 'No messages match your search.' | translate }}</p>
           }
           @for (m of messageSearchResults()!; track m.id) {
-            <div class="p-3 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+            <div class="p-3 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-indigo-400 transition"
+              (click)="scrollToMessage(m.id)">
               <div class="flex items-center justify-between mb-1">
                 <span class="text-xs font-semibold text-slate-700 dark:text-slate-200">{{ m.senderName }}</span>
                 <span class="text-[10px] text-slate-400">{{ formatTime(m.timestamp) }}</span>
@@ -189,23 +254,45 @@
               </div>
             }
 
-            <div class="flex group" [class.justify-end]="m.isMine" [class.justify-start]="!m.isMine">
+            <div class="flex group transition-all duration-300"
+              [id]="'msg-' + m.id"
+              [ngClass]="{
+                'justify-end': m.isMine,
+                'justify-start': !m.isMine,
+                'p-2 rounded-xl bg-indigo-100/50 dark:bg-indigo-950/30': highlightedMessageId() === m.id
+              }">
 
               @if (!m.isMine) {
-                <div class="w-7 h-7 rounded-full bg-slate-300 dark:bg-slate-600 flex items-center justify-center text-[10px] font-bold text-slate-700 dark:text-slate-200 mr-2 mt-auto shrink-0">
-                  {{ senderInitials(m.senderName) }}
-                </div>
+                @if (m.isAiResponse) {
+                  <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white text-[10px] mr-2 mt-auto shrink-0 shadow-sm">
+                    <i class="pi pi-sparkles text-[10px]"></i>
+                  </div>
+                } @else {
+                  <div class="w-7 h-7 rounded-full bg-slate-300 dark:bg-slate-600 flex items-center justify-center text-[10px] font-bold text-slate-700 dark:text-slate-200 mr-2 mt-auto shrink-0">
+                    {{ senderInitials(m.senderName) }}
+                  </div>
+                }
               }
 
-              <div class="max-w-[65%]">
+              <div class="max-w-[70%]">
 
                 @if (!m.isMine) {
-                  <div class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-0.5 ml-1">{{ m.senderName }}</div>
+                  <div class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-0.5 ml-1 flex items-center gap-1.5">
+                    {{ m.senderName }}
+                    @if (m.isAiResponse) {
+                      <span class="px-1.5 py-0.2 text-[9px] font-bold rounded bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300">
+                        {{ 'AI BOT' | translate }}
+                      </span>
+                    }
+                  </div>
                 }
 
                 <!-- hover actions -->
                 <div class="flex items-center gap-1 mb-1 opacity-0 group-hover:opacity-100 transition h-5"
                   [class.justify-end]="m.isMine">
+                  <button (click)="togglePin(m)" class="p-1 rounded text-slate-400 hover:text-amber-500" [title]="m.isPinned ? ('Unpin' | translate) : ('Pin' | translate)">
+                    <i class="pi pi-thumbtack text-xs" [class.text-amber-500]="m.isPinned"></i>
+                  </button>
                   <button (click)="setReply(m)" class="p-1 rounded text-slate-400 hover:text-indigo-600" [title]="'Reply' | translate"><i class="pi pi-reply text-xs"></i></button>
                   <button (click)="toggleEmojiPicker(m.id)" class="p-1 rounded text-slate-400 hover:text-amber-500" [title]="'React' | translate"><i class="pi pi-face-smile text-xs"></i></button>
                   @if (m.isMine && !m.isDeletedBySender) {
@@ -246,34 +333,106 @@
                     <i class="pi pi-trash text-xs mr-1"></i> {{ 'Message deleted' | translate }}
                   </div>
                 } @else {
-                  <div class="px-4 py-2.5 rounded-2xl shadow-sm text-sm whitespace-pre-wrap break-words"
-                    [class.bg-indigo-600]="m.isMine"
-                    [class.text-white]="m.isMine"
-                    [class.rounded-br-none]="m.isMine"
-                    [class.bg-white]="!m.isMine"
-                    [class.dark:bg-slate-700]="!m.isMine"
-                    [class.text-slate-800]="!m.isMine"
-                    [class.dark:text-slate-100]="!m.isMine"
-                    [class.rounded-bl-none]="!m.isMine"
-                    [class.ring-2]="m.mentionsMe && !m.isMine"
-                    [class.ring-amber-400]="m.mentionsMe && !m.isMine">
 
-                    @if (m.isMine) {
-                      <span>{{ m.text }}</span>
-                    } @else {
-                      @for (seg of m.segments; track $index) {
-                        @if (seg.isMention) {
-                          <span class="font-semibold text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 rounded px-1">{{ seg.text }}</span>
+                  <!-- Main message container -->
+                  <div class="px-4 py-2.5 rounded-2xl shadow-sm text-sm whitespace-pre-wrap break-words"
+                    [ngClass]="{
+                      'bg-indigo-600 text-white rounded-br-none': m.isMine && !m.card,
+                      'bg-white text-slate-800 rounded-bl-none': !m.isMine && !m.card,
+                      'dark:bg-slate-700 dark:text-slate-100': !m.isMine && !m.card,
+                      'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700': m.card,
+                      'border border-purple-200 dark:border-purple-900': m.isAiResponse,
+                      'ring-2 ring-amber-400': m.mentionsMe && !m.isMine
+                    }">
+
+                    <!-- Pinned chip -->
+                    @if (m.isPinned) {
+                      <div class="mb-1 flex items-center gap-1 text-[10px] font-semibold text-amber-500 uppercase tracking-wider">
+                        <i class="pi pi-thumbtack text-[9px]"></i> {{ 'Pinned Message' | translate }}
+                      </div>
+                    }
+
+                    <!-- ERP Record Card Rendering -->
+                    @if (m.card) {
+                      <div class="p-3 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-700 max-w-sm mb-1">
+                        <div class="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-slate-200 dark:border-slate-700">
+                          <span class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-800 dark:text-slate-200">
+                            <i class="pi pi-briefcase text-indigo-500"></i> {{ m.card.code }}
+                          </span>
+                          <span class="px-2 py-0.5 text-[10px] font-bold rounded-full {{ m.card.statusColor || 'bg-indigo-100 text-indigo-700' }}">
+                            {{ m.card.status }}
+                          </span>
+                        </div>
+                        <h4 class="font-bold text-sm text-slate-900 dark:text-white">{{ m.card.title }}</h4>
+                        @if (m.card.subtitle) {
+                          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ m.card.subtitle }}</p>
+                        }
+                        @if (m.card.amount) {
+                          <div class="mt-2 text-sm font-extrabold text-indigo-600 dark:text-indigo-400">
+                            {{ m.card.amount }}
+                          </div>
+                        }
+
+                        <!-- Inline Workflow Actions for Pending / Review items -->
+                        @if (m.card.status === 'Pending Approval' || m.card.status === 'Needs Review') {
+                          <div class="mt-3 pt-2 border-t border-slate-200 dark:border-slate-700 flex items-center justify-end gap-2">
+                            <button (click)="rejectRecordCard(m.card)"
+                              class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300 transition flex items-center gap-1">
+                              <i class="pi pi-times text-[10px]"></i> {{ 'Reject' | translate }}
+                            </button>
+                            <button (click)="approveRecordCard(m.card)"
+                              class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white transition flex items-center gap-1">
+                              <i class="pi pi-check text-[10px]"></i> {{ 'Approve' | translate }}
+                            </button>
+                          </div>
                         } @else {
-                          <span>{{ seg.text }}</span>
+                          <div class="mt-3 pt-2 border-t border-slate-200 dark:border-slate-700 flex justify-end">
+                            <a [href]="m.card.url || '#'"
+                              class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition inline-flex items-center gap-1">
+                              {{ 'View in ERP' | translate }} <i class="pi pi-external-link text-[10px]"></i>
+                            </a>
+                          </div>
+                        }
+                      </div>
+                    }
+
+                    <!-- Rich Text content -->
+                    @if (m.text) {
+                      @if (m.isMine && !m.card) {
+                        <span>{{ m.text }}</span>
+                      } @else {
+                        @for (seg of m.segments; track $index) {
+                          @if (seg.isMention) {
+                            <span class="font-semibold text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 rounded px-1">{{ seg.text }}</span>
+                          } @else if (seg.isCode) {
+                            <code class="px-1.5 py-0.5 rounded bg-slate-900/10 dark:bg-slate-900/50 font-mono text-xs font-semibold">{{ seg.text }}</code>
+                          } @else if (seg.isBold) {
+                            <strong class="font-bold">{{ seg.text }}</strong>
+                          } @else if (seg.isLink) {
+                            <a [href]="seg.text" target="_blank" rel="noopener" class="text-indigo-600 dark:text-indigo-400 underline hover:opacity-80">{{ seg.text }}</a>
+                          } @else {
+                            <span>{{ seg.text }}</span>
+                          }
                         }
                       }
                     }
 
-                    <!-- attachment -->
-                    @if (m.attachmentName) {
+                    <!-- Voice Note / Audio Player -->
+                    @if (m.attachmentName && isAudio(m)) {
+                      <div class="mt-2 p-2 rounded-lg bg-black/5 dark:bg-white/5 border border-slate-200 dark:border-slate-700">
+                        <div class="flex items-center gap-2 mb-1.5 text-xs font-medium text-slate-700 dark:text-slate-200">
+                          <i class="pi pi-volume-up text-indigo-500"></i> {{ 'Voice Note' | translate }}
+                        </div>
+                        <audio [src]="m.attachmentUrl" controls class="w-full max-w-xs h-8"></audio>
+                      </div>
+                    }
+
+                    <!-- Image / Document Attachment -->
+                    @if (m.attachmentName && !isAudio(m)) {
                       @if (isImage(m)) {
-                        <img [src]="m.attachmentUrl" [alt]="m.attachmentName" class="mt-2 max-w-xs rounded-lg border border-white/20">
+                        <img [src]="m.attachmentUrl" [alt]="m.attachmentName"
+                          (click)="openImagePreview(m.attachmentUrl)"
+                          class="mt-2 max-w-xs rounded-lg border border-white/20 cursor-pointer hover:opacity-90 transition shadow-sm">
                       } @else {
                         <a [href]="m.attachmentUrl" target="_blank" rel="noopener"
                           class="mt-2 flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 transition">
@@ -350,22 +509,68 @@
           </div>
         }
 
-        <div class="flex items-end gap-2">
-          <label class="p-2.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer transition" [title]="'Attach a file' | translate">
-            <i class="pi pi-paperclip"></i>
-            <input type="file" class="hidden" (change)="onFileSelected($event)">
-          </label>
+        <!-- Active Voice Recording Bar -->
+        @if (isRecordingAudio()) {
+          <div class="flex items-center justify-between p-3 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50">
+            <div class="flex items-center gap-3">
+              <span class="w-3 h-3 rounded-full bg-rose-600 animate-pulse"></span>
+              <span class="text-sm font-semibold text-rose-700 dark:text-rose-300">
+                {{ 'Recording voice note...' | translate }} ({{ formatRecordingDuration(recordingDuration()) }})
+              </span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button (click)="cancelVoiceRecording()"
+                class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-300 transition">
+                <i class="pi pi-times mr-1"></i> {{ 'Cancel' | translate }}
+              </button>
+              <button (click)="stopAndSendVoiceRecording()"
+                class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-rose-600 text-white hover:bg-rose-700 transition flex items-center gap-1">
+                <i class="pi pi-send"></i> {{ 'Send Voice' | translate }}
+              </button>
+            </div>
+          </div>
+        } @else {
+          <!-- Standard Composer Input -->
+          <div class="flex items-end gap-2">
+            <div class="flex items-center gap-0.5">
+              <label class="p-2.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer transition" [title]="'Attach a file' | translate">
+                <i class="pi pi-paperclip"></i>
+                <input type="file" class="hidden" (change)="onFileSelected($event)">
+              </label>
 
-          <textarea [(ngModel)]="messageText" (ngModelChange)="onComposerInput()"
-            (keydown.enter)="$event.preventDefault(); sendMessage()"
-            rows="1" [placeholder]="'Write a message... use @name to mention' | translate"
-            class="flex-1 px-3 py-2.5 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none resize-none"></textarea>
+              <!-- Voice Recording Trigger -->
+              <button (click)="startVoiceRecording()"
+                class="p-2.5 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+                [title]="'Record a voice note' | translate">
+                <i class="pi pi-microphone"></i>
+              </button>
 
-          <button (click)="sendMessage()" [disabled]="!messageText.trim() || sending()"
-            class="p-2.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition" [title]="'Send' | translate">
-            <i class="pi pi-send"></i>
-          </button>
-        </div>
+              <!-- Share ERP Record Trigger -->
+              <button (click)="openShareRecordModal()"
+                class="p-2.5 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+                [title]="'Share ERP record card' | translate">
+                <i class="pi pi-briefcase"></i>
+              </button>
+
+              <!-- Ask AI Trigger -->
+              <button (click)="insertAiPrompt()"
+                class="p-2.5 rounded-lg text-slate-500 hover:text-purple-600 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+                [title]="'Ask ERP AI Assistant (@ai)' | translate">
+                <i class="pi pi-sparkles"></i>
+              </button>
+            </div>
+
+            <textarea [(ngModel)]="messageText" (ngModelChange)="onComposerInput()"
+              (keydown.enter)="$event.preventDefault(); sendMessage()"
+              rows="1" [placeholder]="'Write a message... use @name or @ai for AI assistant' | translate"
+              class="flex-1 px-3 py-2.5 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none resize-none"></textarea>
+
+            <button (click)="sendMessage()" [disabled]="!messageText.trim() || sending()"
+              class="p-2.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition" [title]="'Send' | translate">
+              <i class="pi pi-send"></i>
+            </button>
+          </div>
+        }
       </div>
     }
   </div>
@@ -393,11 +598,18 @@
               </div>
             </div>
 
-            @if (activeConversation()!.type === 1 && activeConversation()!.isAdmin && !isMe(p)) {
-              <button (click)="removeMember(p)" class="p-1 rounded text-slate-400 hover:text-rose-600" [title]="'Remove' | translate">
-                <i class="pi pi-user-minus text-xs"></i>
-              </button>
-            }
+            <div class="flex items-center gap-1">
+              @if (!isMe(p)) {
+                <button (click)="startDirectChat(p.userId)" class="p-1 rounded text-slate-400 hover:text-indigo-600" [title]="'Send direct message' | translate">
+                  <i class="pi pi-comment text-xs"></i>
+                </button>
+              }
+              @if (activeConversation()!.type === 1 && activeConversation()!.isAdmin && !isMe(p)) {
+                <button (click)="removeMember(p)" class="p-1 rounded text-slate-400 hover:text-rose-600" [title]="'Remove' | translate">
+                  <i class="pi pi-user-minus text-xs"></i>
+                </button>
+              }
+            </div>
           </div>
         }
       </div>
@@ -413,81 +625,276 @@
   }
 </div>
 
-<!-- ================= new group dialog ================= -->
+<!-- ================= new chat / group dialog ================= -->
 @if (showNewGroup()) {
   <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" (click)="closeNewGroup()">
-    <div class="w-full max-w-lg bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden" (click)="$event.stopPropagation()">
+    <div class="w-full max-w-lg bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col" (click)="$event.stopPropagation()">
 
+      <!-- Dialog Header -->
       <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
-        <h3 class="text-lg font-bold text-slate-900 dark:text-white">
-          {{ activeConversation() && activeConversation()!.type === 1 ? ('Add members to group' | translate) : ('Create a group' | translate) }}
-        </h3>
+        @if (isAddMemberMode()) {
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white">{{ 'Add members to group' | translate }}</h3>
+        } @else {
+          <!-- Tabs for Direct vs Group -->
+          <div class="flex items-center gap-2">
+            <button (click)="chatModalTab.set('direct')"
+              [ngClass]="chatModalTab() === 'direct' ? 'bg-indigo-600 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200'"
+              class="px-3 py-1.5 text-xs font-semibold rounded-lg transition flex items-center gap-1.5">
+              <i class="pi pi-user text-xs"></i> {{ 'Direct Message' | translate }}
+            </button>
+            <button (click)="chatModalTab.set('group')"
+              [ngClass]="chatModalTab() === 'group' ? 'bg-indigo-600 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200'"
+              class="px-3 py-1.5 text-xs font-semibold rounded-lg transition flex items-center gap-1.5">
+              <i class="pi pi-users text-xs"></i> {{ 'Create Group' | translate }}
+            </button>
+          </div>
+        }
         <button (click)="closeNewGroup()" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times"></i></button>
       </div>
 
-      <div class="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
-        @if (!activeConversation() || activeConversation()!.type !== 1) {
+      <!-- Tab: Direct Message (1-on-1) -->
+      @if (!isAddMemberMode() && chatModalTab() === 'direct') {
+        <div class="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
           <div>
-            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">{{ 'Group name *' | translate }}</label>
-            <input type="text" [(ngModel)]="newGroupName" [placeholder]="'e.g. Warehouse Team' | translate"
-              class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none">
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">{{ 'Description' | translate }}</label>
-            <input type="text" [(ngModel)]="newGroupDescription" [placeholder]="'What is this group about?' | translate"
-              class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none">
-          </div>
-        }
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">{{ 'Add members' | translate }}</label>
-
-          @if (selectedMembers().length > 0) {
-            <div class="flex flex-wrap gap-1.5 mb-2">
-              @for (u of selectedMembers(); track u.id) {
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">
-                  {{ u.displayName || u.userName }}
-                  <button (click)="removeSelected(u)" class="hover:text-rose-600"><i class="pi pi-times text-[9px]"></i></button>
-                </span>
-              }
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
+              {{ 'Select a colleague to chat with' | translate }}
+            </label>
+            <div class="relative">
+              <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+              <input type="text" [(ngModel)]="memberQuery" (ngModelChange)="searchUsers()" [placeholder]="'Search users by name or email...' | translate"
+                class="w-full pl-8 pr-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none">
             </div>
-          }
-
-          <div class="relative">
-            <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-            <input type="text" [(ngModel)]="memberQuery" (ngModelChange)="searchUsers()" [placeholder]="'Search users by name or email...' | translate"
-              class="w-full pl-8 pr-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none">
           </div>
 
-          <div class="mt-2 border border-slate-200 dark:border-slate-700 rounded-lg max-h-56 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700">
+          <div class="border border-slate-200 dark:border-slate-700 rounded-lg max-h-72 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700">
             @if (memberResults().length === 0) {
-              <p class="p-4 text-center text-xs text-slate-400">{{ 'No users found.' | translate }}</p>
+              <div class="p-6 text-center text-xs text-slate-400">
+                <i class="pi pi-user-times text-2xl mb-1 text-slate-300 dark:text-slate-600 block"></i>
+                {{ 'No users found.' | translate }}
+              </div>
             }
             @for (u of memberResults(); track u.id) {
-              <button (click)="toggleMember(u)"
-                [ngClass]="{ 'bg-indigo-50': isSelected(u), 'dark:bg-indigo-950/50': isSelected(u) }"
-                class="w-full px-3 py-2 flex items-center gap-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
-                <span class="w-7 h-7 rounded-full bg-slate-300 dark:bg-slate-600 flex items-center justify-center text-[10px] font-bold text-slate-700 dark:text-slate-200 shrink-0">
-                  {{ senderInitials(u.displayName || u.userName) }}
+              <button (click)="selectUserForDirectChat(u)"
+                class="w-full px-3 py-2.5 flex items-center justify-between text-left hover:bg-indigo-50/70 dark:hover:bg-slate-700/50 transition group">
+                <div class="flex items-center gap-3 min-w-0">
+                  <span class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-[11px] font-bold text-white shrink-0">
+                    {{ senderInitials(u.displayName || u.userName) }}
+                  </span>
+                  <div class="min-w-0">
+                    <span class="block text-sm font-semibold text-slate-900 dark:text-white truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                      {{ u.displayName || u.userName }}
+                    </span>
+                    <span class="block text-[11px] text-slate-400 truncate">{{ u.email }}</span>
+                  </div>
+                </div>
+                <span class="px-2.5 py-1 text-xs font-medium rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-300 group-hover:bg-indigo-600 group-hover:text-white transition flex items-center gap-1 shrink-0">
+                  <i class="pi pi-send text-[10px]"></i> {{ 'Chat' | translate }}
                 </span>
-                <span class="min-w-0 flex-1">
-                  <span class="block text-sm font-medium text-slate-900 dark:text-white truncate">{{ u.displayName || u.userName }}</span>
-                  <span class="block text-[11px] text-slate-400 truncate">{{ u.email }}</span>
-                </span>
-                <i class="pi text-xs" [class.pi-check-circle]="isSelected(u)" [class.text-indigo-600]="isSelected(u)" [class.pi-plus]="!isSelected(u)" [class.text-slate-300]="!isSelected(u)"></i>
               </button>
             }
           </div>
         </div>
+
+        <div class="px-5 py-3 border-t border-slate-200 dark:border-slate-700 flex justify-end">
+          <button (click)="closeNewGroup()" class="px-4 py-2 text-sm rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 transition">{{ 'Cancel' | translate }}</button>
+        </div>
+      }
+
+      <!-- Tab: Group Chat or Add Members -->
+      @if (isAddMemberMode() || chatModalTab() === 'group') {
+        <div class="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
+          @if (!isAddMemberMode()) {
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">{{ 'Group name *' | translate }}</label>
+              <input type="text" [(ngModel)]="newGroupName" [placeholder]="'e.g. Warehouse Team' | translate"
+                class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none">
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">{{ 'Description' | translate }}</label>
+              <input type="text" [(ngModel)]="newGroupDescription" [placeholder]="'What is this group about?' | translate"
+                class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none">
+            </div>
+          }
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">{{ 'Select members' | translate }}</label>
+
+            @if (selectedMembers().length > 0) {
+              <div class="flex flex-wrap gap-1.5 mb-2">
+                @for (u of selectedMembers(); track u.id) {
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">
+                    {{ u.displayName || u.userName }}
+                    <button (click)="removeSelected(u)" class="hover:text-rose-600"><i class="pi pi-times text-[9px]"></i></button>
+                  </span>
+                }
+              </div>
+            }
+
+            <div class="relative">
+              <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+              <input type="text" [(ngModel)]="memberQuery" (ngModelChange)="searchUsers()" [placeholder]="'Search users by name or email...' | translate"
+                class="w-full pl-8 pr-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none">
+            </div>
+
+            <div class="mt-2 border border-slate-200 dark:border-slate-700 rounded-lg max-h-56 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700">
+              @if (memberResults().length === 0) {
+                <p class="p-4 text-center text-xs text-slate-400">{{ 'No users found.' | translate }}</p>
+              }
+              @for (u of memberResults(); track u.id) {
+                <button (click)="toggleMember(u)"
+                  [ngClass]="{ 'bg-indigo-50 dark:bg-indigo-950/50': isSelected(u) }"
+                  class="w-full px-3 py-2 flex items-center gap-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
+                  <span class="w-7 h-7 rounded-full bg-slate-300 dark:bg-slate-600 flex items-center justify-center text-[10px] font-bold text-slate-700 dark:text-slate-200 shrink-0">
+                    {{ senderInitials(u.displayName || u.userName) }}
+                  </span>
+                  <span class="min-w-0 flex-1">
+                    <span class="block text-sm font-medium text-slate-900 dark:text-white truncate">{{ u.displayName || u.userName }}</span>
+                    <span class="block text-[11px] text-slate-400 truncate">{{ u.email }}</span>
+                  </span>
+                  <i class="pi text-xs" [class.pi-check-circle]="isSelected(u)" [class.text-indigo-600]="isSelected(u)" [class.pi-plus]="!isSelected(u)" [class.text-slate-300]="!isSelected(u)"></i>
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="px-5 py-3 border-t border-slate-200 dark:border-slate-700 flex justify-end gap-2">
+          <button (click)="closeNewGroup()" class="px-4 py-2 text-sm rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 transition">{{ 'Cancel' | translate }}</button>
+          <button (click)="confirmGroupDialog()"
+            class="px-4 py-2 text-sm font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition">
+            {{ isAddMemberMode() ? ('Add Selected' | translate) : ('Create Group' | translate) }}
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+<!-- ================= AI Summary Dialog ================= -->
+@if (showSummaryModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" (click)="closeSummaryModal()">
+    <div class="w-full max-w-lg bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col" (click)="$event.stopPropagation()">
+      <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-purple-50/50 dark:bg-purple-950/20">
+        <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <i class="pi pi-sparkles text-purple-600 dark:text-purple-400"></i> {{ 'ERP AI Conversation Summary' | translate }}
+        </h3>
+        <button (click)="closeSummaryModal()" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times"></i></button>
+      </div>
+
+      <div class="p-5 max-h-[70vh] overflow-y-auto">
+        @if (isSummarizing()) {
+          <div class="py-12 flex flex-col items-center justify-center text-center space-y-3">
+            <div class="w-10 h-10 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+            <p class="text-sm font-medium text-slate-600 dark:text-slate-300">{{ 'Analyzing conversation history with AI...' | translate }}</p>
+          </div>
+        } @else if (conversationSummary()) {
+          <div class="prose dark:prose-invert text-sm text-slate-700 dark:text-slate-200 whitespace-pre-wrap leading-relaxed bg-slate-50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+            {{ conversationSummary() }}
+          </div>
+        }
+      </div>
+
+      <div class="px-5 py-3 border-t border-slate-200 dark:border-slate-700 flex justify-end">
+        <button (click)="closeSummaryModal()" class="px-4 py-2 text-sm font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition">
+          {{ 'Close' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ================= Share ERP Record Dialog ================= -->
+@if (showShareRecordModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" (click)="closeShareRecordModal()">
+    <div class="w-full max-w-lg bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col" (click)="$event.stopPropagation()">
+      <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+        <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <i class="pi pi-briefcase text-indigo-600 dark:text-indigo-400"></i> {{ 'Share ERP Record Card' | translate }}
+        </h3>
+        <button (click)="closeShareRecordModal()" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times"></i></button>
+      </div>
+
+      <div class="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
+        <!-- Preset Type Selector -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">{{ 'Record Type' | translate }}</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" (click)="selectCardPreset('order')"
+              [ngClass]="{ 'border-indigo-600 bg-indigo-50 dark:bg-indigo-950/40': cardForm.type === 'order' }"
+              class="p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 text-left text-xs font-medium hover:border-indigo-400 transition flex items-center gap-2">
+              <i class="pi pi-shopping-bag text-indigo-600"></i> {{ 'Sales Order' | translate }}
+            </button>
+            <button type="button" (click)="selectCardPreset('invoice')"
+              [ngClass]="{ 'border-indigo-600 bg-indigo-50 dark:bg-indigo-950/40': cardForm.type === 'invoice' }"
+              class="p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 text-left text-xs font-medium hover:border-indigo-400 transition flex items-center gap-2">
+              <i class="pi pi-file text-emerald-600"></i> {{ 'Customer Invoice' | translate }}
+            </button>
+            <button type="button" (click)="selectCardPreset('requisition')"
+              [ngClass]="{ 'border-indigo-600 bg-indigo-50 dark:bg-indigo-950/40': cardForm.type === 'requisition' }"
+              class="p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 text-left text-xs font-medium hover:border-indigo-400 transition flex items-center gap-2">
+              <i class="pi pi-list-check text-indigo-600"></i> {{ 'Purchase Requisition' | translate }}
+            </button>
+            <button type="button" (click)="selectCardPreset('product')"
+              [ngClass]="{ 'border-indigo-600 bg-indigo-50 dark:bg-indigo-950/40': cardForm.type === 'product' }"
+              class="p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 text-left text-xs font-medium hover:border-indigo-400 transition flex items-center gap-2">
+              <i class="pi pi-box text-blue-600"></i> {{ 'Inventory Item' | translate }}
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">{{ 'Record Code / Number *' | translate }}</label>
+          <input type="text" [(ngModel)]="cardForm.code" [placeholder]="'e.g. SO-8841' | translate"
+            class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">{{ 'Title *' | translate }}</label>
+          <input type="text" [(ngModel)]="cardForm.title" [placeholder]="'e.g. Enterprise Software License' | translate"
+            class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">{{ 'Status' | translate }}</label>
+            <input type="text" [(ngModel)]="cardForm.status" [placeholder]="'e.g. Pending Approval' | translate"
+              class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">{{ 'Amount / Value' | translate }}</label>
+            <input type="text" [(ngModel)]="cardForm.amount" [placeholder]="'e.g. $14,500.00' | translate"
+              class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">{{ 'Subtitle / Department / Customer' | translate }}</label>
+          <input type="text" [(ngModel)]="cardForm.subtitle" [placeholder]="'e.g. Customer: Global Tech' | translate"
+            class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
       </div>
 
       <div class="px-5 py-3 border-t border-slate-200 dark:border-slate-700 flex justify-end gap-2">
-        <button (click)="closeNewGroup()" class="px-4 py-2 text-sm rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 transition">{{ 'Cancel' | translate }}</button>
-        <button (click)="confirmGroupDialog()" class="px-4 py-2 text-sm font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition">
-          {{ isAddMemberMode() ? ('Add members' | translate) : ('Create group' | translate) }}
+        <button (click)="closeShareRecordModal()" class="px-4 py-2 text-sm rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 transition">
+          {{ 'Cancel' | translate }}
+        </button>
+        <button (click)="submitShareRecord()" class="px-4 py-2 text-sm font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition flex items-center gap-1.5">
+          <i class="pi pi-send text-xs"></i> {{ 'Share to Chat' | translate }}
         </button>
       </div>
+    </div>
+  </div>
+}
+
+<!-- ================= Image Preview Lightbox Modal ================= -->
+@if (previewImageUrl()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" (click)="closeImagePreview()">
+    <div class="relative max-w-4xl max-h-[90vh] flex flex-col items-center" (click)="$event.stopPropagation()">
+      <button (click)="closeImagePreview()" class="absolute -top-10 right-0 text-white hover:text-slate-300 text-xl font-bold">
+        <i class="pi pi-times"></i>
+      </button>
+      <img [src]="previewImageUrl()" class="max-h-[85vh] max-w-full rounded-xl shadow-2xl object-contain">
     </div>
   </div>
 }

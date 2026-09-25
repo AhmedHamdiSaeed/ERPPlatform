@@ -1,0 +1,126 @@
+name: ERPPlatform CI (Continuous Integration)
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+  pull_request:
+    branches:
+      - main
+      - master
+      - develop
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ==========================================
+  # 1. Backend Build & Test (.NET 9 / ABP)
+  # ==========================================
+  backend-ci:
+    name: Backend Build & Unit Tests (.NET 9)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9.0 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Cache NuGet Packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', 'NuGet.Config', 'ERPPlatform.slnx') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore NuGet Dependencies
+        run: dotnet restore ERPPlatform.slnx
+
+      - name: Build .NET Solution (Release)
+        run: dotnet build ERPPlatform.slnx --configuration Release --no-restore
+
+      - name: Execute Unit & Integration Tests
+        run: dotnet test ERPPlatform.slnx --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test_results.trx"
+
+      - name: Upload Test Results Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dotnet-test-results
+          path: '**/TestResults/*.trx'
+          if-no-files-found: ignore
+
+  # ==========================================
+  # 2. Frontend Build (Angular 18 / Node 20)
+  # ==========================================
+  frontend-ci:
+    name: Frontend Build (Angular 18)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'angular/package-lock.json'
+
+      - name: Install Frontend Dependencies
+        working-directory: ./angular
+        run: npm ci --legacy-peer-deps
+
+      - name: Compile & Build Angular Application
+        working-directory: ./angular
+        run: npm run build -- --configuration=production
+
+      - name: Upload Angular Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: angular-dist
+          path: './angular/dist/ERPPlatform'
+          retention-days: 7
+
+  # ==========================================
+  # 3. Dockerfile Syntax & Build Verification
+  # ==========================================
+  docker-validation:
+    name: Docker Build Validation
+    runs-on: ubuntu-latest
+    needs: [backend-ci, frontend-ci]
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Validate Backend Dockerfile
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.backend
+          push: false
+          load: false
+          tags: erpplatform-backend:ci-check
+
+      - name: Validate Angular Dockerfile
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.angular
+          push: false
+          load: false
+          tags: erpplatform-frontend:ci-check

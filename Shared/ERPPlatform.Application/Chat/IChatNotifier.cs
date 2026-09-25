@@ -14,6 +14,8 @@ public interface IChatNotifier
 
     Task NotifyMessageEditedAsync(ChatMessageDto message);
 
+    Task NotifyMessagePinnedAsync(Guid conversationId, ChatMessageDto message);
+
     Task NotifyMessageDeletedAsync(Guid conversationId, Guid messageId);
 
     Task NotifyReactionAsync(Guid conversationId, ChatMessageDto message);

@@ -181,7 +181,7 @@ namespace ERPPlatform.Modules.AI.Application
                     answer = await _aiProvider.CompleteAsync(llmMessages, _options, CancellationToken.None);
                     if (string.IsNullOrWhiteSpace(answer))
                     {
-                        answer = FallbackAnswer(input.Prompt);
+                        answer = FallbackAnswer(input.Prompt ?? string.Empty);
                     }
                 }
                 catch (Exception ex)
@@ -189,7 +189,7 @@ namespace ERPPlatform.Modules.AI.Application
                     _logger.LogWarning(ex, "AI provider call failed; returning deterministic fallback.");
                     var isArabic = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.Equals("ar", StringComparison.OrdinalIgnoreCase)
                                    || Regex.IsMatch(input.Prompt ?? string.Empty, @"[\u0600-\u06FF]");
-                    answer = FallbackAnswer(input.Prompt) +
+                    answer = FallbackAnswer(input.Prompt ?? string.Empty) +
                              (isArabic
                                  ? "\n\n(ملاحظة: تعذر الاتصال بمزود الذكاء الاصطناعي المباشر، لذا تم تقديم هذه الاستجابة الافتراضية بناءً على المؤشرات الفورية.)"
                                  : "\n\n(Note: the live model was unreachable, so this is a static fallback response.)");
@@ -197,7 +197,7 @@ namespace ERPPlatform.Modules.AI.Application
             }
             else
             {
-                answer = FallbackAnswer(input.Prompt);
+                answer = FallbackAnswer(input.Prompt ?? string.Empty);
             }
 
             string workflowJson = ExtractWorkflowJson(ref answer, input.Prompt);

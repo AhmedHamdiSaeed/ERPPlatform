@@ -381,6 +381,13 @@ export type WorkflowNodeType =
   | 'webhook' 
   | 'api_request' 
   | 'ai' 
+  | 'parallel-fork'
+  | 'parallel-join'
+  | 'sub-workflow'
+  | 'for-each'
+  | 'cron-trigger'
+  | 'entity-cdc'
+  | 'webhook-trigger'
   | 'end';
 
 export interface WorkflowNode {
@@ -402,15 +409,62 @@ export interface WorkflowConnection {
 
 export interface WorkflowDefinition {
   id: string;
+  code?: string;
   name: string;
   description: string;
-  version: string;
-  triggerType: 'Manual' | 'Schedule' | 'Entity Created' | 'Entity Updated' | 'Webhook';
-  status: 'Published' | 'Draft' | 'Archived';
+  version: string | number;
+  isActiveVersion?: boolean;
+  parentDefinitionId?: string;
+  versionNotes?: string;
+  triggerType: 'Manual' | 'Schedule' | 'Entity Created' | 'Entity Updated' | 'Webhook' | 'Cron' | 'EntityCdc' | string;
+  executionMode?: 'Sequential' | 'Parallel' | 'EventDriven' | string;
+  slaHours?: number;
+  webhookSecret?: string;
+  cronExpression?: string;
+  cdcEntityName?: string;
+  cdcEvent?: string;
+  status: 'Published' | 'Draft' | 'Archived' | 'Active';
   createdBy: string;
   createdDate: string;
   nodes: WorkflowNode[];
   connections: WorkflowConnection[];
+}
+
+export interface WorkflowVersionDto {
+  id: string;
+  version: number;
+  code: string;
+  name: string;
+  status: string;
+  isActiveVersion: boolean;
+  versionNotes: string;
+  creationTime: string;
+}
+
+export interface WorkflowDiffResult {
+  isIdentical: boolean;
+  addedNodes: string[];
+  removedNodes: string[];
+  modifiedNodes: string[];
+  addedConnections: string[];
+  removedConnections: string[];
+}
+
+export interface WorkflowNodeHeatmap {
+  nodeId: string;
+  nodeName: string;
+  executionCount: number;
+  avgDurationMinutes: number;
+  bottleneckScore: number;
+  latencySeverity: 'Normal' | 'Moderate' | 'High' | 'Critical';
+}
+
+export interface WorkflowHeatmapMetrics {
+  workflowId: string;
+  totalExecutions: number;
+  averageCompletionHours: number;
+  slaCompliancePercent: number;
+  nodes: WorkflowNodeHeatmap[];
 }
 
 export interface WorkflowTask {
@@ -419,10 +473,22 @@ export interface WorkflowTask {
   workflowName: string;
   requestedBy: string;
   requestedByAvatar: string;
-  type: 'Leave Request' | 'Purchase Order' | 'Stock Transfer' | 'Expense Approval';
+  type: 'Leave Request' | 'Purchase Order' | 'Stock Transfer' | 'Expense Approval' | string;
   details: string;
   createdDate: string;
-  status: 'Waiting Approval' | 'Approved' | 'Rejected' | 'Changes Requested';
+  dueDate?: string;
+  priority?: 'Low' | 'Normal' | 'High' | 'Urgent' | string;
+  stepOrder?: number;
+  assignedToRole?: string;
+  assignedToUserId?: string;
+  originalAssigneeId?: string;
+  delegatedFromUserId?: string;
+  isEscalated?: boolean;
+  escalatedToUserId?: string;
+  escalatedAt?: string;
+  actionToken?: string;
+  currentNodeId?: string;
+  status: 'Waiting Approval' | 'Approved' | 'Rejected' | 'Changes Requested' | 'Pending' | string;
   comments?: string[];
 }
 

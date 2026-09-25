@@ -1,138 +1,717 @@
-<div class="space-y-4 animate-fade-in pb-8">
-      
-      <!-- Top Action Toolbar -->
-      <div class="card-panel !p-3 flex flex-col md:flex-row md:items-center justify-between gap-3">
-        <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-lg font-bold">
-            <i class="pi pi-sitemap"></i>
-          </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <h1 class="text-sm font-extrabold text-[var(--text-main)]">{{ currentWorkflow()?.name }}</h1>
-              <span class="px-2 py-0.5 text-[9px] font-bold bg-indigo-100 text-indigo-700 rounded-full">{{ currentWorkflow()?.version }}</span>
-            </div>
-            <p class="text-[11px] text-[var(--text-muted)]">{{ currentWorkflow()?.description }}</p>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <button (click)="testWorkflow()" class="btn-outline text-xs">
-            <i class="pi pi-play text-emerald-600"></i> Test Workflow
-          </button>
-          <button (click)="saveWorkflow()" class="btn-primary text-xs cursor-pointer">
-            <i class="pi pi-save"></i> Publish Workflow
-          </button>
-        </div>
+<div class="space-y-4 animate-fade-in pb-12">
+  
+  <!-- ================= TOP ACTION TOOLBAR ================= -->
+  <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+    <div class="flex items-center gap-3 min-w-0">
+      <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-600 text-white flex items-center justify-center text-xl font-bold shrink-0 shadow-md">
+        <i class="pi pi-sitemap"></i>
       </div>
-
-      <!-- Main Visual Designer Studio Layout -->
-      <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
-        
-        <!-- Left: Node Palette Palette Sidebar -->
-        <div class="card-panel space-y-3 lg:col-span-1">
-          <h3 class="text-xs font-bold text-[var(--text-main)] border-b border-[var(--border-color)] pb-2">Available Workflow Nodes</h3>
-          <p class="text-[11px] text-[var(--text-muted)]">Click or drag any node to insert into canvas:</p>
-
-          <div class="space-y-2">
-            @for (palette of paletteItems; track palette.type) {
-              <div 
-                (click)="addNode(palette.type)"
-                class="p-2.5 rounded-xl border border-[var(--border-color)] hover:border-indigo-500 bg-slate-50/50 dark:bg-slate-800/50 cursor-pointer flex items-center gap-3 group transition-all">
-                <div [class]="palette.bg" class="w-7 h-7 rounded-lg flex items-center justify-center text-xs shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
-                  <i [class]="'pi ' + palette.icon"></i>
-                </div>
-                <div>
-                  <span class="text-xs font-bold text-[var(--text-main)] block group-hover:text-indigo-600">{{ palette.title }}</span>
-                  <span class="text-[10px] text-[var(--text-muted)] block">{{ palette.desc }}</span>
-                </div>
-              </div>
-            }
-          </div>
-        </div>
-
-        <!-- Center: Interactive Node Canvas Studio -->
-        <div class="card-panel lg:col-span-3 min-h-[500px] relative bg-slate-900/5 dark:bg-slate-950/40 rounded-2xl overflow-hidden border-2 border-dashed border-slate-300 dark:border-slate-800 p-6">
+      <div class="min-w-0">
+        <div class="flex items-center gap-2 flex-wrap">
+          <h1 class="text-base font-extrabold text-slate-900 dark:text-white truncate">
+            {{ currentWorkflow()?.name || ('Dynamic Workflow Studio' | translate) }}
+          </h1>
           
-          <!-- Canvas Grid Controls -->
-          <div class="absolute top-3 right-3 z-10 flex items-center gap-1.5 bg-[var(--bg-card)] p-1.5 rounded-xl shadow-md border border-[var(--border-color)] text-xs">
-            <button (click)="zoomIn()" class="p-1 hover:text-indigo-600"><i class="pi pi-plus"></i></button>
-            <span class="px-2 font-mono font-bold text-[10px] text-slate-500">{{ zoomLevel() }}%</span>
-            <button (click)="zoomOut()" class="p-1 hover:text-indigo-600"><i class="pi pi-minus"></i></button>
-            <div class="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-1"></div>
-            <button (click)="resetCanvas()" class="p-1 hover:text-indigo-600" title="Reset Layout"><i class="pi pi-refresh"></i></button>
+          <!-- Version Selector / Badge -->
+          <div class="flex items-center bg-indigo-50 dark:bg-indigo-950/70 border border-indigo-200 dark:border-indigo-800 rounded-lg px-2 py-0.5 gap-1.5 text-xs">
+            <span class="font-bold text-indigo-700 dark:text-indigo-300">{{ currentWorkflow()?.version || 'v1.0' }}</span>
+            <button (click)="createNewVersionBranch()" class="hover:text-indigo-900 dark:hover:text-indigo-100 transition" [title]="'Branch new version' | translate">
+              <i class="pi pi-plus-circle text-[10px]"></i>
+            </button>
           </div>
 
-          <!-- Canvas Nodes Render -->
-          <div class="relative w-full h-[450px] transition-transform origin-top-left" [style.transform]="'scale(' + zoomLevel() / 100 + ')'">
-            
-            <!-- Nodes -->
-            @if (currentWorkflow(); as wf) {
-              @for (node of wf.nodes; track node.id) {
-              <div 
-                (click)="selectedNode.set(node)"
-                [style.left.px]="node.x"
-                [style.top.px]="node.y"
-                [class.ring-2]="selectedNode()?.id === node.id"
-                class="absolute w-52 card-panel !p-3 cursor-move shadow-md hover:shadow-xl transition-all border-l-4"
-                [class.border-l-emerald-500]="node.type === 'trigger'"
-                [class.border-l-amber-500]="node.type === 'condition'"
-                [class.border-l-indigo-500]="node.type === 'approval'"
-                [class.border-l-blue-500]="node.type === 'notification'"
-                [class.border-l-slate-500]="node.type === 'end'">
-                
-                <div class="flex items-center justify-between mb-1">
-                  <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">{{ node.type }}</span>
-                  <button (click)="$event.stopPropagation(); removeNode(node.id)" class="text-slate-400 hover:text-rose-600"><i class="pi pi-times text-xs"></i></button>
-                </div>
+          <span class="px-2 py-0.5 text-[10px] font-bold rounded-full"
+            [ngClass]="currentWorkflow()?.status === 'Published' || currentWorkflow()?.status === 'Active' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300' : 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300'">
+            {{ currentWorkflow()?.status || 'Draft' }}
+          </span>
 
-                <h4 class="font-bold text-xs text-[var(--text-main)]">{{ node.title }}</h4>
-                <p class="text-[10px] text-[var(--text-muted)] mt-0.5 truncate">{{ node.subtitle || 'Click to configure node' }}</p>
+          <span class="px-2 py-0.5 text-[10px] font-medium bg-purple-100 dark:bg-purple-950/70 text-purple-700 dark:text-purple-300 rounded-full">
+            <i class="pi pi-bolt text-[9px] mr-0.5"></i> {{ currentWorkflow()?.triggerType || 'Manual' }}
+          </span>
 
-                <div class="mt-2 pt-1 border-t border-slate-100 dark:border-slate-700/50 flex justify-between items-center text-[9px] text-slate-400">
-                  <span>ID: {{ node.id }}</span>
-                  <span class="text-indigo-600 font-semibold">Connect →</span>
-                </div>
-              </div>
-              }
-            }
-            @else {
-              <div class="h-full flex items-center justify-center text-xs text-slate-400">
-                No workflow definitions found on the server. Add nodes and publish a new workflow.
-              </div>
-            }
-
-          </div>
-
+          @if (currentWorkflow()?.executionMode) {
+            <span class="px-2 py-0.5 text-[10px] font-medium bg-blue-100 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 rounded-full">
+              <i class="pi pi-sync text-[9px] mr-0.5"></i> {{ currentWorkflow()?.executionMode }}
+            </span>
+          }
         </div>
+        <p class="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
+          {{ currentWorkflow()?.description || ('Visual graph orchestration for enterprise business rules' | translate) }}
+        </p>
+      </div>
+    </div>
 
+    <!-- Actions & Automation Triggers -->
+    <div class="flex items-center gap-2 flex-wrap shrink-0">
+      
+      <!-- Heatmap Toggle Button -->
+      <button (click)="toggleHeatmapMode()"
+        [ngClass]="heatmapMode() ? 'bg-rose-600 text-white shadow-md shadow-rose-500/20' : 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/60 hover:bg-rose-100'"
+        class="px-3 py-2 text-xs font-semibold rounded-xl transition flex items-center gap-1.5 cursor-pointer">
+        <i class="pi pi-chart-bar text-xs" [class.animate-pulse]="heatmapMode()"></i>
+        {{ heatmapMode() ? ('🔥 Heatmap Mode Active' | translate) : ('Process Heatmap' | translate) }}
+      </button>
+
+      <!-- Schema Diff Inspector Trigger -->
+      <button (click)="openDiffModal()"
+        class="px-3 py-2 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition flex items-center gap-1.5">
+        <i class="pi pi-code text-xs"></i> {{ 'Schema Diff' | translate }}
+      </button>
+
+      <!-- AI Generator Trigger -->
+      <button (click)="openAiGenerator()"
+        class="px-3 py-2 text-xs font-semibold rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/50 transition flex items-center gap-1.5 shadow-xs">
+        <i class="pi pi-sparkles text-xs"></i> {{ 'AI Copilot' | translate }}
+      </button>
+
+      <!-- Pre-Built Templates Trigger -->
+      <button (click)="openTemplates()"
+        class="px-3 py-2 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition flex items-center gap-1.5">
+        <i class="pi pi-folder-open text-xs"></i> {{ 'Templates' | translate }}
+      </button>
+
+      <!-- Live Test Simulation -->
+      <button (click)="runLiveSimulation()" [disabled]="simulating()"
+        class="px-3.5 py-2 text-xs font-semibold rounded-xl border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 transition flex items-center gap-1.5 disabled:opacity-50">
+        <i class="pi pi-play text-xs text-emerald-600" [class.animate-spin]="simulating()"></i>
+        {{ simulating() ? ('Simulating...' | translate) : ('Test Workflow' | translate) }}
+      </button>
+
+      <!-- Publish to Engine -->
+      <button (click)="saveWorkflow()"
+        class="px-4 py-2 text-xs font-bold rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 shadow-md shadow-indigo-500/20 transition flex items-center gap-1.5 cursor-pointer">
+        <i class="pi pi-cloud-upload text-xs"></i> {{ 'Publish to Engine' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Heatmap Notification Banner -->
+  @if (heatmapMode() && heatmapMetrics(); as metrics) {
+    <div class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-rose-500/10 via-amber-500/10 to-indigo-500/10 border border-rose-300 dark:border-rose-800 text-xs font-semibold text-slate-800 dark:text-slate-200 flex items-center justify-between flex-wrap gap-2">
+      <div class="flex items-center gap-3">
+        <span class="px-2 py-0.5 bg-rose-600 text-white rounded font-bold text-[10px]">HEATMAP ACTIVE</span>
+        <span>Total Executions: <strong>{{ metrics.totalExecutions }}</strong></span>
+        <span>•</span>
+        <span>Avg Cycle Time: <strong>{{ metrics.averageCompletionHours }} hrs</strong></span>
+        <span>•</span>
+        <span>SLA Compliance: <strong class="text-emerald-600">{{ metrics.slaCompliancePercent }}%</strong></span>
+      </div>
+      <button (click)="toggleHeatmapMode()" class="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:opacity-80">
+        {{ 'Exit Heatmap' | translate }}
+      </button>
+    </div>
+  }
+
+  <!-- Connecting Notification Banner -->
+  @if (linkingFromNodeId()) {
+    <div class="px-4 py-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-xs font-semibold text-amber-900 dark:text-amber-200 flex items-center justify-between animate-pulse">
+      <div class="flex items-center gap-2">
+        <i class="pi pi-link text-amber-600"></i>
+        <span>{{ 'Connection Mode Active: Click any target node on the canvas to link them together.' | translate }}</span>
+      </div>
+      <button (click)="linkingFromNodeId.set(null)" class="px-2 py-0.5 rounded bg-amber-200 dark:bg-amber-800 text-amber-900 dark:text-amber-100 hover:opacity-80">
+        {{ 'Cancel Link' | translate }}
+      </button>
+    </div>
+  }
+
+  <!-- ================= MAIN DESIGNER STUDIO ================= -->
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
+    
+    <!-- LEFT: Node Palette Sidebar -->
+    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 space-y-3 lg:col-span-1">
+      <div class="border-b border-slate-200 dark:border-slate-700 pb-2 flex items-center justify-between">
+        <div>
+          <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">{{ 'Workflow Node Palette' | translate }}</h3>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{{ 'Click to add node to graph:' | translate }}</p>
+        </div>
+        <span class="text-[10px] font-mono text-slate-400 font-bold">{{ paletteItems.length }} Types</span>
       </div>
 
-      <!-- Node Properties Configuration Panel -->
-      @if (selectedNode()) {
-        <div class="card-panel space-y-3 border-indigo-200 dark:border-slate-700">
-          <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-2">
-            <h4 class="font-bold text-xs text-indigo-600">Configure Node: {{ selectedNode()?.title }}</h4>
-            <button (click)="selectedNode.set(null)" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times"></i></button>
+      <div class="space-y-1.5 max-h-[640px] overflow-y-auto pr-1">
+        @for (palette of paletteItems; track palette.type) {
+          <div (click)="addNode(palette.type)"
+            class="p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-indigo-500 dark:hover:border-indigo-400 bg-slate-50/70 dark:bg-slate-900/50 cursor-pointer flex items-center gap-2.5 group transition-all hover:shadow-sm">
+            <div [class]="palette.bg" class="w-7 h-7 rounded-lg flex items-center justify-center text-xs shrink-0 shadow-2xs group-hover:scale-110 transition-transform">
+              <i [class]="'pi ' + palette.icon"></i>
+            </div>
+            <div class="min-w-0 flex-1">
+              <span class="text-xs font-bold text-slate-900 dark:text-white block group-hover:text-indigo-600 dark:group-hover:text-indigo-400 truncate">{{ palette.title }}</span>
+              <span class="text-[9px] text-slate-500 dark:text-slate-400 block truncate">{{ palette.desc }}</span>
+            </div>
+            <i class="pi pi-plus text-slate-300 group-hover:text-indigo-600 text-xs transition"></i>
           </div>
+        }
+      </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+      <!-- Quick Canvas Legend -->
+      <div class="pt-2 border-t border-slate-200 dark:border-slate-700 text-[10px] text-slate-400 space-y-0.5">
+        <p class="font-semibold text-slate-500 dark:text-slate-300">{{ 'Shortcuts & Canvas Controls:' | translate }}</p>
+        <p>&bull; {{ 'Drag node headers to rearrange positions freely.' | translate }}</p>
+        <p>&bull; {{ 'Click "Connect" to draw directional Bezier curves.' | translate }}</p>
+        <p>&bull; {{ 'Click any connection tag to remove the branch.' | translate }}</p>
+      </div>
+    </div>
+
+    <!-- CENTER: Visual Graph Studio Canvas -->
+    <div class="lg:col-span-3 bg-slate-50 dark:bg-slate-900/60 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700/80 shadow-sm relative min-h-[660px] overflow-hidden p-6 select-none"
+      (mousemove)="onCanvasMouseMove($event)"
+      (mouseup)="onCanvasMouseUp()">
+      
+      <!-- Canvas Zoom & Grid Controls -->
+      <div class="absolute top-4 right-4 z-20 flex items-center gap-1.5 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md p-1.5 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 text-xs">
+        <button (click)="zoomIn()" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition" [title]="'Zoom In' | translate">
+          <i class="pi pi-plus text-xs"></i>
+        </button>
+        <span class="px-2 font-mono font-bold text-[11px] text-slate-700 dark:text-slate-200">{{ zoomLevel() }}%</span>
+        <button (click)="zoomOut()" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition" [title]="'Zoom Out' | translate">
+          <i class="pi pi-minus text-xs"></i>
+        </button>
+        <div class="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-1"></div>
+        <button (click)="resetCanvas()" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition" [title]="'Reset Layout' | translate">
+          <i class="pi pi-refresh text-xs"></i>
+        </button>
+      </div>
+
+      <!-- Graph Stage -->
+      <div class="relative w-full h-[600px] transition-transform origin-top-left"
+        [style.transform]="'scale(' + zoomLevel() / 100 + ')'">
+        
+        <!-- SVG Interactive Bezier Curves Layer -->
+        @if (currentWorkflow(); as wf) {
+          <svg class="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-visible">
+            <defs>
+              <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                <polygon points="0 0, 10 3.5, 0 7" fill="#6366f1" />
+              </marker>
+              <marker id="arrowhead-amber" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                <polygon points="0 0, 10 3.5, 0 7" fill="#f59e0b" />
+              </marker>
+            </defs>
+
+            @for (conn of wf.connections; track conn.id) {
+              <!-- Bezier Curve Line -->
+              <path [attr.d]="getConnectionPath(conn)"
+                fill="none"
+                stroke="#6366f1"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                marker-end="url(#arrowhead)"
+                [class.stroke-amber-500]="conn.label === 'True' || conn.label?.includes('>')"
+                [class.stroke-purple-500]="conn.label === 'Approved'"
+                [class.stroke-orange-500]="conn.label === 'Fork' || conn.label === 'Join'"
+                [class.stroke-slate-400]="!conn.label"
+                [class.animate-pulse]="simulating()"
+                class="transition-all duration-300 hover:stroke-rose-500" />
+            }
+          </svg>
+
+          <!-- Interactive Connection Labels Overlay (HTML Layer) -->
+          @for (conn of wf.connections; track conn.id) {
+            @if (getConnectionMidpoint(conn); as pt) {
+              <div [style.left.px]="pt.x - 30"
+                [style.top.px]="pt.y - 12"
+                (click)="removeConnection(conn.id, $event)"
+                class="absolute z-10 px-2 py-0.5 rounded-full text-[10px] font-bold bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 shadow-sm cursor-pointer hover:bg-rose-50 hover:border-rose-400 hover:text-rose-600 transition flex items-center gap-1 group">
+                <span>{{ conn.label || 'Link' }}</span>
+                <i class="pi pi-times text-[8px] opacity-0 group-hover:opacity-100 transition"></i>
+              </div>
+            }
+          }
+
+          <!-- Workflow Node Cards -->
+          @for (node of wf.nodes; track node.id) {
+            <div (click)="onNodeClick(node)"
+              (mousedown)="onNodeMouseDown(node, $event)"
+              [style.left.px]="node.x"
+              [style.top.px]="node.y"
+              [ngClass]="{
+                'ring-2 ring-indigo-500 shadow-xl': selectedNode()?.id === node.id,
+                'ring-4 ring-emerald-500 shadow-2xl scale-105': activeSimStepNodeId() === node.id,
+                'ring-2 ring-amber-400': linkingFromNodeId() === node.id,
+                'ring-2 ring-rose-500 shadow-rose-500/20': heatmapMode() && (getNodeHeatmap(node.id)?.bottleneckScore ?? 0) > 75
+              }"
+              class="absolute w-[225px] bg-white dark:bg-slate-800 rounded-2xl p-3 cursor-move shadow-md hover:shadow-xl transition-all border-l-4 border border-slate-200 dark:border-slate-700 z-10 select-none"
+              [class.border-l-emerald-500]="node.type === 'trigger'"
+              [class.border-l-teal-500]="node.type === 'cron-trigger'"
+              [class.border-l-green-500]="node.type === 'entity-cdc'"
+              [class.border-l-cyan-500]="node.type === 'webhook-trigger' || node.type === 'webhook'"
+              [class.border-l-amber-500]="node.type === 'condition'"
+              [class.border-l-orange-500]="node.type === 'parallel-fork'"
+              [class.border-l-amber-600]="node.type === 'parallel-join'"
+              [class.border-l-lime-500]="node.type === 'for-each'"
+              [class.border-l-indigo-500]="node.type === 'approval'"
+              [class.border-l-purple-500]="node.type === 'action'"
+              [class.border-l-violet-500]="node.type === 'sub-workflow'"
+              [class.border-l-blue-500]="node.type === 'notification'"
+              [class.border-l-fuchsia-500]="node.type === 'ai'"
+              [class.border-l-slate-500]="node.type === 'end'">
+              
+              <!-- Card Header -->
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-[9px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded"
+                  [ngClass]="{
+                    'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300': node.type === 'trigger',
+                    'bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300': node.type === 'cron-trigger',
+                    'bg-green-50 text-green-700 dark:bg-green-950/60 dark:text-green-300': node.type === 'entity-cdc',
+                    'bg-cyan-50 text-cyan-700 dark:bg-cyan-950/60 dark:text-cyan-300': node.type === 'webhook-trigger' || node.type === 'webhook',
+                    'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300': node.type === 'condition',
+                    'bg-orange-50 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300': node.type === 'parallel-fork',
+                    'bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-200': node.type === 'parallel-join',
+                    'bg-lime-50 text-lime-700 dark:bg-lime-950/60 dark:text-lime-300': node.type === 'for-each',
+                    'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300': node.type === 'approval',
+                    'bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300': node.type === 'action',
+                    'bg-violet-50 text-violet-700 dark:bg-violet-950/60 dark:text-violet-300': node.type === 'sub-workflow',
+                    'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300': node.type === 'notification',
+                    'bg-fuchsia-50 text-fuchsia-700 dark:bg-fuchsia-950/60 dark:text-fuchsia-300': node.type === 'ai',
+                    'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200': node.type === 'end'
+                  }">
+                  {{ node.type }}
+                </span>
+
+                <button (click)="$event.stopPropagation(); removeNode(node.id)"
+                  class="text-slate-400 hover:text-rose-600 transition p-0.5 rounded" [title]="'Delete Node' | translate">
+                  <i class="pi pi-times text-xs"></i>
+                </button>
+              </div>
+
+              <h4 class="font-bold text-xs text-slate-900 dark:text-white truncate">{{ node.title }}</h4>
+              <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">{{ node.subtitle || 'Click to configure node' }}</p>
+
+              <!-- Heatmap Overlay Indicator -->
+              @if (heatmapMode()) {
+                @if (getNodeHeatmap(node.id); as hm) {
+                  <div class="mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-[9px] font-bold">
+                    <span class="text-slate-500">{{ hm.avgDurationMinutes }} min avg</span>
+                    <span [class.text-rose-600]="hm.bottleneckScore > 75" [class.text-amber-600]="hm.bottleneckScore > 40 && hm.bottleneckScore <= 75" [class.text-emerald-600]="hm.bottleneckScore <= 40">
+                      {{ hm.bottleneckScore > 75 ? '⚡ Bottleneck' : '✓ Normal' }} ({{ hm.bottleneckScore }}%)
+                    </span>
+                  </div>
+                }
+              }
+
+              <!-- Port Connection Bar -->
+              <div class="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-[10px]">
+                <span class="text-slate-400 font-mono text-[9px]">{{ node.id }}</span>
+                <button (click)="startConnecting(node.id, $event)"
+                  [ngClass]="linkingFromNodeId() === node.id ? 'bg-amber-500 text-white' : 'bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 hover:bg-indigo-600 hover:text-white'"
+                  class="px-2 py-0.5 rounded-md font-bold transition flex items-center gap-1">
+                  <i class="pi pi-link text-[8px]"></i>
+                  {{ linkingFromNodeId() === node.id ? ('Armed' | translate) : ('Connect' | translate) }}
+                </button>
+              </div>
+            </div>
+          }
+        } @else {
+          <div class="h-full flex flex-col items-center justify-center text-center p-8">
+            <i class="pi pi-sitemap text-4xl text-slate-300 dark:text-slate-600 mb-3"></i>
+            <p class="text-sm font-semibold text-slate-600 dark:text-slate-300">{{ 'No workflow canvas active' | translate }}</p>
+            <p class="text-xs text-slate-400 mt-1 max-w-sm">{{ 'Select a pre-built template or use the AI generator to create a dynamic workflow.' | translate }}</p>
+            <button (click)="openTemplates()" class="mt-4 px-4 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition">
+              {{ 'Browse Templates' | translate }}
+            </button>
+          </div>
+        }
+      </div>
+
+      <!-- Live Simulation Console -->
+      @if (simulating() || simulationLogs().length > 0) {
+        <div class="absolute bottom-4 left-4 right-4 z-20 bg-slate-950/90 backdrop-blur-md rounded-xl p-3 border border-slate-700 text-emerald-400 font-mono text-[11px] max-h-36 overflow-y-auto space-y-1 shadow-2xl">
+          <div class="flex items-center justify-between text-xs font-bold text-slate-300 border-b border-slate-800 pb-1 mb-1">
+            <span class="flex items-center gap-1.5"><i class="pi pi-terminal text-emerald-400"></i> {{ 'Simulation Execution Log' | translate }}</span>
+            <button (click)="simulationLogs.set([]); simulating.set(false)" class="text-slate-400 hover:text-white"><i class="pi pi-times"></i></button>
+          </div>
+          @for (log of simulationLogs(); track $index) {
+            <p>{{ log }}</p>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- ================= DEEP NODE CONFIGURATION DRAWER ================= -->
+  @if (selectedNode(); as node) {
+    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-indigo-200 dark:border-slate-700 shadow-lg p-5 space-y-4 animate-fade-in">
+      <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-indigo-600"></span>
+          <h3 class="font-bold text-sm text-slate-900 dark:text-white">
+            {{ 'Configure Step:' | translate }} <span class="text-indigo-600 dark:text-indigo-400">{{ node.title }}</span> ({{ node.type | uppercase }})
+          </h3>
+        </div>
+        <button (click)="selectedNode.set(null)" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition">
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">{{ 'Node Title *' | translate }}</label>
+          <input type="text" [(ngModel)]="node.title"
+            class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none" />
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">{{ 'Subtitle / Description' | translate }}</label>
+          <input type="text" [(ngModel)]="node.subtitle"
+            class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none" />
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">{{ 'Execution Mode' | translate }}</label>
+          <select [(ngModel)]="node.config!.executionMode"
+            class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none">
+            <option value="Synchronous">{{ 'Synchronous (Immediate)' | translate }}</option>
+            <option value="Asynchronous Queue">{{ 'Asynchronous Queue (Background)' | translate }}</option>
+            <option value="Parallel">{{ 'Parallel Branch Execution' | translate }}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Type-Specific Parameters -->
+      @if (node.type === 'cron-trigger') {
+        <div class="p-4 rounded-xl bg-teal-50/60 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-900/50 space-y-3">
+          <h4 class="font-bold text-xs text-teal-900 dark:text-teal-200 flex items-center gap-1.5">
+            <i class="pi pi-calendar"></i> {{ 'Cron Schedule Expression Configuration' | translate }}
+          </h4>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
             <div>
-              <label class="font-bold block mb-1">Node Title</label>
-              <input type="text" [(ngModel)]="selectedNode()!.title" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
+              <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">{{ 'Cron Expression (5-Fields)' | translate }}</label>
+              <input type="text" [(ngModel)]="node.config!.cronExpression" placeholder="0 0 * * *"
+                class="w-full px-3 py-2 text-sm font-mono rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white outline-none" />
             </div>
             <div>
-              <label class="font-bold block mb-1">Subtitle / Summary</label>
-              <input type="text" [(ngModel)]="selectedNode()!.subtitle" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg" />
-            </div>
-            <div>
-              <label class="font-bold block mb-1">Node Execution Mode</label>
-              <select class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border rounded-lg">
-                <option>Synchronous</option>
-                <option>Asynchronous Queue</option>
-              </select>
+              <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">{{ 'Schedule Timezone' | translate }}</label>
+              <input type="text" [(ngModel)]="node.config!.timezone" placeholder="UTC"
+                class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white outline-none" />
             </div>
           </div>
         </div>
       }
 
+      @if (node.type === 'entity-cdc') {
+        <div class="p-4 rounded-xl bg-green-50/60 dark:bg-green-950/30 border border-green-200 dark:border-green-900/50 space-y-3">
+          <h4 class="font-bold text-xs text-green-900 dark:text-green-200 flex items-center gap-1.5">
+            <i class="pi pi-database"></i> {{ 'Entity Change Data Capture (CDC) Trigger' | translate }}
+          </h4>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+            <div>
+              <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">{{ 'Target Entity' | translate }}</label>
+              <select [(ngModel)]="node.config!.targetEntity"
+                class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white outline-none">
+                <option value="PurchaseOrder">PurchaseOrder</option>
+                <option value="Invoice">Invoice</option>
+                <option value="LeaveRequest">LeaveRequest</option>
+                <option value="StockTransfer">StockTransfer</option>
+                <option value="Employee">Employee</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">{{ 'Database Event' | translate }}</label>
+              <select [(ngModel)]="node.config!.eventType"
+                class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white outline-none">
+                <option value="Created">On Created (Insert)</option>
+                <option value="Updated">On Updated (Modify)</option>
+                <option value="StatusChanged">On Status Changed</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">{{ 'Filter Criteria' | translate }}</label>
+              <input type="text" [(ngModel)]="node.config!.filterExpression" placeholder="e.g. Amount > 10000"
+                class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white outline-none" />
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (node.type === 'parallel-fork' || node.type === 'parallel-join') {
+        <div class="p-4 rounded-xl bg-orange-50/60 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-900/50 space-y-3">
+          <h4 class="font-bold text-xs text-orange-900 dark:text-orange-200 flex items-center gap-1.5">
+            <i class="pi pi-sitemap"></i> {{ 'Parallel Flow Gateway Policy' | translate }}
+          </h4>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            <div>
+              <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">{{ 'Synchronization Policy' | translate }}</label>
+              <select [(ngModel)]="node.config!.joinCondition"
+                class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white outline-none">
+                <option value="WaitAll">{{ 'Wait for ALL branches (AND Join)' | translate }}</option>
+                <option value="WaitFirst">{{ 'Continue on FIRST completed (OR Join)' | translate }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">{{ 'Branch Timeout (Minutes)' | translate }}</label>
+              <input type="number" [(ngModel)]="node.config!.timeoutMinutes"
+                class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white outline-none" />
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (node.type === 'for-each') {
+        <div class="p-4 rounded-xl bg-lime-50/60 dark:bg-lime-950/30 border border-lime-200 dark:border-lime-900/50 space-y-3">
+          <h4 class="font-bold text-xs text-lime-900 dark:text-lime-200 flex items-center gap-1.5">
+            <i class="pi pi-sync"></i> {{ 'Batch For-Each Iteration Policy' | translate }}
+          </h4>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            <div>
+              <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">{{ 'Array / Collection Property' | translate }}</label>
+              <input type="text" [(ngModel)]="node.config!.collectionProperty" placeholder="payload.items"
+                class="w-full px-3 py-2 text-sm font-mono rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white outline-none" />
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">{{ 'Item Loop Variable Name' | translate }}</label>
+              <input type="text" [(ngModel)]="node.config!.itemVariableName" placeholder="currentItem"
+                class="w-full px-3 py-2 text-sm font-mono rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white outline-none" />
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (node.type === 'condition') {
+        <div class="p-4 rounded-xl bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 space-y-3">
+          <h4 class="font-bold text-xs text-amber-900 dark:text-amber-200 flex items-center gap-1.5">
+            <i class="pi pi-filter"></i> {{ 'Condition Expression Builder' | translate }}
+          </h4>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+            <div>
+              <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">{{ 'Target Field' | translate }}</label>
+              <input type="text" [(ngModel)]="node.config!.field" [placeholder]="'e.g. Amount, Days, Department' | translate"
+                class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white outline-none" />
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">{{ 'Operator' | translate }}</label>
+              <select [(ngModel)]="node.config!.op"
+                class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white outline-none">
+                <option value=">">{{ 'Greater Than (>)' | translate }}</option>
+                <option value="<">{{ 'Less Than (<)' | translate }}</option>
+                <option value="==">{{ 'Equals (==)' | translate }}</option>
+                <option value="!=">{{ 'Not Equals (!=)' | translate }}</option>
+                <option value="contains">{{ 'Contains Text' | translate }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">{{ 'Comparison Value' | translate }}</label>
+              <input type="text" [(ngModel)]="node.config!.value" [placeholder]="'e.g. 5000' | translate"
+                class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white outline-none" />
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (node.type === 'approval') {
+        <div class="p-4 rounded-xl bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900/50 space-y-3">
+          <h4 class="font-bold text-xs text-indigo-900 dark:text-indigo-200 flex items-center gap-1.5">
+            <i class="pi pi-user-edit"></i> {{ 'Approval Sign-Off Policy, Delegation & 1-Click Email SLA' | translate }}
+          </h4>
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+            <div>
+              <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">{{ 'Assigned Role / Approver' | translate }}</label>
+              <select [(ngModel)]="node.config!.role"
+                class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white outline-none">
+                <option value="Manager">{{ 'Direct Line Manager' | translate }}</option>
+                <option value="HRManager">{{ 'HR Manager' | translate }}</option>
+                <option value="FinanceDirector">{{ 'Finance Director' | translate }}</option>
+                <option value="CFO">{{ 'CFO / Executive' | translate }}</option>
+                <option value="WarehouseManager">{{ 'Warehouse Supervisor' | translate }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">{{ 'Priority Level' | translate }}</label>
+              <select [(ngModel)]="node.config!.priority"
+                class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white outline-none">
+                <option value="Normal">{{ 'Normal' | translate }}</option>
+                <option value="High">{{ 'High' | translate }}</option>
+                <option value="Urgent">{{ 'Urgent' | translate }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-600 dark:text-slate-300 mb-1">{{ 'SLA Timeout (Hours)' | translate }}</label>
+              <input type="number" [(ngModel)]="node.config!.slaHours"
+                class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white outline-none" />
+            </div>
+            <div class="flex items-center gap-2 pt-6">
+              <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                <input type="checkbox" [(ngModel)]="node.config!.sendEmailActionLink" class="rounded text-indigo-600" />
+                <span class="font-semibold text-slate-700 dark:text-slate-300">1-Click Email Approval</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      }
     </div>
+  }
+</div>
+
+<!-- ================= SCHEMA DIFF MODAL ================= -->
+@if (showDiffModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" (click)="closeDiffModal()">
+    <div class="w-full max-w-2xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col" (click)="$event.stopPropagation()">
+      <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
+        <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <i class="pi pi-code text-indigo-600 dark:text-indigo-400"></i> {{ 'Workflow Schema Version Diff' | translate }}
+        </h3>
+        <button (click)="closeDiffModal()" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times"></i></button>
+      </div>
+
+      <div class="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
+        <div class="flex items-center gap-3">
+          <label class="text-xs font-bold text-slate-600 dark:text-slate-300">Compare with version:</label>
+          <select [(ngModel)]="diffTargetVersionId" (ngModelChange)="runVersionComparison()"
+            class="px-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white outline-none">
+            @for (v of versionsList(); track v.id) {
+              <option [value]="v.id">v{{ v.version }}.0 ({{ v.status }}) - {{ v.versionNotes || 'No notes' }}</option>
+            }
+          </select>
+        </div>
+
+        @if (isComparing()) {
+          <div class="py-8 text-center text-slate-400">
+            <i class="pi pi-spin pi-spinner text-xl mb-2 block"></i>
+            {{ 'Calculating difference...' | translate }}
+          </div>
+        } @else {
+          @if (diffResult(); as diff) {
+            @if (diff.isIdentical) {
+              <div class="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-xs font-semibold">
+                ✓ {{ 'Versions have identical node schemas and connections.' | translate }}
+              </div>
+            } @else {
+              <div class="space-y-3">
+                @if (diff.addedNodes.length > 0) {
+                  <div class="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 text-xs space-y-1">
+                    <h5 class="font-bold text-emerald-800 dark:text-emerald-300">+ Added Nodes</h5>
+                    @for (n of diff.addedNodes; track n) {
+                      <p class="font-mono text-emerald-700 dark:text-emerald-400">{{ n }}</p>
+                    }
+                  </div>
+                }
+                @if (diff.removedNodes.length > 0) {
+                  <div class="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 text-xs space-y-1">
+                    <h5 class="font-bold text-rose-800 dark:text-rose-300">- Removed Nodes</h5>
+                    @for (n of diff.removedNodes; track n) {
+                      <p class="font-mono text-rose-700 dark:text-rose-400">{{ n }}</p>
+                    }
+                  </div>
+                }
+                @if (diff.modifiedNodes.length > 0) {
+                  <div class="p-3 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900 text-xs space-y-1">
+                    <h5 class="font-bold text-indigo-800 dark:text-indigo-300">~ Schema / Layout Changes</h5>
+                    @for (n of diff.modifiedNodes; track n) {
+                      <p class="font-mono text-indigo-700 dark:text-indigo-400">{{ n }}</p>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          }
+        }
+      </div>
+
+      <div class="px-5 py-3 border-t border-slate-200 dark:border-slate-700 flex justify-end">
+        <button (click)="closeDiffModal()" class="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 transition">
+          {{ 'Close' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ================= AI WORKFLOW GENERATOR DIALOG ================= -->
+@if (showAiModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" (click)="closeAiGenerator()">
+    <div class="w-full max-w-xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col" (click)="$event.stopPropagation()">
+      <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-purple-50/50 dark:bg-purple-950/20">
+        <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <i class="pi pi-sparkles text-purple-600 dark:text-purple-400"></i> {{ 'AI Prompt-to-Workflow Generator' | translate }}
+        </h3>
+        <button (click)="closeAiGenerator()" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times"></i></button>
+      </div>
+
+      <div class="p-5 space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+            {{ 'Describe your business process in English or Arabic:' | translate }}
+          </label>
+          <textarea [(ngModel)]="aiPrompt" rows="4"
+            [placeholder]="'e.g. Create a 3-step purchase order workflow where orders over $5,000 require CFO approval, then post to General Ledger and email the supplier.' | translate"
+            class="w-full px-3 py-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 outline-none resize-none"></textarea>
+        </div>
+
+        <div class="space-y-1.5">
+          <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">{{ 'Quick Prompt Ideas:' | translate }}</p>
+          <div class="flex flex-wrap gap-1.5">
+            <button (click)="aiPrompt = 'Employee travel and expense reimbursement approval with Finance manager sign-off and direct GL posting'"
+              class="px-2.5 py-1 text-xs rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-purple-50 hover:text-purple-600 transition">
+              {{ 'Expense Reimbursement' | translate }}
+            </button>
+            <button (click)="aiPrompt = 'Low stock reorder alert with warehouse manager review, automated purchase requisition and supplier EDI webhook'"
+              class="px-2.5 py-1 text-xs rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-purple-50 hover:text-purple-600 transition">
+              {{ 'Inventory Stock Reorder' | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-5 py-3 border-t border-slate-200 dark:border-slate-700 flex justify-end gap-2">
+        <button (click)="closeAiGenerator()" class="px-4 py-2 text-sm rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 transition">
+          {{ 'Cancel' | translate }}
+        </button>
+        <button (click)="generateWorkflowWithAi()" [disabled]="!aiPrompt.trim() || isGeneratingAi()"
+          class="px-4 py-2 text-sm font-semibold rounded-lg bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 transition flex items-center gap-1.5">
+          <i class="pi pi-sparkles" [class.animate-spin]="isGeneratingAi()"></i>
+          {{ isGeneratingAi() ? ('Synthesizing...' | translate) : ('Generate Graph' | translate) }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ================= ENTERPRISE TEMPLATES MODAL ================= -->
+@if (showTemplatesModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" (click)="closeTemplates()">
+    <div class="w-full max-w-3xl bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col" (click)="$event.stopPropagation()">
+      <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+        <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <i class="pi pi-folder-open text-indigo-600 dark:text-indigo-400"></i> {{ 'Pre-Built Enterprise Workflow Templates' | translate }}
+        </h3>
+        <button (click)="closeTemplates()" class="text-slate-400 hover:text-slate-600"><i class="pi pi-times"></i></button>
+      </div>
+
+      <div class="p-5 max-h-[70vh] overflow-y-auto space-y-3">
+        @if (loadingTemplates()) {
+          <div class="py-12 text-center text-slate-400">
+            <i class="pi pi-spin pi-spinner text-2xl mb-2 block"></i>
+            {{ 'Loading templates...' | translate }}
+          </div>
+        } @else {
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            @for (tpl of templatesList(); track tpl.id) {
+              <div (click)="selectTemplate(tpl)"
+                class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-indigo-500 dark:hover:border-indigo-400 hover:shadow-md bg-slate-50/50 dark:bg-slate-900/50 cursor-pointer transition group">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">
+                    {{ tpl.category }}
+                  </span>
+                  <span class="text-xs text-slate-400 font-mono">{{ tpl.nodes.length }} {{ 'Nodes' | translate }}</span>
+                </div>
+                <h4 class="font-bold text-sm text-slate-900 dark:text-white group-hover:text-indigo-600 transition">{{ tpl.name }}</h4>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{{ tpl.description }}</p>
+                <div class="mt-3 pt-2 border-t border-slate-200 dark:border-slate-700/50 flex justify-end">
+                  <span class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 group-hover:translate-x-0.5 transition-transform inline-flex items-center gap-1">
+                    {{ 'Load Template' | translate }} <i class="pi pi-arrow-right text-[10px]"></i>
+                  </span>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="px-5 py-3 border-t border-slate-200 dark:border-slate-700 flex justify-end">
+        <button (click)="closeTemplates()" class="px-4 py-2 text-sm rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 transition">
+          {{ 'Close' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
